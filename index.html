@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#C1001F"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="C3 Encuentros"/>
+<meta name="description" content="Renfe Cercanías C3 – Calculadora de trenes encontrados"/>
+<title>C3 · Encuentros en Ruta</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#C1001F;
+  --red-dark:#8B0015;
+  --red-light:#FCE8EB;
+  --red-mid:#F4C0C8;
+  --white:#FFFFFF;
+  --off-white:#FDF6F7;
+  --text:#1A0005;
+  --text-mid:#5A2030;
+  --text-dim:#9A7080;
+  --border:#EAD0D5;
+  --card:#FFFFFF;
+  --green:#1A7A3C;
+  --orange:#C05000;
+  --blue:#0050A0;
+  --shadow:0 2px 12px rgba(193,0,31,.08);
+}
+body{background:var(--off-white);color:var(--text);font-family:'Helvetica Neue',Arial,sans-serif;min-height:100vh}
+
+/* ── Header ── */
+header{background:var(--red);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.header-inner{display:flex;align-items:center;gap:12px;padding:12px 16px;max-width:680px;margin:0 auto}
+.renfe-badge{background:#fff;color:var(--red);font-weight:900;font-size:13px;letter-spacing:.05em;padding:4px 9px;border-radius:4px}
+.header-text h1{font-size:15px;font-weight:700;color:#fff;letter-spacing:.04em}
+.header-text p{font-size:10px;color:rgba(255,255,255,.75);margin-top:1px;letter-spacing:.04em}
+.c3-badge{margin-left:auto;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);
+  color:#fff;font-weight:bold;font-size:12px;padding:4px 10px;border-radius:20px;letter-spacing:.04em;flex-shrink:0}
+
+/* ── Main ── */
+main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-direction:column;gap:12px}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+.card-title{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--red);margin-bottom:14px;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;
+  font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── Toggle buttons (day type) ── */
+.toggle-row{display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
+.toggle-btn{flex:1;padding:10px;border:none;background:transparent;color:var(--text-mid);
+  font-size:13px;font-family:inherit;cursor:pointer;font-weight:500;transition:all .15s}
+.toggle-btn.on{background:var(--red);color:#fff;font-weight:700}
+.toggle-btn:not(:last-child){border-right:1.5px solid var(--border)}
+
+/* ── Dropdowns ── */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label{font-size:11px;font-weight:600;color:var(--text-mid);letter-spacing:.04em}
+.field select{
+  width:100%;padding:11px 14px;border-radius:8px;border:1.5px solid var(--border);
+  background:#fff;color:var(--text);font-size:14px;font-family:inherit;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23C1001F' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  cursor:pointer;outline:none;
+}
+.field select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(193,0,31,.12)}
+.field select:disabled{background:#f5f0f1;color:var(--text-dim);cursor:not-allowed}
+
+/* ── Direction arrow ── */
+.dir-arrow{text-align:center;color:var(--red);font-size:20px;margin:-4px 0;line-height:1}
+
+/* ── Info chip ── */
+.info-chip{font-size:11px;color:var(--text-dim);background:var(--red-light);
+  border-radius:6px;padding:7px 12px;margin-top:4px;line-height:1.5}
+.info-chip strong{color:var(--red)}
+
+/* ── Calculate button ── */
+.calc-btn{width:100%;padding:14px;border-radius:10px;background:var(--red);border:none;
+  color:#fff;font-size:14px;font-weight:700;font-family:inherit;letter-spacing:.06em;
+  cursor:pointer;box-shadow:0 4px 14px rgba(193,0,31,.35);transition:all .15s}
+.calc-btn:active{opacity:.88;transform:scale(.99)}
+.calc-btn:disabled{background:#ccc;box-shadow:none;cursor:not-allowed}
+
+/* ── Summary strip ── */
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.s-cell{padding:12px 8px;text-align:center;background:#fff}
+.s-cell:not(:last-child){border-right:1px solid var(--border)}
+.s-n{font-size:20px;font-weight:800}
+.s-l{font-size:9px;color:var(--text-dim);letter-spacing:.1em;margin-top:3px;text-transform:uppercase}
+
+/* ── Visualizer ── */
+.viz-wrap{background:var(--red-light);border-radius:10px;padding:14px 12px;margin-bottom:14px}
+.viz-label-row{display:flex;justify-content:space-between;margin-bottom:8px}
+.viz-stn{font-size:10px;font-weight:700;color:var(--red-dark)}
+.viz-track-wrap{position:relative;height:24px;display:flex;align-items:center;margin-bottom:8px}
+.viz-line{position:absolute;left:0;right:0;height:3px;background:var(--red-mid);border-radius:2px}
+.viz-my-line{position:absolute;height:3px;background:var(--red);border-radius:2px;z-index:1}
+.viz-tick{position:absolute;width:2px;height:10px;background:rgba(193,0,31,.3);top:50%;transform:translateY(-50%)}
+.viz-dot{position:absolute;width:13px;height:13px;border-radius:50%;
+  top:50%;transform:translate(-50%,-50%);border:2.5px solid #fff;z-index:3;box-shadow:0 0 6px rgba(0,0,0,.2)}
+.viz-legend{display:flex;gap:14px;flex-wrap:wrap}
+.viz-legend span{font-size:10px;color:var(--text-mid);display:flex;align-items:center;gap:4px}
+.legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* ── Meet list ── */
+.meet-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.meet-row{display:flex;align-items:center;gap:10px;padding:11px 12px;
+  border-radius:8px;background:var(--off-white);border:1px solid var(--border)}
+.meet-color-bar{width:4px;height:36px;border-radius:3px;flex-shrink:0}
+.meet-body{flex:1;min-width:0}
+.meet-loc{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.meet-meta{font-size:10px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meet-time-wrap{text-align:right;flex-shrink:0}
+.meet-time{font-size:17px;font-weight:800;color:var(--green)}
+.meet-time-lbl{font-size:9px;color:var(--text-dim);letter-spacing:.06em;margin-top:1px}
+
+.empty{padding:24px;text-align:center;color:var(--text-dim);font-size:13px;
+  background:var(--off-white);border:1.5px dashed var(--border);border-radius:10px}
+
+.reset-btn{width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--border);
+  background:transparent;color:var(--text-mid);font-size:13px;font-family:inherit;cursor:pointer}
+
+/* ── Footer ── */
+footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);
+  letter-spacing:.06em;border-top:1px solid var(--border);background:#fff}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="renfe-badge">renfe</div>
+    <div class="header-text">
+      <h1>CERCANÍAS BILBAO</h1>
+      <p>Calculadora de Encuentros en Ruta</p>
+    </div>
+    <div class="c3-badge">C3</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ① Day type -->
+  <div class="card">
+    <div class="card-title"><span class="step-num">1</span>DÍA / DAY TYPE</div>
+    <div class="toggle-row">
+      <button class="toggle-btn on" id="btn-wd" onclick="setDay('weekday')">Lunes–Viernes</button>
+      <button class="toggle-btn" id="btn-we" onclick="setDay('weekend')">Sábado–Domingo</button>
+    </div>
+  </div>
+
+  <!-- ② Journey -->
+  <div class="card">
+    <div class="card-title"><span class="step-num">2</span>TRAYECTO / JOURNEY</div>
+    <div class="field">
+      <label>DESDE / FROM</label>
+      <select id="sel-from" onchange="onFromChange()">
+        <option value="">— Select station —</option>
+      </select>
+    </div>
+    <div class="dir-arrow">↓</div>
+    <div class="field" style="margin-top:10px">
+      <label>HASTA / TO</label>
+      <select id="sel-to" onchange="onToChange()">
+        <option value="">— Select station —</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ③ Train -->
+  <div class="card">
+    <div class="card-title"><span class="step-num">3</span>TREN / TRAIN</div>
+    <div class="field">
+      <label>HORA DE SALIDA / DEPARTURE TIME</label>
+      <select id="sel-time" onchange="onTimeChange()">
+        <option value="">— Choose from &amp; to first —</option>
+      </select>
+    </div>
+    <div id="train-info" style="display:none" class="info-chip"></div>
+    <button class="calc-btn" id="calc-btn" style="margin-top:14px;display:none" onclick="calculate()">
+      CALCULAR ENCUENTROS →
+    </button>
+  </div>
+
+  <!-- ④ Results -->
+  <div class="card" id="results-card" style="display:none">
+    <div class="card-title"><span class="step-num">4</span>ENCUENTROS / ENCOUNTERS</div>
+    <div id="results-inner"></div>
+  </div>
+
+</main>
+
+<footer>Renfe Cercanías C3 · Horario Enero 2025 · Posiciones aproximadas</footer>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function t(s){const[h,m]=s.split(":").map(Number);return h*60+m}
+function fixArr(d,a){return a<d?a+1440:a}
+function mk(pairs){return pairs.map(([d,a])=>({dep:t(d),arr:fixArr(t(d),t(a))}))}
+function fmt(mins){const m=((mins%1440)+1440)%1440;return`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`}
+
+// ── Stations (position 0=Orduña … 1=Abando) ──────────────────────────────────
+const P_LL=0.376;
+const STATIONS=[
+  {name:"Orduña",          pos:0.000, fullOnly:true},
+  {name:"Iñarratxu",       pos:0.100, fullOnly:true},
+  {name:"Amurrio",         pos:0.185, fullOnly:true},
+  {name:"Amurrio-Iparralde",pos:0.215,fullOnly:true},
+  {name:"Salbio",          pos:0.235, fullOnly:true},
+  {name:"Luiaondo",        pos:0.268, fullOnly:true},
+  {name:"Santa Cruz de Llodio",pos:0.310,fullOnly:true},
+  {name:"Llodio",          pos:P_LL,  fullOnly:false},
+  {name:"Areta",           pos:0.420, fullOnly:false},
+  {name:"Arakaldo",        pos:0.466, fullOnly:false},
+  {name:"Arbide",          pos:0.511, fullOnly:false},
+  {name:"Arrankudiaga",    pos:0.558, fullOnly:false},
+  {name:"Bakiola",         pos:0.580, fullOnly:false},
+  {name:"Ugao-Miraballes", pos:0.604, fullOnly:false},
+  {name:"Arrigorriaga",    pos:0.697, fullOnly:false},
+  {name:"Basauri",         pos:0.744, fullOnly:false},
+  {name:"Abaroa-San Miguel",pos:0.768,fullOnly:false},
+  {name:"Bidebieta",       pos:0.814, fullOnly:false},
+  {name:"Ollargan",        pos:0.882, fullOnly:false},
+  {name:"La Peña",         pos:0.906, fullOnly:false},
+  {name:"Miribilla",       pos:0.953, fullOnly:false},
+  {name:"Abando",          pos:1.000, fullOnly:false},
+];
+
+function segLabel(pos){
+  const s=[...STATIONS].sort((a,b)=>a.pos-b.pos);
+  for(let i=0;i<s.length-1;i++){
+    if(pos>=s[i].pos-.012&&pos<=s[i+1].pos+.012){
+      if(Math.abs(pos-s[i].pos)<.025)return s[i].name;
+      if(Math.abs(pos-s[i+1].pos)<.025)return s[i+1].name;
+      return`${s[i].name} ↔ ${s[i+1].name}`;
+    }
+  }
+  return s.reduce((b,x)=>Math.abs(x.pos-pos)<Math.abs(b.pos-pos)?x:b).name;
+}
+
+// ── Schedules ─────────────────────────────────────────────────────────────────
+const WD={
+  ordunaToAbando:mk([["05:01","06:02"],["05:31","06:32"],["06:12","07:17"],["06:34","07:35"],["07:01","08:02"],["07:29","08:30"],["08:01","09:02"],["08:31","09:32"],["09:01","10:02"],["09:31","10:32"],["10:01","11:02"],["10:31","11:32"],["11:00","12:01"],["11:30","12:31"],["12:01","13:02"],["12:31","13:32"],["13:04","14:05"],["13:31","14:32"],["13:59","15:00"],["14:34","15:35"],["15:06","16:07"],["15:33","16:34"],["16:03","17:04"],["16:38","17:39"],["17:01","18:02"],["17:38","18:39"],["18:01","19:02"],["18:38","19:39"],["19:01","20:02"],["19:31","20:32"],["20:01","21:02"],["20:30","21:31"],["21:05","22:06"],["21:24","22:25"],["21:55","22:56"],["22:24","23:25"],["22:45","23:46"],["23:05","00:06"]]),
+  abandoToOrduna:mk([["05:00","06:00"],["05:20","06:20"],["05:50","06:50"],["06:20","07:20"],["06:41","07:48"],["07:18","08:18"],["07:50","08:50"],["08:20","09:20"],["08:50","09:50"],["09:20","10:20"],["09:50","10:50"],["10:18","11:18"],["10:50","11:50"],["11:20","12:20"],["11:50","12:56"],["12:20","13:20"],["12:50","13:50"],["13:20","14:20"],["13:50","14:50"],["14:20","15:20"],["14:43","15:43"],["15:21","16:21"],["15:50","16:50"],["16:20","17:20"],["16:50","17:50"],["17:32","18:32"],["17:47","18:47"],["18:22","19:22"],["18:50","19:50"],["19:22","20:22"],["19:50","20:50"],["20:18","21:18"],["20:50","21:50"],["21:17","22:17"],["21:37","22:37"],["21:53","22:53"],["22:45","23:45"],["23:30","00:30"]]),
+  llodioToAbando:mk([["05:23","06:02"],["05:53","06:32"],["06:13","06:52"],["06:34","07:17"],["06:56","07:35"],["07:11","07:50"],["07:23","08:02"],["07:51","08:30"],["08:13","08:52"],["08:23","09:02"],["08:53","09:32"],["09:13","09:52"],["09:23","10:02"],["09:53","10:32"],["10:13","10:52"],["10:23","11:02"],["10:53","11:32"],["11:13","11:52"],["11:22","12:01"],["11:52","12:31"],["12:13","12:52"],["12:23","13:02"],["12:53","13:32"],["13:13","13:52"],["13:26","14:05"],["13:53","14:32"],["14:13","14:52"],["14:21","15:00"],["14:56","15:35"],["15:22","16:01"],["15:28","16:07"],["15:55","16:34"],["16:13","16:52"],["16:25","17:04"],["16:47","17:26"],["17:00","17:39"],["17:23","18:02"],["18:00","18:39"],["18:13","18:52"],["18:23","19:02"],["19:00","19:39"],["19:14","19:53"],["19:23","20:02"],["19:53","20:32"],["20:13","20:52"],["20:23","21:02"],["20:52","21:31"],["21:27","22:06"],["21:46","22:25"],["22:17","22:56"],["22:46","23:25"],["23:07","23:46"],["23:27","00:06"]]),
+  abandoToLlodio:mk([["05:00","05:37"],["05:20","05:57"],["05:30","06:08"],["05:50","06:27"],["06:00","06:38"],["06:20","06:57"],["06:41","07:25"],["07:04","07:42"],["07:18","07:55"],["07:50","08:27"],["08:00","08:38"],["08:20","08:57"],["08:50","09:27"],["09:00","09:38"],["09:20","09:57"],["09:50","10:27"],["10:00","10:38"],["10:18","10:55"],["10:50","11:27"],["11:00","11:38"],["11:20","11:57"],["11:50","12:33"],["12:02","12:40"],["12:20","12:57"],["12:50","13:27"],["13:00","13:38"],["13:20","13:57"],["13:50","14:27"],["14:00","14:38"],["14:20","14:57"],["14:43","15:20"],["15:06","15:44"],["15:21","15:58"],["15:50","16:27"],["16:03","16:41"],["16:20","16:57"],["16:50","17:27"],["17:08","17:46"],["17:32","18:09"],["17:47","18:24"],["18:08","18:46"],["18:22","18:59"],["18:50","19:27"],["19:00","19:38"],["19:22","19:59"],["19:50","20:27"],["20:18","20:55"],["20:50","21:27"],["21:17","21:54"],["21:37","22:14"],["21:53","22:30"],["22:45","23:22"],["23:30","00:07"]])
+};
+const WE={
+  ordunaToAbando:mk([["05:01","06:02"],["05:31","06:32"],["06:12","07:17"],["06:34","07:35"],["07:01","08:02"],["07:29","08:30"],["08:01","09:02"],["08:31","09:32"],["09:01","10:02"],["09:31","10:32"],["10:01","11:02"],["10:31","11:32"],["11:00","12:01"],["11:30","12:31"],["12:01","13:02"],["12:31","13:32"],["13:04","14:05"],["13:31","14:32"],["13:59","15:00"],["14:34","15:35"],["15:06","16:07"],["15:33","16:34"],["16:03","17:04"],["16:38","17:39"],["17:01","18:02"],["17:38","18:39"],["18:01","19:02"],["18:38","19:39"],["19:01","20:02"],["19:31","20:32"],["20:01","21:02"],["20:30","21:31"],["21:18","22:19"],["21:31","22:37"],["22:00","23:01"],["22:30","23:31"],["23:00","00:01"],["23:40","00:41"]]),
+  abandoToOrduna:mk([["05:00","06:00"],["05:20","06:20"],["05:50","06:50"],["06:20","07:20"],["06:41","07:48"],["07:18","08:18"],["07:50","08:50"],["08:20","09:20"],["08:50","09:50"],["09:20","10:20"],["09:50","10:50"],["10:18","11:18"],["10:50","11:50"],["11:20","12:20"],["11:50","12:56"],["12:20","13:20"],["12:50","13:50"],["13:20","14:20"],["13:50","14:50"],["14:20","15:20"],["14:43","15:43"],["15:21","16:21"],["15:50","16:50"],["16:20","17:20"],["16:50","17:50"],["17:32","18:32"],["17:47","18:47"],["18:22","19:22"],["18:50","19:50"],["19:22","20:22"],["19:50","20:50"],["20:20","21:20"],["20:50","21:50"],["21:20","22:20"],["21:48","22:48"],["22:30","23:30"],["23:28","00:28"]]),
+  llodioToAbando:mk([["05:23","06:02"],["05:53","06:32"],["06:34","07:17"],["06:56","07:35"],["07:23","08:02"],["07:51","08:30"],["08:23","09:02"],["08:53","09:32"],["09:23","10:02"],["09:53","10:32"],["10:23","11:02"],["10:53","11:32"],["11:22","12:01"],["11:52","12:31"],["12:23","13:02"],["12:53","13:32"],["13:26","14:05"],["13:53","14:32"],["14:21","15:00"],["14:56","15:35"],["15:28","16:07"],["15:55","16:34"],["16:25","17:04"],["17:00","17:39"],["17:23","18:02"],["18:00","18:39"],["18:23","19:02"],["19:00","19:39"],["19:23","20:02"],["19:53","20:32"],["20:23","21:02"],["20:52","21:31"],["21:40","22:19"],["21:53","22:37"],["22:22","23:01"],["22:52","23:31"],["23:22","00:01"],["00:02","00:41"]]),
+  abandoToLlodio:mk([["05:00","05:37"],["05:20","05:57"],["05:50","06:27"],["06:20","06:57"],["06:41","07:25"],["07:18","07:55"],["07:50","08:27"],["08:20","08:57"],["08:50","09:27"],["09:20","09:57"],["09:50","10:27"],["10:18","10:55"],["10:50","11:27"],["11:20","11:57"],["11:50","12:33"],["12:20","12:57"],["12:50","13:27"],["13:20","13:57"],["13:50","14:27"],["14:20","14:57"],["14:43","15:20"],["15:21","15:58"],["15:50","16:27"],["16:20","16:57"],["16:50","17:27"],["17:32","18:09"],["17:47","18:24"],["18:22","18:59"],["18:50","19:27"],["19:22","19:59"],["19:50","20:27"],["20:20","20:57"],["20:50","21:27"],["21:20","21:57"],["21:48","22:25"],["22:30","23:07"],["23:28","00:05"]])
+};
+
+// ── Time at an intermediate station by linear interpolation ───────────────────
+// trainType: "OA"=Orduña→Abando, "AO"=Abando→Orduña, "LA"=Llodio→Abando, "AL"=Abando→Llodio
+function timeAt(tr, type, pos){
+  const d=tr.dep, a=tr.arr, dur=a-d;
+  if(type==="OA") return d + dur*pos;               // pos 0→1
+  if(type==="AO") return d + dur*(1-pos);           // pos 1→0
+  if(type==="LA") return d + dur*(pos-P_LL)/(1-P_LL); // pos P_LL→1
+  if(type==="AL") return d + dur*(1-pos)/(1-P_LL); // pos 1→P_LL
+  return null;
+}
+
+// ── Get all trains serving fromPos→toPos, with interpolated times ─────────────
+function getAvailableTrains(fromPos, toPos, sched){
+  const toAbando = toPos > fromPos;  // direction
+  const trains=[];
+
+  if(toAbando){
+    // Full trains Orduña→Abando (serve all stations)
+    for(const tr of sched.ordunaToAbando){
+      const depT=timeAt(tr,"OA",fromPos), arrT=timeAt(tr,"OA",toPos);
+      trains.push({tr,type:"OA",depT,arrT,label:`${fmt(depT)} → ${fmt(arrT)} (Orduña→Abando)`});
+    }
+    // Short trains Llodio→Abando (only if fromPos >= P_LL)
+    if(fromPos>=P_LL-0.01){
+      for(const tr of sched.llodioToAbando){
+        const depT=timeAt(tr,"LA",fromPos), arrT=timeAt(tr,"LA",toPos);
+        trains.push({tr,type:"LA",depT,arrT,label:`${fmt(depT)} → ${fmt(arrT)} (Llodio→Abando)`});
+      }
+    }
+  } else {
+    // Full trains Abando→Orduña
+    for(const tr of sched.abandoToOrduna){
+      const depT=timeAt(tr,"AO",fromPos), arrT=timeAt(tr,"AO",toPos);
+      trains.push({tr,type:"AO",depT,arrT,label:`${fmt(depT)} → ${fmt(arrT)} (Abando→Orduña)`});
+    }
+    // Short trains Abando→Llodio (only if toPos >= P_LL)
+    if(toPos>=P_LL-0.01){
+      for(const tr of sched.abandoToLlodio){
+        const depT=timeAt(tr,"AL",fromPos), arrT=timeAt(tr,"AL",toPos);
+        trains.push({tr,type:"AL",depT,arrT,label:`${fmt(depT)} → ${fmt(arrT)} (Abando→Llodio)`});
+      }
+    }
+  }
+  // Sort by departure time
+  trains.sort((a,b)=>((a.depT%1440+1440)%1440)-((b.depT%1440+1440)%1440));
+  return trains;
+}
+
+// ── Meeting algorithm ─────────────────────────────────────────────────────────
+function meetPoint(myDep,myArr,myS,myE,thDep,thArr,thS,thE){
+  const md=myArr-myDep,td=thArr-thDep;
+  if(md<=0||td<=0)return null;
+  const sa=(myE-myS)/md,sb=(thE-thS)/td,den=sa-sb;
+  if(Math.abs(den)<1e-9)return null;
+  const T=(thS-myS+sa*myDep-sb*thDep)/den;
+  const pos=myS+sa*(T-myDep);
+  const EPS=.018;
+  if(T>=myDep-EPS&&T<=myArr+EPS&&T>=thDep-EPS&&T<=thArr+EPS
+    &&pos>=Math.min(myS,myE)-EPS&&pos<=Math.max(myS,myE)+EPS
+    &&pos>=Math.min(thS,thE)-EPS&&pos<=Math.max(thS,thE)+EPS)
+    return{time:T,pos};
+  return null;
+}
+
+function calcMeetings(myDepT,myArrT,myS,myE,sched){
+  const toAbando=myE>myS;
+  const meetings=[];
+
+  if(toAbando){
+    // Opposing: Abando→Orduña full
+    for(const tr of sched.abandoToOrduna){
+      const thDep=tr.dep,thArr=tr.arr;
+      const r=meetPoint(myDepT,myArrT,myS,myE,thDep,thArr,1,0);
+      if(r) meetings.push({kind:"→ Orduña",color:"#C05000",dep:fmt(thDep),arr:fmt(thArr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+    }
+    // Opposing: Abando→Llodio short
+    for(const tr of sched.abandoToLlodio){
+      const thDep=tr.dep,thArr=tr.arr;
+      const r=meetPoint(myDepT,myArrT,myS,myE,thDep,thArr,1,P_LL);
+      if(r) meetings.push({kind:"→ Llodio",color:"#0050A0",dep:fmt(thDep),arr:fmt(thArr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+    }
+  } else {
+    // Opposing: Orduña→Abando full
+    for(const tr of sched.ordunaToAbando){
+      const thDep=tr.dep,thArr=tr.arr;
+      const r=meetPoint(myDepT,myArrT,myS,myE,thDep,thArr,0,1);
+      if(r) meetings.push({kind:"→ Abando",color:"#C1001F",dep:fmt(thDep),arr:fmt(thArr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+    }
+    // Opposing: Llodio→Abando short
+    for(const tr of sched.llodioToAbando){
+      const thDep=tr.dep,thArr=tr.arr;
+      const r=meetPoint(myDepT,myArrT,myS,myE,thDep,thArr,P_LL,1);
+      if(r) meetings.push({kind:"→ Abando",color:"#8B3A3A",dep:fmt(thDep),arr:fmt(thArr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+    }
+  }
+
+  meetings.sort((a,b)=>{
+    const ta=((a.meetTime.split(":").reduce((s,v,i)=>s+(i===0?+v*60:+v),0))%1440+1440)%1440;
+    const tb=((b.meetTime.split(":").reduce((s,v,i)=>s+(i===0?+v*60:+v),0))%1440+1440)%1440;
+    return ta-tb;
+  });
+  return meetings;
+}
+
+// ── App state ─────────────────────────────────────────────────────────────────
+let dayType="weekday";
+let fromIdx=null, toIdx=null;
+let availableTrains=[], selTrainIdx=null;
+
+function sched(){return dayType==="weekday"?WD:WE}
+
+// Populate station dropdowns
+function initSelects(){
+  ["sel-from","sel-to"].forEach(id=>{
+    const el=document.getElementById(id);
+    el.innerHTML='<option value="">— Select station —</option>';
+    STATIONS.forEach((s,i)=>{
+      const o=document.createElement("option");
+      o.value=i; o.textContent=s.name;
+      el.appendChild(o);
+    });
+  });
+}
+
+function setDay(v){
+  dayType=v;
+  document.getElementById("btn-wd").className="toggle-btn"+(v==="weekday"?" on":"");
+  document.getElementById("btn-we").className="toggle-btn"+(v==="weekend"?" on":"");
+  selTrainIdx=null; availableTrains=[];
+  updateTimeDropdown();
+  hideResults();
+}
+
+function onFromChange(){
+  const v=document.getElementById("sel-from").value;
+  fromIdx=v===""?null:parseInt(v);
+  selTrainIdx=null; updateTimeDropdown(); hideResults();
+}
+function onToChange(){
+  const v=document.getElementById("sel-to").value;
+  toIdx=v===""?null:parseInt(v);
+  selTrainIdx=null; updateTimeDropdown(); hideResults();
+}
+function onTimeChange(){
+  const v=document.getElementById("sel-time").value;
+  selTrainIdx=v===""?null:parseInt(v);
+  updateTrainInfo();
+  document.getElementById("calc-btn").style.display=selTrainIdx!==null?"block":"none";
+  hideResults();
+}
+
+function updateTimeDropdown(){
+  const sel=document.getElementById("sel-time");
+  const info=document.getElementById("train-info");
+  sel.innerHTML="";
+  document.getElementById("calc-btn").style.display="none";
+  info.style.display="none";
+
+  if(fromIdx===null||toIdx===null){
+    sel.innerHTML='<option value="">— Choose from &amp; to first —</option>';
+    sel.disabled=true; return;
+  }
+  if(fromIdx===toIdx){
+    sel.innerHTML='<option value="">— Origin and destination must differ —</option>';
+    sel.disabled=true; return;
+  }
+
+  const fromPos=STATIONS[fromIdx].pos, toPos=STATIONS[toIdx].pos;
+
+  // Validate: full-only stations only served by full trains in correct direction
+  const fromFull=STATIONS[fromIdx].fullOnly, toFull=STATIONS[toIdx].fullOnly;
+  // If going toward Abando from a full-only station: ok (OA trains)
+  // If going toward Orduña to a full-only station: ok (AO trains)
+  // If going between two full-only stations in wrong direction: might be empty but that's fine
+
+  availableTrains=getAvailableTrains(fromPos,toPos,sched());
+
+  if(availableTrains.length===0){
+    sel.innerHTML='<option value="">— No trains for this route —</option>';
+    sel.disabled=true; return;
+  }
+
+  sel.disabled=false;
+  sel.innerHTML='<option value="">— Select departure time —</option>';
+  availableTrains.forEach((tr,i)=>{
+    const o=document.createElement("option");
+    o.value=i; o.textContent=tr.label;
+    sel.appendChild(o);
+  });
+}
+
+function updateTrainInfo(){
+  const info=document.getElementById("train-info");
+  if(selTrainIdx===null){info.style.display="none";return;}
+  const tr=availableTrains[selTrainIdx];
+  const fName=STATIONS[fromIdx].name, tName=STATIONS[toIdx].name;
+  info.innerHTML=`Departs <strong>${fName}</strong> at <strong>${fmt(tr.depT)}</strong> · Arrives <strong>${tName}</strong> at <strong>${fmt(tr.arrT)}</strong>`;
+  info.style.display="block";
+}
+
+function calculate(){
+  if(selTrainIdx===null)return;
+  const tr=availableTrains[selTrainIdx];
+  const fromPos=STATIONS[fromIdx].pos, toPos=STATIONS[toIdx].pos;
+  const meetings=calcMeetings(tr.depT,tr.arrT,fromPos,toPos,sched());
+  renderResults(tr,meetings);
+}
+
+function hideResults(){
+  document.getElementById("results-card").style.display="none";
+}
+
+function renderResults(tr,meetings){
+  const fName=STATIONS[fromIdx].name, tName=STATIONS[toIdx].name;
+  const fromPos=STATIONS[fromIdx].pos, toPos=STATIONS[toIdx].pos;
+  const toAbando=toPos>fromPos;
+
+  // Color counts by kind
+  const countByKind={};
+  meetings.forEach(m=>{countByKind[m.kind]=(countByKind[m.kind]||0)+1});
+  const kindSummary=Object.entries(countByKind).map(([k,n])=>
+    `<div class="s-cell"><div class="s-n" style="color:${meetings.find(m=>m.kind===k).color}">${n}</div><div class="s-l">${k}</div></div>`
+  ).join('<div class="s-div"></div>');
+
+  const sumHTML=`
+    <div class="summary">
+      <div class="s-cell"><div class="s-n" style="color:var(--red)">${meetings.length}</div><div class="s-l">TRENES ENCONTRADOS</div></div>
+      <div class="s-div"></div>
+      <div class="s-cell"><div class="s-n" style="color:var(--text);font-size:15px">${fmt(tr.depT)}</div><div class="s-l">SALIDA</div></div>
+      <div class="s-div"></div>
+      <div class="s-cell"><div class="s-n" style="color:var(--green);font-size:15px">${fmt(tr.arrT)}</div><div class="s-l">LLEGADA</div></div>
+    </div>`;
+
+  // Visualizer
+  const minPos=Math.min(fromPos,toPos), maxPos=Math.max(fromPos,toPos);
+  const span=maxPos-minPos||0.001;
+  const vizStn=STATIONS.filter(s=>s.pos>=minPos-0.01&&s.pos<=maxPos+0.01);
+  const ticks=vizStn.map(s=>{
+    const frac=(s.pos-minPos)/span;
+    return`<div class="viz-tick" style="left:${frac*100}%"></div>`;
+  }).join("");
+  const myLineFrac0=0, myLineFrac1=100;
+  const dots=meetings.map(m=>{
+    const frac=toAbando?(m.pos-minPos)/span:(maxPos-m.pos)/span;
+    const clampedFrac=Math.max(0,Math.min(1,frac));
+    return`<div class="viz-dot" style="left:${clampedFrac*100}%;background:${m.color}" title="${m.meetTime} – ${m.location}"></div>`;
+  }).join("");
+  const vizHTML=`
+    <div class="viz-wrap">
+      <div class="viz-label-row">
+        <span class="viz-stn">${toAbando?fName:tName}</span>
+        <span class="viz-stn">${toAbando?tName:fName}</span>
+      </div>
+      <div class="viz-track-wrap">
+        <div class="viz-line"></div>
+        <div class="viz-my-line" style="left:0;right:0"></div>
+        ${ticks}${dots}
+      </div>
+      <div class="viz-legend">
+        ${[...new Set(meetings.map(m=>m.kind))].map(k=>{
+          const col=meetings.find(m=>m.kind===k).color;
+          return`<span><span class="legend-dot" style="background:${col}"></span>${k}</span>`;
+        }).join("")}
+        <span style="color:var(--text-dim);font-size:9px">● = punto de encuentro aprox.</span>
+      </div>
+    </div>`;
+
+  // List
+  let listHTML="";
+  if(meetings.length===0){
+    listHTML=`<div class="empty">✓ No se encontrarán trenes en sentido contrario en este trayecto.</div>`;
+  } else {
+    listHTML=`<div class="meet-list">`+meetings.map(m=>`
+      <div class="meet-row">
+        <div class="meet-color-bar" style="background:${m.color}"></div>
+        <div class="meet-body">
+          <div class="meet-loc">${m.location}</div>
+          <div class="meet-meta">${m.kind} · sale Abando ${m.dep} → llega ${m.kind.includes("Orduña")?"Orduña":m.kind.includes("Llodio")?"Llodio":"Abando"} ${m.arr}</div>
+        </div>
+        <div class="meet-time-wrap">
+          <div class="meet-time">${m.meetTime}</div>
+          <div class="meet-time-lbl">ENCUENTRO</div>
+        </div>
+      </div>`).join("")+`</div>`;
+  }
+
+  document.getElementById("results-inner").innerHTML=
+    sumHTML+vizHTML+listHTML+
+    `<button class="reset-btn" onclick="resetResult()">← Nueva Consulta</button>`;
+  document.getElementById("results-card").style.display="block";
+  setTimeout(()=>document.getElementById("results-card").scrollIntoView({behavior:"smooth",block:"start"}),100);
+}
+
+function resetResult(){
+  document.getElementById("results-card").style.display="none";
+  document.getElementById("sel-time").value="";
+  selTrainIdx=null;
+  document.getElementById("calc-btn").style.display="none";
+  document.getElementById("train-info").style.display="none";
+}
+
+// ── Service Worker ────────────────────────────────────────────────────────────
+if("serviceWorker" in navigator){
+  const sw=`const C="c3-v2";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.add("/"))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"text/javascript"}))).catch(()=>{});
+}
+
+
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+initSelects();
+</script>
+</body>
+</html>
