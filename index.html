@@ -235,11 +235,15 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
   <div class="tab-panel" id="panel-tram">
 
     <!-- Direction -->
+    <!-- Single card: direction + day + stop all together -->
     <div class="card">
       <div class="card-title tram-title"><span class="step-num tram">1</span>DIRECCIÓN / DIRECTION</div>
-      <div class="toggle-row">
-        <button class="toggle-btn tram-on" id="btn-tc" onclick="setTramDir('lc')">La Casilla → Bolueta</button>
-        <button class="toggle-btn" id="btn-tb" onclick="setTramDir('bl')">Bolueta → La Casilla</button>
+      <div class="toggle-row" style="margin-bottom:8px">
+        <button class="toggle-btn tram-on" id="btn-tc" onclick="setTramDir('lc')">→ Bolueta</button>
+        <button class="toggle-btn" id="btn-tb" onclick="setTramDir('bl')">→ La Casilla</button>
+      </div>
+      <div style="font-size:11px;color:var(--tram);background:var(--tram-light);border-radius:6px;padding:7px 12px;margin-bottom:0;line-height:1.5">
+        🚃 La Casilla · Basurto · Hospital · San Mamés · Sabino Arana · Euskalduna · Abandoibarra · Guggenheim · Uribitarte · Pío Baroja · Abando · Arriaga · Ribera · Atxuri · Abusu · Bolueta
       </div>
     </div>
 
@@ -253,13 +257,13 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
       </div>
     </div>
 
-    <!-- Stop picker -->
+    <!-- Stop picker — shows ALL 16 stops -->
     <div class="card">
-      <div class="card-title tram-title"><span class="step-num tram">3</span>PARADA / STOP</div>
-      <div class="field">
-        <label>TU PARADA / YOUR STOP</label>
+      <div class="card-title tram-title"><span class="step-num tram">3</span>TU PARADA / YOUR STOP</div>
+      <div class="field" style="margin-bottom:0">
+        <label>Selecciona cualquier parada de la ruta</label>
         <select class="tram-sel" id="tram-stop-sel" onchange="renderTramNext()">
-          <option value="">— Select your stop —</option>
+          <option value="">— Select any stop on the route —</option>
         </select>
       </div>
     </div>
@@ -717,10 +721,12 @@ async function tryFingerprint(){
     if(assertion)unlockApp();
   }catch(e){if(err)err.textContent=e.name==="NotAllowedError"?"Fingerprint cancelled — use PIN":"Biometric error — use PIN";}
 }
-async function initLock(){
+async function initLock(preWarmed){
   const stored=localStorage.getItem(PIN_KEY),credId=localStorage.getItem(CRED_KEY);
   if(stored==="NONE"){unlockApp();return;}
   if(!stored){startSetup();return;}
+  // If pre-warm already handled fp setup, just ensure PIN fallback is ready
+  if(preWarmed && credId) return;
   if(credId&&await _fpOk()){
     document.getElementById("lock-sub").textContent="Touch fingerprint sensor";
     document.getElementById("lock-setup-msg").innerHTML='<span onclick="resetPin()">Reset security</span>';
@@ -741,7 +747,26 @@ if("serviceWorker"in navigator){
 // ── Init ──────────────────────────────────────────────────────────────
 initStationSelects();
 initTramStopSelect();
-initLock();
+
+// Pre-warm fingerprint check at page load (async, runs in background)
+// By the time the user sees the lock screen, _fpReady is already resolved
+var _fpReady = null;
+(async function(){
+  const credId = localStorage.getItem(CRED_KEY);
+  const stored = localStorage.getItem(PIN_KEY);
+  if(credId && stored && stored !== "NONE"){
+    _fpReady = await _fpOk();
+    if(_fpReady){
+      // Pre-show fingerprint button immediately — no waiting
+      document.getElementById("lock-sub").textContent = "Touch fingerprint sensor";
+      document.getElementById("lock-setup-msg").innerHTML = '<span onclick="resetPin()">Reset security</span>';
+      document.getElementById("fp-btn").style.display = "block";
+      // Fire immediately — no delay needed, pre-warm is done
+      tryFingerprint();
+    }
+  }
+  initLock(_fpReady);
+})();
 </script>
 </body>
 </html>
