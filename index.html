@@ -33,6 +33,30 @@
 }
 body{background:var(--off-white);color:var(--text);font-family:'Helvetica Neue',Arial,sans-serif;min-height:100vh}
 
+/* ── PIN Lock Screen ── */
+#lock-screen{position:fixed;inset:0;background:var(--red);z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+#lock-screen.hidden{display:none}
+.lock-logo{background:#fff;color:var(--red);font-weight:900;font-size:22px;
+  padding:8px 18px;border-radius:6px;margin-bottom:10px}
+.lock-title{color:#fff;font-size:18px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
+.lock-sub{color:rgba(255,255,255,.7);font-size:12px;margin-bottom:32px;letter-spacing:.04em}
+.lock-dots{display:flex;gap:16px;margin-bottom:32px}
+.lock-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:transparent;transition:all .15s}
+.lock-dot.filled{background:#fff;border-color:#fff}
+.lock-error{color:#FFD0D0;font-size:12px;height:18px;margin-bottom:10px;text-align:center;letter-spacing:.04em}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:240px}
+.pin-btn{height:64px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.12);color:#fff;font-size:22px;font-weight:600;
+  font-family:inherit;cursor:pointer;transition:all .1s;letter-spacing:.02em}
+.pin-btn:active{background:rgba(255,255,255,.3);transform:scale(.95)}
+.pin-btn.del{font-size:16px}
+.pin-btn.empty{border:none;background:transparent;cursor:default}
+.lock-setup{color:rgba(255,255,255,.8);font-size:11px;margin-top:20px;text-align:center;line-height:1.6}
+.lock-setup span{text-decoration:underline;cursor:pointer;color:#fff}
+.fp-btn{margin-top:16px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);
+  color:#fff;padding:10px 24px;border-radius:24px;font-size:13px;font-family:inherit;cursor:pointer}
+
 /* ── Header ── */
 header{background:var(--red);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 .header-inner{display:flex;align-items:center;gap:12px;padding:12px 16px;max-width:680px;margin:0 auto}
@@ -136,6 +160,38 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);
 </head>
 <body>
 
+<!-- ── PIN LOCK SCREEN ── -->
+<div id="lock-screen">
+  <div class="lock-logo">renfe</div>
+  <div class="lock-title">C3 CERCANÍAS</div>
+  <div class="lock-sub" id="lock-sub">Enter your PIN</div>
+  <div class="lock-dots">
+    <div class="lock-dot" id="d0"></div>
+    <div class="lock-dot" id="d1"></div>
+    <div class="lock-dot" id="d2"></div>
+    <div class="lock-dot" id="d3"></div>
+  </div>
+  <div class="lock-error" id="lock-error"></div>
+  <div class="pin-grid">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn empty"></button>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="lock-setup" id="lock-setup-msg"></div>
+  <button class="fp-btn" id="fp-btn" style="display:none" onclick="tryFingerprint()">
+    ☝ Use Fingerprint
+  </button>
+</div>
+
 <header>
   <div class="header-inner">
     <div class="renfe-badge">renfe</div>
@@ -206,7 +262,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);
 function t(s){const[h,m]=s.split(":").map(Number);return h*60+m}
 function fixArr(d,a){return a<d?a+1440:a}
 function mk(pairs){return pairs.map(([d,a])=>({dep:t(d),arr:fixArr(t(d),t(a))}))}
-function fmt(mins){const m=((mins%1440)+1440)%1440;return`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`}
+function fmt(mins){const m=((Math.round(mins)%1440)+1440)%1440;return`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`}
 
 // ── Stations (position 0=Orduña … 1=Abando) ──────────────────────────────────
 const P_LL=0.376;
@@ -570,8 +626,188 @@ if("serviceWorker" in navigator){
 
 
 
+// ── PIN + FINGERPRINT LOCK ────────────────────────────────────────────────────
+const PIN_KEY   = "c3_pin";
+const CRED_KEY  = "c3_credId";   // stored Base64 credential ID
+let pinEntry="", pinMode="unlock", pinFirst="";
+
+// ── Dot display ───────────────────────────────────────────────────────────────
+function updateDots(){
+  for(let i=0;i<4;i++)
+    document.getElementById("d"+i).className="lock-dot"+(i<pinEntry.length?" filled":"");
+}
+function shakeError(msg){
+  document.getElementById("lock-error").textContent=msg;
+  const d=document.querySelector(".lock-dots");
+  d.style.transition="none";
+  d.style.transform="translateX(-10px)";
+  setTimeout(()=>{d.style.transition="transform .08s";d.style.transform="translateX(10px)"},80);
+  setTimeout(()=>d.style.transform="",160);
+}
+
+// ── PIN entry ─────────────────────────────────────────────────────────────────
+function pinPress(digit){
+  if(pinEntry.length>=4)return;
+  pinEntry+=digit; updateDots();
+  if(pinEntry.length===4) setTimeout(pinSubmit,140);
+}
+function pinDel(){
+  pinEntry=pinEntry.slice(0,-1); updateDots();
+  document.getElementById("lock-error").textContent="";
+}
+function pinSubmit(){
+  const stored=localStorage.getItem(PIN_KEY);
+  if(pinMode==="unlock"){
+    if(!stored){startSetup();return;}
+    if(pinEntry===stored){ unlockApp(); }
+    else{ pinEntry=""; updateDots(); shakeError("Incorrect PIN – try again"); }
+  } else if(pinMode==="setup1"){
+    pinFirst=pinEntry; pinEntry=""; updateDots(); pinMode="setup2";
+    document.getElementById("lock-sub").textContent="Confirm your PIN";
+    document.getElementById("lock-setup-msg").innerHTML="Re-enter the same 4 digits";
+  } else if(pinMode==="setup2"){
+    if(pinEntry===pinFirst){
+      localStorage.setItem(PIN_KEY,pinEntry);
+      offerFingerprint();          // ← offer biometric after PIN is set
+    } else {
+      pinEntry=""; pinFirst=""; pinMode="setup1"; updateDots();
+      shakeError("PINs didn't match – start again");
+      document.getElementById("lock-sub").textContent="Choose a 4-digit PIN";
+    }
+  }
+}
+
+// ── Setup flow ────────────────────────────────────────────────────────────────
+function startSetup(){
+  pinMode="setup1"; pinEntry=""; updateDots();
+  document.getElementById("lock-sub").textContent="Choose a 4-digit PIN";
+  document.getElementById("lock-setup-msg").innerHTML=
+    'First-time setup &nbsp;·&nbsp; <span onclick="skipLock()">Skip lock</span>';
+  document.getElementById("fp-btn").style.display="none";
+}
+function skipLock(){
+  if(confirm("Open without a PIN or fingerprint? Anyone can use the app.")){
+    localStorage.setItem(PIN_KEY,"NONE");
+    unlockApp();
+  }
+}
+function resetPin(){
+  if(confirm("Reset security? You will set a new PIN and fingerprint.")){
+    localStorage.removeItem(PIN_KEY);
+    localStorage.removeItem(CRED_KEY);
+    pinEntry=""; pinMode="unlock"; updateDots(); startSetup();
+  }
+}
+
+// ── Unlock ────────────────────────────────────────────────────────────────────
+function unlockApp(){
+  document.getElementById("lock-screen").classList.add("hidden");
+}
+
+// ── FINGERPRINT — offer registration after PIN setup ──────────────────────────
+async function offerFingerprint(){
+  // Check if biometrics available
+  if(!window.PublicKeyCredential){ unlockApp(); return; }
+  const ok = await PublicKeyCredential
+    .isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+  if(!ok){ unlockApp(); return; }
+
+  // Ask user
+  const want=confirm("Would you like to use your fingerprint (or Face ID) to unlock this app next time?");
+  if(!want){ unlockApp(); return; }
+
+  // Register fingerprint
+  try{
+    const challenge=crypto.getRandomValues(new Uint8Array(32));
+    const userId   =crypto.getRandomValues(new Uint8Array(16));
+    const cred=await navigator.credentials.create({publicKey:{
+      challenge,
+      rp:{name:"C3 Bilbao", id:location.hostname},
+      user:{id:userId, name:"c3user", displayName:"C3 User"},
+      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
+      authenticatorSelection:{
+        authenticatorAttachment:"platform",   // phone biometric only
+        userVerification:"required",
+        residentKey:"preferred"
+      },
+      timeout:60000
+    }});
+    // Save credential ID so we can use it next time
+    const credId=btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+    localStorage.setItem(CRED_KEY, credId);
+    alert("✅ Fingerprint registered! Next time, just touch the sensor.");
+    unlockApp();
+  } catch(e){
+    // User cancelled or error — just unlock with PIN
+    unlockApp();
+  }
+}
+
+// ── FINGERPRINT — authenticate on open ───────────────────────────────────────
+async function tryFingerprint(){
+  const errEl=document.getElementById("lock-error");
+  errEl.textContent="";
+  try{
+    const storedId=localStorage.getItem(CRED_KEY);
+    const rawId=storedId
+      ? Uint8Array.from(atob(storedId),c=>c.charCodeAt(0))
+      : null;
+
+    const challenge=crypto.getRandomValues(new Uint8Array(32));
+    const opts={publicKey:{
+      challenge,
+      timeout:30000,
+      userVerification:"required",
+      rpId:location.hostname,
+      ...(rawId?{allowCredentials:[{type:"public-key",id:rawId,transports:["internal"]}]}:{})
+    }};
+    const assertion=await navigator.credentials.get(opts);
+    if(assertion) unlockApp();
+  } catch(e){
+    if(e.name==="NotAllowedError")
+      errEl.textContent="Fingerprint cancelled – enter PIN below";
+    else
+      errEl.textContent="Biometric failed – enter PIN below";
+  }
+}
+
+// ── Initialise lock on app open ───────────────────────────────────────────────
+async function initLock(){
+  const stored   = localStorage.getItem(PIN_KEY);
+  const hasCredId= !!localStorage.getItem(CRED_KEY);
+
+  // No security set yet → setup wizard
+  if(!stored){ startSetup(); return; }
+
+  // Security skipped
+  if(stored==="NONE"){ unlockApp(); return; }
+
+  // Has biometric registered → try fingerprint automatically
+  if(hasCredId && window.PublicKeyCredential){
+    const ok=await PublicKeyCredential
+      .isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+    if(ok){
+      document.getElementById("lock-sub").textContent="Touch fingerprint sensor";
+      document.getElementById("lock-setup-msg").innerHTML=
+        '<span onclick="resetPin()">Reset security</span>';
+      document.getElementById("fp-btn").style.display="block";
+      document.getElementById("fp-btn").textContent="☝ Use Fingerprint / Face ID";
+      // Auto-trigger fingerprint scan
+      tryFingerprint();
+      return;
+    }
+  }
+
+  // Fallback: PIN only
+  document.getElementById("lock-sub").textContent="Enter your PIN";
+  document.getElementById("lock-setup-msg").innerHTML=
+    '<span onclick="resetPin()">Forgot PIN?</span>';
+  document.getElementById("fp-btn").style.display="none";
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 initSelects();
+initLock();
 </script>
 </body>
 </html>
