@@ -38,7 +38,7 @@ button{font-family:inherit;cursor:pointer;transition:all .12s}
 .pin-btn.empty{border:none;background:transparent;cursor:default}
 .lock-setup{color:rgba(255,255,255,.8);font-size:11px;margin-top:20px;text-align:center;line-height:1.6}
 .lock-setup span{text-decoration:underline;cursor:pointer;color:#fff}
-.fp-lock-btn{margin-top:16px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:10px 24px;border-radius:24px;font-size:13px;cursor:pointer;display:none}
+
 
 /* Header */
 header{background:var(--red);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
@@ -174,7 +174,6 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     <button class="pin-btn del" onclick="pinDel()">⌫</button>
   </div>
   <div class="lock-setup" id="lock-setup-msg"></div>
-  <button class="fp-lock-btn" id="fp-btn" onclick="tryFingerprint()">☝ Use Fingerprint</button>
 </div>
 
 <header>
@@ -257,13 +256,22 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
       </div>
     </div>
 
-    <!-- Stop picker — shows ALL 16 stops -->
+    <!-- FROM + TO stop pickers -->
     <div class="card">
-      <div class="card-title tram-title"><span class="step-num tram">3</span>TU PARADA / YOUR STOP</div>
+      <div class="card-title tram-title"><span class="step-num tram">3</span>PARADAS / STOPS</div>
+      <div class="field">
+        <label>DESDE / FROM</label>
+        <select class="tram-sel" id="tram-from-sel" onchange="onTramFromChange()">
+          <option value="">— Select your boarding stop —</option>
+        </select>
+      </div>
+      <div class="swap-row">
+        <button class="swap-btn" style="background:var(--tram)" onclick="swapTramStops()" title="Swap stops">⇅</button>
+      </div>
       <div class="field" style="margin-bottom:0">
-        <label>Selecciona cualquier parada de la ruta</label>
-        <select class="tram-sel" id="tram-stop-sel" onchange="renderTramNext()">
-          <option value="">— Select any stop on the route —</option>
+        <label>HASTA / TO</label>
+        <select class="tram-sel" id="tram-to-sel" onchange="onTramToChange()">
+          <option value="">— Select your destination stop —</option>
         </select>
       </div>
     </div>
@@ -521,17 +529,9 @@ const LC_OFFSETS={
   "Abando":18,"Arriaga":20,"Ribera":22,"Atxuri":24,"Abusu":28,"Bolueta":31
 };
 
-let tramDir="lc"; // lc = La Casilla→Bolueta, bl = Bolueta→La Casilla
 let tramDay="weekday";
 let showFullSched=false;
 
-function setTramDir(d){
-  tramDir=d;
-  document.getElementById("btn-tc").className="toggle-btn"+(d==="lc"?" tram-on":"");
-  document.getElementById("btn-tb").className="toggle-btn"+(d==="bl"?" tram-on":"");
-  initTramStopSelect();
-  renderTramNext();
-}
 function setTramDay(d){
   tramDay=d;
   document.getElementById("tbtn-wd").className="toggle-btn"+(d==="weekday"?" tram-on":"");
@@ -539,12 +539,38 @@ function setTramDay(d){
   document.getElementById("tbtn-sun").className="toggle-btn"+(d==="sunday"?" tram-on":"");
   renderTramNext();
 }
-function initTramStopSelect(){
-  const sel=document.getElementById("tram-stop-sel");
-  const stops=tramDir==="lc"?TRAM_STOPS_LC:TRAM_STOPS_BL;
-  const prev=sel.value;
-  sel.innerHTML='<option value="">— Select your stop —</option>';
-  stops.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;if(s===prev)o.selected=true;sel.appendChild(o);});
+
+// Populate both FROM and TO with all 16 stops
+function initTramStopSelects(){
+  ["tram-from-sel","tram-to-sel"].forEach(id=>{
+    const sel=document.getElementById(id);
+    const prev=sel.value;
+    sel.innerHTML=id==="tram-from-sel"
+      ? '<option value="">— Select your boarding stop —</option>'
+      : '<option value="">— Select your destination stop —</option>';
+    TRAM_STOPS_LC.forEach(s=>{
+      const o=document.createElement("option");
+      o.value=s;o.textContent=s;
+      if(s===prev)o.selected=true;
+      sel.appendChild(o);
+    });
+  });
+}
+
+function swapTramStops(){
+  const f=document.getElementById("tram-from-sel"),g=document.getElementById("tram-to-sel"),tmp=f.value;
+  f.value=g.value;g.value=tmp;
+  renderTramNext();
+}
+function onTramFromChange(){ renderTramNext(); }
+function onTramToChange(){ renderTramNext(); }
+
+// Derive direction from the two selected stops
+function getTramDir(fromStop, toStop){
+  const fi=TRAM_STOPS_LC.indexOf(fromStop);
+  const ti=TRAM_STOPS_LC.indexOf(toStop);
+  if(fi===-1||ti===-1)return null;
+  return fi<ti?"lc":"bl"; // lc = toward Bolueta, bl = toward La Casilla
 }
 function getNow(){
   const now=new Date();
@@ -567,44 +593,55 @@ function getStopDepTimes(stop,dir,day){
   return termTimes.map(t=>(t+offset)%1440).sort((a,b)=>a-b);
 }
 function renderTramNext(){
-  const stop=document.getElementById("tram-stop-sel").value;
+  const fromStop=document.getElementById("tram-from-sel").value;
+  const toStop=document.getElementById("tram-to-sel").value;
   const wrap=document.getElementById("tram-next-wrap");
-  if(!stop){wrap.style.display="none";return;}
+  if(!fromStop||!toStop){wrap.style.display="none";return;}
+  if(fromStop===toStop){wrap.style.display="none";return;}
+  const dir=getTramDir(fromStop,toStop);
+  if(!dir){wrap.style.display="none";return;}
   wrap.style.display="block";
   const nowMins=getNow();
-  const times=getStopDepTimes(stop,tramDir,tramDay);
+  const times=getStopDepTimes(fromStop,dir,tramDay);
+  // Also compute arrival time at destination
+  const arrTimes=getStopDepTimes(toStop,dir,tramDay);
   // Find next trams (up to 4)
   let upcoming=[];
-  // Try current day first
   for(const tm of times){if(tm>=nowMins)upcoming.push(tm);if(upcoming.length>=4)break;}
-  // If less than 4, wrap to next day
   if(upcoming.length<4){for(const tm of times){upcoming.push(tm+1440);if(upcoming.length>=4)break;}}
-  const dest=tramDir==="lc"?"Bolueta":"La Casilla";
+  // Match arrival times
+  function getArrival(depTime){
+    // find matching arr time (same tram = same offset apart)
+    const fromOffset = dir==="lc" ? (LC_OFFSETS[fromStop]||0) : (31-(LC_OFFSETS[fromStop]||0));
+    const toOffset   = dir==="lc" ? (LC_OFFSETS[toStop]||0)   : (31-(LC_OFFSETS[toStop]||0));
+    return (depTime + (toOffset - fromOffset) + 1440) % 1440;
+  }
   let html="";
   if(upcoming.length===0){
-    html=`<div class="card"><div class="tram-empty">🚃 No more trams today from this stop.</div></div>`;
+    html=`<div class="card"><div class="tram-empty">🚃 No more trams today on this route.</div></div>`;
   } else {
     const next=upcoming[0];
-    const waitMins=next-nowMins;
+    const arr=getArrival(next%1440);
+    const waitMins=(next%1440)-nowMins<0?(next-nowMins+1440):(next-nowMins);
     const waitLabel=waitMins<=0?"Now!":waitMins===1?"1 min":waitMins<60?`${waitMins} min`:`${Math.floor(waitMins/60)}h ${waitMins%60}m`;
-    const nextFmt=fmt(next%1440);
+    const journeyMins=Math.abs((LC_OFFSETS[toStop]||0)-(LC_OFFSETS[fromStop]||0));
     html=`<div class="tram-next-card">
-      <div class="tram-next-label">PRÓXIMO TRANVÍA → ${dest.toUpperCase()}</div>
-      <div class="tram-next-time">${nextFmt}</div>
-      <div class="tram-next-sub">⏱ ${waitLabel} · desde ${stop}</div>
-      <div class="tram-next-stop">Destino: ${dest}</div>
+      <div class="tram-next-label">PRÓXIMO TRANVÍA · ${fromStop.toUpperCase()} → ${toStop.toUpperCase()}</div>
+      <div class="tram-next-time">${fmt(next%1440)}</div>
+      <div class="tram-next-sub">⏱ ${waitLabel} · llega ${toStop} a las <strong>${fmt(arr)}</strong></div>
+      <div class="tram-next-stop">Duración: ~${journeyMins} min</div>
       <div class="tram-upcoming">
-        ${upcoming.slice(1).map((tm,i)=>{
-          const w=tm-nowMins;
+        ${upcoming.slice(1).map((tm)=>{
+          const a=getArrival(tm%1440);
+          const w=(tm%1440)-nowMins<0?(tm-nowMins+1440):(tm-nowMins);
           const wl=w<=0?"Now!":w<60?`${w} min`:`${Math.floor(w/60)}h ${w%60}m`;
-          return`<div class="tram-row"><div class="tram-row-time">${fmt(tm%1440)}</div><div class="tram-row-body"><div class="tram-row-stop">→ ${dest}</div></div><div class="tram-row-in">${wl}</div></div>`;
+          return`<div class="tram-row"><div class="tram-row-time">${fmt(tm%1440)}</div><div class="tram-row-body"><div class="tram-row-stop">→ ${toStop} · arr <strong>${fmt(a)}</strong></div></div><div class="tram-row-in">${wl}</div></div>`;
         }).join("")}
       </div>
     </div>`;
   }
   document.getElementById("tram-next-inner").innerHTML=html;
-  // Render full schedule if open
-  if(showFullSched)renderFullSchedule(stop);
+  if(showFullSched)renderFullSchedule(fromStop,dir);
 }
 function toggleFullSchedule(){
   showFullSched=!showFullSched;
@@ -613,30 +650,33 @@ function toggleFullSchedule(){
   btn.className="tram-all-btn"+(showFullSched?" on":"");
   btn.textContent=showFullSched?"✕ Cerrar horario":"📋 Ver horario completo";
   wrap.className="full-schedule"+(showFullSched?" on":"");
-  const stop=document.getElementById("tram-stop-sel").value;
-  if(showFullSched&&stop)renderFullSchedule(stop);
+  const fromStop=document.getElementById("tram-from-sel").value;
+  const toStop=document.getElementById("tram-to-sel").value;
+  const dir=getTramDir(fromStop,toStop);
+  if(showFullSched&&fromStop&&toStop&&dir)renderFullSchedule(fromStop,dir,toStop);
 }
-function renderFullSchedule(stop){
+function renderFullSchedule(fromStop,dir,toStop){
   const wrap=document.getElementById("full-schedule-wrap");
   const days=["weekday","saturday","sunday"];
   const dayLabels=["Lunes–Viernes","Sábados","Domingos/Festivos"];
-  const dest=tramDir==="lc"?"Bolueta":"La Casilla";
+  const fromOffset=dir==="lc"?(LC_OFFSETS[fromStop]||0):(31-(LC_OFFSETS[fromStop]||0));
+  const toOffset  =dir==="lc"?(LC_OFFSETS[toStop]||0)  :(31-(LC_OFFSETS[toStop]||0));
   let html="";
   days.forEach((d,di)=>{
-    const times=getStopDepTimes(stop,tramDir,d);
+    const depTimes=getStopDepTimes(fromStop,dir,d);
     html+=`<div class="sched-section">${dayLabels[di]}</div>`;
-    // Group into rows of 6
-    html+=`<table class="sched-table"><thead><tr><th colspan="6">Salidas desde ${stop} → ${dest}</th></tr></thead><tbody>`;
-    for(let i=0;i<times.length;i+=6){
-      html+=`<tr>${times.slice(i,i+6).map(tm=>`<td>${fmt(tm)}</td>`).join("")}</tr>`;
-    }
+    html+=`<table class="sched-table"><thead><tr><th>Sale ${fromStop}</th><th>Llega ${toStop}</th></tr></thead><tbody>`;
+    depTimes.forEach(dep=>{
+      const arr=(dep+(toOffset-fromOffset)+1440)%1440;
+      html+=`<tr><td>${fmt(dep)}</td><td>${fmt(arr)}</td></tr>`;
+    });
     html+=`</tbody></table>`;
   });
   wrap.innerHTML=html;
 }
 
 // Auto-refresh tram display every 30 seconds
-setInterval(()=>{if(document.getElementById("tram-stop-sel").value)renderTramNext();},30000);
+setInterval(()=>{if(document.getElementById("tram-from-sel").value&&document.getElementById("tram-to-sel").value)renderTramNext();},30000);
 
 // ══════════════════════════════════════════════════════════════════════
 // ── APP TABS ─────────────────────────────────────────────────────────
@@ -652,7 +692,7 @@ function switchTab(name){
 // ══════════════════════════════════════════════════════════════════════
 // ── PIN LOCK ─────────────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════
-const PIN_KEY="c3_pin",CRED_KEY="c3_credId";
+const PIN_KEY="c3_pin";
 let pinEntry="",pinMode="unlock",pinFirst="";
 function updateDots(){for(let i=0;i<4;i++)document.getElementById("d"+i).className="lock-dot"+(i<pinEntry.length?" filled":"");}
 function shakeError(msg){
@@ -675,7 +715,7 @@ function pinSubmit(){
     document.getElementById("lock-sub").textContent="Confirm your PIN";
     document.getElementById("lock-setup-msg").innerHTML="Re-enter the same 4 digits";
   } else if(pinMode==="setup2"){
-    if(pinEntry===pinFirst){localStorage.setItem(PIN_KEY,pinEntry);offerFingerprint();}
+    if(pinEntry===pinFirst){localStorage.setItem(PIN_KEY,pinEntry);unlockApp();}
     else{pinEntry="";pinFirst="";pinMode="setup1";updateDots();shakeError("PINs didn't match – start again");document.getElementById("lock-sub").textContent="Choose a 4-digit PIN";}
   }
 }
@@ -683,90 +723,30 @@ function startSetup(){
   pinMode="setup1";pinEntry="";updateDots();
   document.getElementById("lock-sub").textContent="Choose a 4-digit PIN";
   document.getElementById("lock-setup-msg").innerHTML='First-time setup &nbsp;·&nbsp; <span onclick="skipLock()">Skip lock</span>';
-  document.getElementById("fp-btn").style.display="none";
 }
 function skipLock(){if(confirm("Open without a PIN?")){localStorage.setItem(PIN_KEY,"NONE");unlockApp();}}
-function resetPin(){if(confirm("Reset security?")){localStorage.removeItem(PIN_KEY);localStorage.removeItem(CRED_KEY);pinEntry="";pinMode="unlock";updateDots();startSetup();}}
+function resetPin(){if(confirm("Reset security?")){localStorage.removeItem(PIN_KEY);pinEntry="";pinMode="unlock";updateDots();startSetup();}}
 function unlockApp(){document.getElementById("lock-screen").classList.add("hidden");}
 
-// ── FINGERPRINT ───────────────────────────────────────────────────────
-async function _fpOk(){
-  if(!window.PublicKeyCredential||!window.crypto)return false;
-  try{return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();}catch(e){return false;}
-}
-async function offerFingerprint(){
-  const ok=await _fpOk();if(!ok){unlockApp();return;}
-  const want=confirm("👆 Use fingerprint to unlock next time?\n\nTap OK then touch your sensor.");
-  if(!want){unlockApp();return;}
-  try{
-    const cred=await navigator.credentials.create({publicKey:{
-      challenge:crypto.getRandomValues(new Uint8Array(32)),
-      rp:{name:"Bilbao Transport",id:location.hostname},
-      user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"biluser",displayName:"Bilbao User"},
-      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
-      authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"preferred"},
-      timeout:60000
-    }});
-    if(cred){localStorage.setItem(CRED_KEY,btoa(String.fromCharCode(...new Uint8Array(cred.rawId))));alert("✅ Fingerprint registered!");}
-  }catch(e){}
-  unlockApp();
-}
-async function tryFingerprint(){
-  const err=document.getElementById("lock-error");if(err)err.textContent="";
-  const storedId=localStorage.getItem(CRED_KEY);
-  if(!storedId){if(err)err.textContent="No fingerprint registered — use PIN.";return;}
-  try{
-    const rawId=Uint8Array.from(atob(storedId),c=>c.charCodeAt(0));
-    const assertion=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),timeout:30000,userVerification:"required",rpId:location.hostname,allowCredentials:[{type:"public-key",id:rawId,transports:["internal"]}]}});
-    if(assertion)unlockApp();
-  }catch(e){if(err)err.textContent=e.name==="NotAllowedError"?"Fingerprint cancelled — use PIN":"Biometric error — use PIN";}
-}
-async function initLock(preWarmed){
-  const stored=localStorage.getItem(PIN_KEY),credId=localStorage.getItem(CRED_KEY);
+function initLock(){
+  const stored=localStorage.getItem(PIN_KEY);
   if(stored==="NONE"){unlockApp();return;}
   if(!stored){startSetup();return;}
-  // If pre-warm already handled fp setup, just ensure PIN fallback is ready
-  if(preWarmed && credId) return;
-  if(credId&&await _fpOk()){
-    document.getElementById("lock-sub").textContent="Touch fingerprint sensor";
-    document.getElementById("lock-setup-msg").innerHTML='<span onclick="resetPin()">Reset security</span>';
-    document.getElementById("fp-btn").style.display="block";
-    setTimeout(tryFingerprint,100);
-    return;
-  }
   document.getElementById("lock-sub").textContent="Enter your PIN";
   document.getElementById("lock-setup-msg").innerHTML='<span onclick="resetPin()">Forgot PIN?</span>';
 }
 
 // ── Service Worker ────────────────────────────────────────────────────
 if("serviceWorker"in navigator){
-  const sw=`const C="c3-v4";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.add("/"))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+  const sw=`const C="c3-v5";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.add("/"))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"text/javascript"}))).catch(()=>{});
 }
 
 // ── Init ──────────────────────────────────────────────────────────────
 initStationSelects();
-initTramStopSelect();
+initTramStopSelects();
 
-// Pre-warm fingerprint check at page load (async, runs in background)
-// By the time the user sees the lock screen, _fpReady is already resolved
-var _fpReady = null;
-(async function(){
-  const credId = localStorage.getItem(CRED_KEY);
-  const stored = localStorage.getItem(PIN_KEY);
-  if(credId && stored && stored !== "NONE"){
-    _fpReady = await _fpOk();
-    if(_fpReady){
-      // Pre-show fingerprint button immediately — no waiting
-      document.getElementById("lock-sub").textContent = "Touch fingerprint sensor";
-      document.getElementById("lock-setup-msg").innerHTML = '<span onclick="resetPin()">Reset security</span>';
-      document.getElementById("fp-btn").style.display = "block";
-      // Fire immediately — no delay needed, pre-warm is done
-      tryFingerprint();
-    }
-  }
-  initLock(_fpReady);
-})();
+initLock();
 </script>
 </body>
 </html>
