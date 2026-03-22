@@ -386,30 +386,36 @@ function calcMeetings(myDepT,myArrT,myS,myE,sched){
   const meetings=[];
 
   if(toAbando){
-    // Opposing: Abando→Orduña full
+    // ✅ Abando→Orduña full trains (pos 1→0) — head-on, full route, always valid
     for(const tr of sched.abandoToOrduna){
-      const thDep=tr.dep,thArr=tr.arr;
-      const r=meetPoint(myDepT,myArrT,myS,myE,thDep,thArr,1,0);
-      if(r) meetings.push({kind:"→ Orduña",color:"#C05000",dep:fmt(thDep),arr:fmt(thArr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+      const r=meetPoint(myDepT,myArrT,myS,myE,tr.dep,tr.arr,1,0);
+      if(r && r.pos>=myS-0.01 && r.pos<=myE+0.01)
+        meetings.push({kind:"Abando → Orduña",shortKind:"→ Orduña",color:"#C05000",
+          dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
     }
-    // Opposing: Abando→Llodio short
+    // ✅ Abando→Llodio short trains (pos 1→P_LL) — only valid if meeting point is
+    //    between Llodio and Abando (pos >= P_LL). They never go past Llodio toward Orduña.
     for(const tr of sched.abandoToLlodio){
-      const thDep=tr.dep,thArr=tr.arr;
-      const r=meetPoint(myDepT,myArrT,myS,myE,thDep,thArr,1,P_LL);
-      if(r) meetings.push({kind:"→ Llodio",color:"#0050A0",dep:fmt(thDep),arr:fmt(thArr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+      const r=meetPoint(myDepT,myArrT,myS,myE,tr.dep,tr.arr,1,P_LL);
+      if(r && r.pos>=P_LL-0.01 && r.pos<=1.01)
+        meetings.push({kind:"Abando → Llodio",shortKind:"→ Llodio",color:"#0050A0",
+          dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
     }
   } else {
-    // Opposing: Orduña→Abando full
+    // ✅ Orduña→Abando full trains (pos 0→1) — head-on, full route, always valid
     for(const tr of sched.ordunaToAbando){
-      const thDep=tr.dep,thArr=tr.arr;
-      const r=meetPoint(myDepT,myArrT,myS,myE,thDep,thArr,0,1);
-      if(r) meetings.push({kind:"→ Abando",color:"#C1001F",dep:fmt(thDep),arr:fmt(thArr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+      const r=meetPoint(myDepT,myArrT,myS,myE,tr.dep,tr.arr,0,1);
+      if(r && r.pos>=myE-0.01 && r.pos<=myS+0.01)
+        meetings.push({kind:"Orduña → Abando",shortKind:"→ Abando (full)",color:"#C1001F",
+          dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
     }
-    // Opposing: Llodio→Abando short
+    // ✅ Llodio→Abando short trains (pos P_LL→1) — only valid if meeting point is
+    //    between Llodio and Abando (pos >= P_LL). They don't come from Orduña side.
     for(const tr of sched.llodioToAbando){
-      const thDep=tr.dep,thArr=tr.arr;
-      const r=meetPoint(myDepT,myArrT,myS,myE,thDep,thArr,P_LL,1);
-      if(r) meetings.push({kind:"→ Abando",color:"#8B3A3A",dep:fmt(thDep),arr:fmt(thArr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+      const r=meetPoint(myDepT,myArrT,myS,myE,tr.dep,tr.arr,P_LL,1);
+      if(r && r.pos>=P_LL-0.01 && r.pos<=myS+0.01)
+        meetings.push({kind:"Llodio → Abando",shortKind:"→ Abando (Llodio)",color:"#6A0080",
+          dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
     }
   }
 
@@ -541,10 +547,12 @@ function renderResults(tr,meetings){
     `<div class="s-cell"><div class="s-n" style="color:${meetings.find(m=>m.kind===k).color}">${n}</div><div class="s-l">${k}</div></div>`
   ).join('<div class="s-div"></div>');
 
+  const kindCounts=[...new Map(meetings.map(m=>[m.kind,{kind:m.shortKind,color:m.color,n:meetings.filter(x=>x.kind===m.kind).length}])).values()];
   const sumHTML=`
     <div class="summary">
-      <div class="s-cell"><div class="s-n" style="color:var(--red)">${meetings.length}</div><div class="s-l">TRENES ENCONTRADOS</div></div>
+      <div class="s-cell"><div class="s-n" style="color:var(--red)">${meetings.length}</div><div class="s-l">TOTAL ENCONTRADOS</div></div>
       <div class="s-div"></div>
+      ${kindCounts.map(k=>`<div class="s-cell"><div class="s-n" style="color:${k.color}">${k.n}</div><div class="s-l">${k.kind.toUpperCase()}</div></div><div class="s-div"></div>`).join("")}
       <div class="s-cell"><div class="s-n" style="color:var(--text);font-size:15px">${fmt(tr.depT)}</div><div class="s-l">SALIDA</div></div>
       <div class="s-div"></div>
       <div class="s-cell"><div class="s-n" style="color:var(--green);font-size:15px">${fmt(tr.arrT)}</div><div class="s-l">LLEGADA</div></div>
@@ -589,12 +597,23 @@ function renderResults(tr,meetings){
   if(meetings.length===0){
     listHTML=`<div class="empty">✓ No se encontrarán trenes en sentido contrario en este trayecto.</div>`;
   } else {
-    listHTML=`<div class="meet-list">`+meetings.map(m=>`
+    // Legend
+    const kinds=[...new Map(meetings.map(m=>[m.kind,{kind:m.kind,color:m.color}])).values()];
+    const legendHTML=`<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;padding:10px 12px;background:var(--red-light);border-radius:8px;font-size:11px;">
+      ${kinds.map(k=>`<span style="display:flex;align-items:center;gap:5px;color:var(--text-mid)">
+        <span style="width:10px;height:10px;border-radius:50%;background:${k.color};display:inline-block;flex-shrink:0"></span>
+        <strong style="color:${k.color}">${k.kind}</strong></span>`).join("")}
+    </div>`;
+
+    listHTML=legendHTML+`<div class="meet-list">`+meetings.map(m=>`
       <div class="meet-row">
         <div class="meet-color-bar" style="background:${m.color}"></div>
         <div class="meet-body">
           <div class="meet-loc">${m.location}</div>
-          <div class="meet-meta">${m.kind} · sale Abando ${m.dep} → llega ${m.kind.includes("Orduña")?"Orduña":m.kind.includes("Llodio")?"Llodio":"Abando"} ${m.arr}</div>
+          <div class="meet-meta">
+            <strong style="color:${m.color}">${m.kind}</strong><br>
+            Sale Abando/Llodio: <strong>${m.dep}</strong> · Llega: <strong>${m.arr}</strong>
+          </div>
         </div>
         <div class="meet-time-wrap">
           <div class="meet-time">${m.meetTime}</div>
