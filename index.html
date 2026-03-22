@@ -7,38 +7,24 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="C3 Encuentros"/>
-<meta name="description" content="Renfe Cercanías C3 – Calculadora de trenes encontrados"/>
 <title>C3 · Encuentros en Ruta</title>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --red:#C1001F;
-  --red-dark:#8B0015;
-  --red-light:#FCE8EB;
-  --red-mid:#F4C0C8;
-  --white:#FFFFFF;
-  --off-white:#FDF6F7;
-  --text:#1A0005;
-  --text-mid:#5A2030;
-  --text-dim:#9A7080;
-  --border:#EAD0D5;
-  --card:#FFFFFF;
-  --green:#1A7A3C;
-  --orange:#C05000;
-  --blue:#0050A0;
+  --red:#C1001F;--red-dark:#8B0015;--red-light:#FCE8EB;--red-mid:#F4C0C8;
+  --off-white:#FDF6F7;--text:#1A0005;--text-mid:#5A2030;--text-dim:#9A7080;
+  --border:#EAD0D5;--card:#FFFFFF;--green:#1A7A3C;--orange:#C05000;--blue:#0050A0;
   --shadow:0 2px 12px rgba(193,0,31,.08);
 }
 body{background:var(--off-white);color:var(--text);font-family:'Helvetica Neue',Arial,sans-serif;min-height:100vh}
+button{font-family:inherit;cursor:pointer;transition:all .12s}
 
-/* ── PIN Lock Screen ── */
-#lock-screen{position:fixed;inset:0;background:var(--red);z-index:999;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+/* PIN Lock */
+#lock-screen{position:fixed;inset:0;background:var(--red);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
 #lock-screen.hidden{display:none}
-.lock-logo{background:#fff;color:var(--red);font-weight:900;font-size:22px;
-  padding:8px 18px;border-radius:6px;margin-bottom:10px}
+.lock-logo{background:#fff;color:var(--red);font-weight:900;font-size:22px;padding:8px 18px;border-radius:6px;margin-bottom:10px}
 .lock-title{color:#fff;font-size:18px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
 .lock-sub{color:rgba(255,255,255,.7);font-size:12px;margin-bottom:32px;letter-spacing:.04em}
 .lock-dots{display:flex;gap:16px;margin-bottom:32px}
@@ -46,99 +32,76 @@ body{background:var(--off-white);color:var(--text);font-family:'Helvetica Neue',
 .lock-dot.filled{background:#fff;border-color:#fff}
 .lock-error{color:#FFD0D0;font-size:12px;height:18px;margin-bottom:10px;text-align:center;letter-spacing:.04em}
 .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:240px}
-.pin-btn{height:64px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);
-  background:rgba(255,255,255,.12);color:#fff;font-size:22px;font-weight:600;
-  font-family:inherit;cursor:pointer;transition:all .1s;letter-spacing:.02em}
+.pin-btn{height:64px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:22px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .1s;letter-spacing:.02em}
 .pin-btn:active{background:rgba(255,255,255,.3);transform:scale(.95)}
 .pin-btn.del{font-size:16px}
 .pin-btn.empty{border:none;background:transparent;cursor:default}
 .lock-setup{color:rgba(255,255,255,.8);font-size:11px;margin-top:20px;text-align:center;line-height:1.6}
 .lock-setup span{text-decoration:underline;cursor:pointer;color:#fff}
-.fp-btn{margin-top:16px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);
-  color:#fff;padding:10px 24px;border-radius:24px;font-size:13px;font-family:inherit;cursor:pointer}
+.fp-lock-btn{margin-top:16px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:10px 24px;border-radius:24px;font-size:13px;font-family:inherit;cursor:pointer;display:none}
 
-/* ── Header ── */
+/* Header */
 header{background:var(--red);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 .header-inner{display:flex;align-items:center;gap:12px;padding:12px 16px;max-width:680px;margin:0 auto}
 .renfe-badge{background:#fff;color:var(--red);font-weight:900;font-size:13px;letter-spacing:.05em;padding:4px 9px;border-radius:4px}
 .header-text h1{font-size:15px;font-weight:700;color:#fff;letter-spacing:.04em}
 .header-text p{font-size:10px;color:rgba(255,255,255,.75);margin-top:1px;letter-spacing:.04em}
-.c3-badge{margin-left:auto;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);
-  color:#fff;font-weight:bold;font-size:12px;padding:4px 10px;border-radius:20px;letter-spacing:.04em;flex-shrink:0}
+.c3-badge{margin-left:auto;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);color:#fff;font-weight:bold;font-size:12px;padding:4px 10px;border-radius:20px;letter-spacing:.04em;flex-shrink:0}
 
-/* ── Main ── */
+/* Main */
 main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-direction:column;gap:12px}
-
-/* ── Cards ── */
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
-.card-title{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--red);margin-bottom:14px;text-transform:uppercase;
-  display:flex;align-items:center;gap:8px}
-.step-num{width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;
-  font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-title{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--red);margin-bottom:14px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
-/* ── Toggle buttons (day type) ── */
+/* Toggle (day type) */
 .toggle-row{display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
-.toggle-btn{flex:1;padding:10px;border:none;background:transparent;color:var(--text-mid);
-  font-size:13px;font-family:inherit;cursor:pointer;font-weight:500;transition:all .15s}
+.toggle-btn{flex:1;padding:10px;border:none;background:transparent;color:var(--text-mid);font-size:13px;font-family:inherit;cursor:pointer;font-weight:500;transition:all .15s}
 .toggle-btn.on{background:var(--red);color:#fff;font-weight:700}
 .toggle-btn:not(:last-child){border-right:1.5px solid var(--border)}
 
-/* ── Dropdowns ── */
+/* Fields */
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
 .field:last-child{margin-bottom:0}
 .field label{font-size:11px;font-weight:600;color:var(--text-mid);letter-spacing:.04em}
-.field select{
-  width:100%;padding:11px 14px;border-radius:8px;border:1.5px solid var(--border);
-  background:#fff;color:var(--text);font-size:14px;font-family:inherit;
-  appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23C1001F' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 14px center;
-  cursor:pointer;outline:none;
-}
+.field select{width:100%;padding:11px 14px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--text);font-size:14px;font-family:inherit;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23C1001F' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;outline:none}
 .field select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(193,0,31,.12)}
 .field select:disabled{background:#f5f0f1;color:var(--text-dim);cursor:not-allowed}
 
-/* ── Direction arrow ── */
-.dir-arrow{text-align:center;color:var(--red);font-size:20px;margin:-4px 0;line-height:1}
+/* ── SWAP BUTTON ── */
+.swap-row{display:flex;align-items:center;justify-content:center;margin:-4px 0}
+.swap-btn{background:var(--red);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(193,0,31,.35);transition:transform .2s}
+.swap-btn:active{transform:rotate(180deg) scale(.9)}
 
-/* ── Info chip ── */
-.info-chip{font-size:11px;color:var(--text-dim);background:var(--red-light);
-  border-radius:6px;padding:7px 12px;margin-top:4px;line-height:1.5}
+.note{margin-top:10px;font-size:11px;color:var(--text-dim)}
+.info-chip{font-size:11px;color:var(--text-dim);background:var(--red-light);border-radius:6px;padding:7px 12px;margin-top:4px;line-height:1.5}
 .info-chip strong{color:var(--red)}
-
-/* ── Calculate button ── */
-.calc-btn{width:100%;padding:14px;border-radius:10px;background:var(--red);border:none;
-  color:#fff;font-size:14px;font-weight:700;font-family:inherit;letter-spacing:.06em;
-  cursor:pointer;box-shadow:0 4px 14px rgba(193,0,31,.35);transition:all .15s}
+.calc-btn{width:100%;padding:14px;border-radius:10px;background:var(--red);border:none;color:#fff;font-size:14px;font-weight:700;font-family:inherit;letter-spacing:.06em;cursor:pointer;box-shadow:0 4px 14px rgba(193,0,31,.35);transition:all .15s}
 .calc-btn:active{opacity:.88;transform:scale(.99)}
 .calc-btn:disabled{background:#ccc;box-shadow:none;cursor:not-allowed}
 
-/* ── Summary strip ── */
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
-  border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+/* Summary */
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
 .s-cell{padding:12px 8px;text-align:center;background:#fff}
 .s-cell:not(:last-child){border-right:1px solid var(--border)}
 .s-n{font-size:20px;font-weight:800}
 .s-l{font-size:9px;color:var(--text-dim);letter-spacing:.1em;margin-top:3px;text-transform:uppercase}
 
-/* ── Visualizer ── */
+/* Viz */
 .viz-wrap{background:var(--red-light);border-radius:10px;padding:14px 12px;margin-bottom:14px}
 .viz-label-row{display:flex;justify-content:space-between;margin-bottom:8px}
 .viz-stn{font-size:10px;font-weight:700;color:var(--red-dark)}
 .viz-track-wrap{position:relative;height:24px;display:flex;align-items:center;margin-bottom:8px}
 .viz-line{position:absolute;left:0;right:0;height:3px;background:var(--red-mid);border-radius:2px}
-.viz-my-line{position:absolute;height:3px;background:var(--red);border-radius:2px;z-index:1}
 .viz-tick{position:absolute;width:2px;height:10px;background:rgba(193,0,31,.3);top:50%;transform:translateY(-50%)}
-.viz-dot{position:absolute;width:13px;height:13px;border-radius:50%;
-  top:50%;transform:translate(-50%,-50%);border:2.5px solid #fff;z-index:3;box-shadow:0 0 6px rgba(0,0,0,.2)}
+.viz-dot{position:absolute;width:13px;height:13px;border-radius:50%;top:50%;transform:translate(-50%,-50%);border:2.5px solid #fff;z-index:3;box-shadow:0 0 6px rgba(0,0,0,.2)}
 .viz-legend{display:flex;gap:14px;flex-wrap:wrap}
 .viz-legend span{font-size:10px;color:var(--text-mid);display:flex;align-items:center;gap:4px}
 .legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
 
-/* ── Meet list ── */
+/* Meet list */
 .meet-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.meet-row{display:flex;align-items:center;gap:10px;padding:11px 12px;
-  border-radius:8px;background:var(--off-white);border:1px solid var(--border)}
+.meet-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;background:var(--off-white);border:1px solid var(--border)}
 .meet-color-bar{width:4px;height:36px;border-radius:3px;flex-shrink:0}
 .meet-body{flex:1;min-width:0}
 .meet-loc{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
@@ -146,21 +109,14 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .meet-time-wrap{text-align:right;flex-shrink:0}
 .meet-time{font-size:17px;font-weight:800;color:var(--green)}
 .meet-time-lbl{font-size:9px;color:var(--text-dim);letter-spacing:.06em;margin-top:1px}
-
-.empty{padding:24px;text-align:center;color:var(--text-dim);font-size:13px;
-  background:var(--off-white);border:1.5px dashed var(--border);border-radius:10px}
-
-.reset-btn{width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--border);
-  background:transparent;color:var(--text-mid);font-size:13px;font-family:inherit;cursor:pointer}
-
-/* ── Footer ── */
-footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);
-  letter-spacing:.06em;border-top:1px solid var(--border);background:#fff}
+.empty{padding:24px;text-align:center;color:var(--text-dim);font-size:13px;background:var(--off-white);border:1.5px dashed var(--border);border-radius:10px}
+.reset-btn{width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-mid);font-size:13px;font-family:inherit;cursor:pointer}
+footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);letter-spacing:.06em;border-top:1px solid var(--border);background:#fff}
 </style>
 </head>
 <body>
 
-<!-- ── PIN LOCK SCREEN ── -->
+<!-- PIN LOCK SCREEN -->
 <div id="lock-screen">
   <div class="lock-logo">renfe</div>
   <div class="lock-title">C3 CERCANÍAS</div>
@@ -187,9 +143,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);
     <button class="pin-btn del" onclick="pinDel()">⌫</button>
   </div>
   <div class="lock-setup" id="lock-setup-msg"></div>
-  <button class="fp-btn" id="fp-btn" style="display:none" onclick="tryFingerprint()">
-    ☝ Use Fingerprint
-  </button>
+  <button class="fp-lock-btn" id="fp-btn" onclick="tryFingerprint()">☝ Use Fingerprint</button>
 </div>
 
 <header>
@@ -204,7 +158,6 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);
 </header>
 
 <main>
-
   <!-- ① Day type -->
   <div class="card">
     <div class="card-title"><span class="step-num">1</span>DÍA / DAY TYPE</div>
@@ -223,8 +176,13 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);
         <option value="">— Select station —</option>
       </select>
     </div>
-    <div class="dir-arrow">↓</div>
-    <div class="field" style="margin-top:10px">
+
+    <!-- ⇅ SWAP BUTTON -->
+    <div class="swap-row">
+      <button class="swap-btn" onclick="swapStations()" title="Swap stations">⇅</button>
+    </div>
+
+    <div class="field">
       <label>HASTA / TO</label>
       <select id="sel-to" onchange="onToChange()">
         <option value="">— Select station —</option>
@@ -252,7 +210,6 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);
     <div class="card-title"><span class="step-num">4</span>ENCUENTROS / ENCOUNTERS</div>
     <div id="results-inner"></div>
   </div>
-
 </main>
 
 <footer>Renfe Cercanías C3 · Horario Enero 2025 · Posiciones aproximadas</footer>
@@ -264,33 +221,22 @@ function fixArr(d,a){return a<d?a+1440:a}
 function mk(pairs){return pairs.map(([d,a])=>({dep:t(d),arr:fixArr(t(d),t(a))}))}
 function fmt(mins){const m=((Math.round(mins)%1440)+1440)%1440;return`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`}
 
-// ── Stations (position 0=Orduña … 1=Abando) ──────────────────────────────────
+// ── Stations ─────────────────────────────────────────────────────────────────
 const P_LL=0.376;
 const STATIONS=[
-  {name:"Orduña",          pos:0.000, fullOnly:true},
-  {name:"Iñarratxu",       pos:0.100, fullOnly:true},
-  {name:"Amurrio",         pos:0.185, fullOnly:true},
-  {name:"Amurrio-Iparralde",pos:0.215,fullOnly:true},
-  {name:"Salbio",          pos:0.235, fullOnly:true},
-  {name:"Luiaondo",        pos:0.268, fullOnly:true},
+  {name:"Orduña",pos:0.000,fullOnly:true},{name:"Iñarratxu",pos:0.100,fullOnly:true},
+  {name:"Amurrio",pos:0.185,fullOnly:true},{name:"Amurrio-Iparralde",pos:0.215,fullOnly:true},
+  {name:"Salbio",pos:0.235,fullOnly:true},{name:"Luiaondo",pos:0.268,fullOnly:true},
   {name:"Santa Cruz de Llodio",pos:0.310,fullOnly:true},
-  {name:"Llodio",          pos:P_LL,  fullOnly:false},
-  {name:"Areta",           pos:0.420, fullOnly:false},
-  {name:"Arakaldo",        pos:0.466, fullOnly:false},
-  {name:"Arbide",          pos:0.511, fullOnly:false},
-  {name:"Arrankudiaga",    pos:0.558, fullOnly:false},
-  {name:"Bakiola",         pos:0.580, fullOnly:false},
-  {name:"Ugao-Miraballes", pos:0.604, fullOnly:false},
-  {name:"Arrigorriaga",    pos:0.697, fullOnly:false},
-  {name:"Basauri",         pos:0.744, fullOnly:false},
-  {name:"Abaroa-San Miguel",pos:0.768,fullOnly:false},
-  {name:"Bidebieta",       pos:0.814, fullOnly:false},
-  {name:"Ollargan",        pos:0.882, fullOnly:false},
-  {name:"La Peña",         pos:0.906, fullOnly:false},
-  {name:"Miribilla",       pos:0.953, fullOnly:false},
-  {name:"Abando",          pos:1.000, fullOnly:false},
+  {name:"Llodio",pos:P_LL,fullOnly:false},{name:"Areta",pos:0.420,fullOnly:false},
+  {name:"Arakaldo",pos:0.466,fullOnly:false},{name:"Arbide",pos:0.511,fullOnly:false},
+  {name:"Arrankudiaga",pos:0.558,fullOnly:false},{name:"Bakiola",pos:0.580,fullOnly:false},
+  {name:"Ugao-Miraballes",pos:0.604,fullOnly:false},{name:"Arrigorriaga",pos:0.697,fullOnly:false},
+  {name:"Basauri",pos:0.744,fullOnly:false},{name:"Abaroa-San Miguel",pos:0.768,fullOnly:false},
+  {name:"Bidebieta",pos:0.814,fullOnly:false},{name:"Ollargan",pos:0.882,fullOnly:false},
+  {name:"La Peña",pos:0.906,fullOnly:false},{name:"Miribilla",pos:0.953,fullOnly:false},
+  {name:"Abando",pos:1.000,fullOnly:false},
 ];
-
 function segLabel(pos){
   const s=[...STATIONS].sort((a,b)=>a.pos-b.pos);
   for(let i=0;i<s.length-1;i++){
@@ -317,56 +263,28 @@ const WE={
   abandoToLlodio:mk([["05:00","05:37"],["05:20","05:57"],["05:50","06:27"],["06:20","06:57"],["06:41","07:25"],["07:18","07:55"],["07:50","08:27"],["08:20","08:57"],["08:50","09:27"],["09:20","09:57"],["09:50","10:27"],["10:18","10:55"],["10:50","11:27"],["11:20","11:57"],["11:50","12:33"],["12:20","12:57"],["12:50","13:27"],["13:20","13:57"],["13:50","14:27"],["14:20","14:57"],["14:43","15:20"],["15:21","15:58"],["15:50","16:27"],["16:20","16:57"],["16:50","17:27"],["17:32","18:09"],["17:47","18:24"],["18:22","18:59"],["18:50","19:27"],["19:22","19:59"],["19:50","20:27"],["20:20","20:57"],["20:50","21:27"],["21:20","21:57"],["21:48","22:25"],["22:30","23:07"],["23:28","00:05"]])
 };
 
-// ── Time at an intermediate station by linear interpolation ───────────────────
-// trainType: "OA"=Orduña→Abando, "AO"=Abando→Orduña, "LA"=Llodio→Abando, "AL"=Abando→Llodio
-function timeAt(tr, type, pos){
-  const d=tr.dep, a=tr.arr, dur=a-d;
-  if(type==="OA") return d + dur*pos;               // pos 0→1
-  if(type==="AO") return d + dur*(1-pos);           // pos 1→0
-  if(type==="LA") return d + dur*(pos-P_LL)/(1-P_LL); // pos P_LL→1
-  if(type==="AL") return d + dur*(1-pos)/(1-P_LL); // pos 1→P_LL
+// ── Meeting logic ─────────────────────────────────────────────────────────────
+function timeAt(tr,type,pos){
+  const d=tr.dep,a=tr.arr,dur=a-d;
+  if(type==="OA")return d+dur*pos;
+  if(type==="AO")return d+dur*(1-pos);
+  if(type==="LA")return d+dur*(pos-P_LL)/(1-P_LL);
+  if(type==="AL")return d+dur*(1-pos)/(1-P_LL);
   return null;
 }
-
-// ── Get all trains serving fromPos→toPos, with interpolated times ─────────────
-function getAvailableTrains(fromPos, toPos, sched){
-  const toAbando = toPos > fromPos;  // direction
-  const trains=[];
-
+function getTrains(fromPos,toPos,sched){
+  const toAbando=toPos>fromPos,trains=[];
   if(toAbando){
-    // Full trains Orduña→Abando (serve all stations)
-    for(const tr of sched.ordunaToAbando){
-      const depT=timeAt(tr,"OA",fromPos), arrT=timeAt(tr,"OA",toPos);
-      trains.push({tr,type:"OA",depT,arrT,label:`${fmt(depT)} → ${fmt(arrT)} (Orduña→Abando)`});
-    }
-    // Short trains Llodio→Abando (only if fromPos >= P_LL)
-    if(fromPos>=P_LL-0.01){
-      for(const tr of sched.llodioToAbando){
-        const depT=timeAt(tr,"LA",fromPos), arrT=timeAt(tr,"LA",toPos);
-        trains.push({tr,type:"LA",depT,arrT,label:`${fmt(depT)} → ${fmt(arrT)} (Llodio→Abando)`});
-      }
-    }
+    for(const tr of sched.ordunaToAbando)trains.push({tr,type:"OA",depT:timeAt(tr,"OA",fromPos),arrT:timeAt(tr,"OA",toPos),label:`(Orduña→Abando)`});
+    if(fromPos>=P_LL-.01)for(const tr of sched.llodioToAbando)trains.push({tr,type:"LA",depT:timeAt(tr,"LA",fromPos),arrT:timeAt(tr,"LA",toPos),label:`(Llodio→Abando)`});
   } else {
-    // Full trains Abando→Orduña
-    for(const tr of sched.abandoToOrduna){
-      const depT=timeAt(tr,"AO",fromPos), arrT=timeAt(tr,"AO",toPos);
-      trains.push({tr,type:"AO",depT,arrT,label:`${fmt(depT)} → ${fmt(arrT)} (Abando→Orduña)`});
-    }
-    // Short trains Abando→Llodio (only if toPos >= P_LL)
-    if(toPos>=P_LL-0.01){
-      for(const tr of sched.abandoToLlodio){
-        const depT=timeAt(tr,"AL",fromPos), arrT=timeAt(tr,"AL",toPos);
-        trains.push({tr,type:"AL",depT,arrT,label:`${fmt(depT)} → ${fmt(arrT)} (Abando→Llodio)`});
-      }
-    }
+    for(const tr of sched.abandoToOrduna)trains.push({tr,type:"AO",depT:timeAt(tr,"AO",fromPos),arrT:timeAt(tr,"AO",toPos),label:`(Abando→Orduña)`});
+    if(toPos>=P_LL-.01)for(const tr of sched.abandoToLlodio)trains.push({tr,type:"AL",depT:timeAt(tr,"AL",fromPos),arrT:timeAt(tr,"AL",toPos),label:`(Abando→Llodio)`});
   }
-  // Sort by departure time
   trains.sort((a,b)=>((a.depT%1440+1440)%1440)-((b.depT%1440+1440)%1440));
   return trains;
 }
-
-// ── Meeting algorithm ─────────────────────────────────────────────────────────
-function meetPoint(myDep,myArr,myS,myE,thDep,thArr,thS,thE){
+function meetPt(myDep,myArr,myS,myE,thDep,thArr,thS,thE){
   const md=myArr-myDep,td=thArr-thDep;
   if(md<=0||td<=0)return null;
   const sa=(myE-myS)/md,sb=(thE-thS)/td,den=sa-sb;
@@ -380,45 +298,27 @@ function meetPoint(myDep,myArr,myS,myE,thDep,thArr,thS,thE){
     return{time:T,pos};
   return null;
 }
-
 function calcMeetings(myDepT,myArrT,myS,myE,sched){
-  const toAbando=myE>myS;
-  const meetings=[];
-
+  const toAbando=myE>myS,meetings=[];
   if(toAbando){
-    // ✅ Abando→Orduña full trains (pos 1→0) — head-on, full route, always valid
     for(const tr of sched.abandoToOrduna){
-      const r=meetPoint(myDepT,myArrT,myS,myE,tr.dep,tr.arr,1,0);
-      if(r && r.pos>=myS-0.01 && r.pos<=myE+0.01)
-        meetings.push({kind:"Abando → Orduña",shortKind:"→ Orduña",color:"#C05000",
-          dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+      const r=meetPt(myDepT,myArrT,myS,myE,tr.dep,tr.arr,1,0);
+      if(r&&r.pos>=myS-.01&&r.pos<=myE+.01)meetings.push({kind:"Abando→Orduña",color:"#C05000",dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
     }
-    // ✅ Abando→Llodio short trains (pos 1→P_LL) — only valid if meeting point is
-    //    between Llodio and Abando (pos >= P_LL). They never go past Llodio toward Orduña.
     for(const tr of sched.abandoToLlodio){
-      const r=meetPoint(myDepT,myArrT,myS,myE,tr.dep,tr.arr,1,P_LL);
-      if(r && r.pos>=P_LL-0.01 && r.pos<=1.01)
-        meetings.push({kind:"Abando → Llodio",shortKind:"→ Llodio",color:"#0050A0",
-          dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+      const r=meetPt(myDepT,myArrT,myS,myE,tr.dep,tr.arr,1,P_LL);
+      if(r&&r.pos>=P_LL-.01&&r.pos<=1.01)meetings.push({kind:"Abando→Llodio",color:"#0050A0",dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
     }
   } else {
-    // ✅ Orduña→Abando full trains (pos 0→1) — head-on, full route, always valid
     for(const tr of sched.ordunaToAbando){
-      const r=meetPoint(myDepT,myArrT,myS,myE,tr.dep,tr.arr,0,1);
-      if(r && r.pos>=myE-0.01 && r.pos<=myS+0.01)
-        meetings.push({kind:"Orduña → Abando",shortKind:"→ Abando (full)",color:"#C1001F",
-          dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+      const r=meetPt(myDepT,myArrT,myS,myE,tr.dep,tr.arr,0,1);
+      if(r&&r.pos>=myE-.01&&r.pos<=myS+.01)meetings.push({kind:"Orduña→Abando",color:"#C1001F",dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
     }
-    // ✅ Llodio→Abando short trains (pos P_LL→1) — only valid if meeting point is
-    //    between Llodio and Abando (pos >= P_LL). They don't come from Orduña side.
     for(const tr of sched.llodioToAbando){
-      const r=meetPoint(myDepT,myArrT,myS,myE,tr.dep,tr.arr,P_LL,1);
-      if(r && r.pos>=P_LL-0.01 && r.pos<=myS+0.01)
-        meetings.push({kind:"Llodio → Abando",shortKind:"→ Abando (Llodio)",color:"#6A0080",
-          dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
+      const r=meetPt(myDepT,myArrT,myS,myE,tr.dep,tr.arr,P_LL,1);
+      if(r&&r.pos>=P_LL-.01&&r.pos<=myS+.01)meetings.push({kind:"Llodio→Abando",color:"#6A0080",dep:fmt(tr.dep),arr:fmt(tr.arr),meetTime:fmt(r.time),pos:r.pos,location:segLabel(r.pos)});
     }
   }
-
   meetings.sort((a,b)=>{
     const ta=((a.meetTime.split(":").reduce((s,v,i)=>s+(i===0?+v*60:+v),0))%1440+1440)%1440;
     const tb=((b.meetTime.split(":").reduce((s,v,i)=>s+(i===0?+v*60:+v),0))%1440+1440)%1440;
@@ -428,21 +328,16 @@ function calcMeetings(myDepT,myArrT,myS,myE,sched){
 }
 
 // ── App state ─────────────────────────────────────────────────────────────────
-let dayType="weekday";
-let fromIdx=null, toIdx=null;
-let availableTrains=[], selTrainIdx=null;
-
+let dayType="weekday",fromIdx=null,toIdx=null,availTrains=[],selTrainIdx=null;
 function sched(){return dayType==="weekday"?WD:WE}
 
-// Populate station dropdowns
 function initSelects(){
   ["sel-from","sel-to"].forEach(id=>{
     const el=document.getElementById(id);
     el.innerHTML='<option value="">— Select station —</option>';
     STATIONS.forEach((s,i)=>{
       const o=document.createElement("option");
-      o.value=i; o.textContent=s.name;
-      el.appendChild(o);
+      o.value=i;o.textContent=s.name;el.appendChild(o);
     });
   });
 }
@@ -451,20 +346,28 @@ function setDay(v){
   dayType=v;
   document.getElementById("btn-wd").className="toggle-btn"+(v==="weekday"?" on":"");
   document.getElementById("btn-we").className="toggle-btn"+(v==="weekend"?" on":"");
-  selTrainIdx=null; availableTrains=[];
-  updateTimeDropdown();
-  hideResults();
+  selTrainIdx=null;availTrains=[];updateTimeDropdown();hideResults();
+}
+
+// ── SWAP STATIONS ─────────────────────────────────────────────────────────────
+function swapStations(){
+  const fromSel=document.getElementById("sel-from");
+  const toSel=document.getElementById("sel-to");
+  const tmp=fromSel.value;
+  fromSel.value=toSel.value;
+  toSel.value=tmp;
+  fromIdx=fromSel.value===""?null:parseInt(fromSel.value);
+  toIdx=toSel.value===""?null:parseInt(toSel.value);
+  selTrainIdx=null;updateTimeDropdown();hideResults();
 }
 
 function onFromChange(){
-  const v=document.getElementById("sel-from").value;
-  fromIdx=v===""?null:parseInt(v);
-  selTrainIdx=null; updateTimeDropdown(); hideResults();
+  fromIdx=document.getElementById("sel-from").value===""?null:parseInt(document.getElementById("sel-from").value);
+  selTrainIdx=null;updateTimeDropdown();hideResults();
 }
 function onToChange(){
-  const v=document.getElementById("sel-to").value;
-  toIdx=v===""?null:parseInt(v);
-  selTrainIdx=null; updateTimeDropdown(); hideResults();
+  toIdx=document.getElementById("sel-to").value===""?null:parseInt(document.getElementById("sel-to").value);
+  selTrainIdx=null;updateTimeDropdown();hideResults();
 }
 function onTimeChange(){
   const v=document.getElementById("sel-time").value;
@@ -473,162 +376,89 @@ function onTimeChange(){
   document.getElementById("calc-btn").style.display=selTrainIdx!==null?"block":"none";
   hideResults();
 }
-
 function updateTimeDropdown(){
   const sel=document.getElementById("sel-time");
   const info=document.getElementById("train-info");
   sel.innerHTML="";
   document.getElementById("calc-btn").style.display="none";
   info.style.display="none";
-
-  if(fromIdx===null||toIdx===null){
-    sel.innerHTML='<option value="">— Choose from &amp; to first —</option>';
-    sel.disabled=true; return;
-  }
-  if(fromIdx===toIdx){
-    sel.innerHTML='<option value="">— Origin and destination must differ —</option>';
-    sel.disabled=true; return;
-  }
-
-  const fromPos=STATIONS[fromIdx].pos, toPos=STATIONS[toIdx].pos;
-
-  // Validate: full-only stations only served by full trains in correct direction
-  const fromFull=STATIONS[fromIdx].fullOnly, toFull=STATIONS[toIdx].fullOnly;
-  // If going toward Abando from a full-only station: ok (OA trains)
-  // If going toward Orduña to a full-only station: ok (AO trains)
-  // If going between two full-only stations in wrong direction: might be empty but that's fine
-
-  availableTrains=getAvailableTrains(fromPos,toPos,sched());
-
-  if(availableTrains.length===0){
-    sel.innerHTML='<option value="">— No trains for this route —</option>';
-    sel.disabled=true; return;
-  }
-
+  if(fromIdx===null||toIdx===null){sel.innerHTML='<option value="">— Choose from &amp; to first —</option>';sel.disabled=true;return;}
+  if(fromIdx===toIdx){sel.innerHTML='<option value="">— Origin and destination must differ —</option>';sel.disabled=true;return;}
+  const fp=STATIONS[fromIdx].pos,tp=STATIONS[toIdx].pos;
+  availTrains=getTrains(fp,tp,sched());
+  if(availTrains.length===0){sel.innerHTML='<option value="">— No trains for this route —</option>';sel.disabled=true;return;}
   sel.disabled=false;
   sel.innerHTML='<option value="">— Select departure time —</option>';
-  availableTrains.forEach((tr,i)=>{
+  availTrains.forEach((tr,i)=>{
     const o=document.createElement("option");
-    o.value=i; o.textContent=tr.label;
-    sel.appendChild(o);
+    o.value=i;o.textContent=`${fmt(tr.depT)} → ${fmt(tr.arrT)} ${tr.label}`;sel.appendChild(o);
   });
 }
-
 function updateTrainInfo(){
   const info=document.getElementById("train-info");
   if(selTrainIdx===null){info.style.display="none";return;}
-  const tr=availableTrains[selTrainIdx];
-  const fName=STATIONS[fromIdx].name, tName=STATIONS[toIdx].name;
-  info.innerHTML=`Departs <strong>${fName}</strong> at <strong>${fmt(tr.depT)}</strong> · Arrives <strong>${tName}</strong> at <strong>${fmt(tr.arrT)}</strong>`;
+  const tr=availTrains[selTrainIdx];
+  info.innerHTML=`Departs <strong>${STATIONS[fromIdx].name}</strong> at <strong>${fmt(tr.depT)}</strong> · Arrives <strong>${STATIONS[toIdx].name}</strong> at <strong>${fmt(tr.arrT)}</strong>`;
   info.style.display="block";
 }
-
 function calculate(){
   if(selTrainIdx===null)return;
-  const tr=availableTrains[selTrainIdx];
-  const fromPos=STATIONS[fromIdx].pos, toPos=STATIONS[toIdx].pos;
-  const meetings=calcMeetings(tr.depT,tr.arrT,fromPos,toPos,sched());
+  const tr=availTrains[selTrainIdx];
+  const fp=STATIONS[fromIdx].pos,tp=STATIONS[toIdx].pos;
+  const meetings=calcMeetings(tr.depT,tr.arrT,fp,tp,sched());
   renderResults(tr,meetings);
 }
-
-function hideResults(){
-  document.getElementById("results-card").style.display="none";
-}
-
+function hideResults(){document.getElementById("results-card").style.display="none";}
 function renderResults(tr,meetings){
-  const fName=STATIONS[fromIdx].name, tName=STATIONS[toIdx].name;
-  const fromPos=STATIONS[fromIdx].pos, toPos=STATIONS[toIdx].pos;
-  const toAbando=toPos>fromPos;
-
-  // Color counts by kind
-  const countByKind={};
-  meetings.forEach(m=>{countByKind[m.kind]=(countByKind[m.kind]||0)+1});
-  const kindSummary=Object.entries(countByKind).map(([k,n])=>
-    `<div class="s-cell"><div class="s-n" style="color:${meetings.find(m=>m.kind===k).color}">${n}</div><div class="s-l">${k}</div></div>`
-  ).join('<div class="s-div"></div>');
-
-  const kindCounts=[...new Map(meetings.map(m=>[m.kind,{kind:m.shortKind,color:m.color,n:meetings.filter(x=>x.kind===m.kind).length}])).values()];
-  const sumHTML=`
-    <div class="summary">
-      <div class="s-cell"><div class="s-n" style="color:var(--red)">${meetings.length}</div><div class="s-l">TOTAL ENCONTRADOS</div></div>
-      <div class="s-div"></div>
-      ${kindCounts.map(k=>`<div class="s-cell"><div class="s-n" style="color:${k.color}">${k.n}</div><div class="s-l">${k.kind.toUpperCase()}</div></div><div class="s-div"></div>`).join("")}
-      <div class="s-cell"><div class="s-n" style="color:var(--text);font-size:15px">${fmt(tr.depT)}</div><div class="s-l">SALIDA</div></div>
-      <div class="s-div"></div>
-      <div class="s-cell"><div class="s-n" style="color:var(--green);font-size:15px">${fmt(tr.arrT)}</div><div class="s-l">LLEGADA</div></div>
-    </div>`;
-
-  // Visualizer
-  const minPos=Math.min(fromPos,toPos), maxPos=Math.max(fromPos,toPos);
-  const span=maxPos-minPos||0.001;
-  const vizStn=STATIONS.filter(s=>s.pos>=minPos-0.01&&s.pos<=maxPos+0.01);
-  const ticks=vizStn.map(s=>{
-    const frac=(s.pos-minPos)/span;
+  const fName=STATIONS[fromIdx].name,tName=STATIONS[toIdx].name;
+  const fp=STATIONS[fromIdx].pos,tp=STATIONS[toIdx].pos;
+  const toAbando=tp>fp;
+  const kinds=[...new Map(meetings.map(m=>[m.kind,{kind:m.kind,color:m.color,n:meetings.filter(x=>x.kind===m.kind).length}])).values()];
+  const kindCells=kinds.map(k=>`<div class="s-cell"><div class="s-n" style="color:${k.color}">${k.n}</div><div class="s-l">${k.kind}</div></div><div style="width:1px;height:44px;background:var(--border);align-self:center"></div>`).join("");
+  const sumHTML=`<div class="summary" style="grid-template-columns:repeat(${2+kinds.length},1fr)">
+    <div class="s-cell"><div class="s-n" style="color:var(--red)">${meetings.length}</div><div class="s-l">TOTAL</div></div>
+    <div style="width:1px;height:44px;background:var(--border);align-self:center"></div>
+    ${kindCells}
+    <div class="s-cell"><div class="s-n" style="color:var(--text);font-size:15px">${fmt(tr.depT)}</div><div class="s-l">SALIDA</div></div>
+  </div>`;
+  const minP=Math.min(fp,tp),maxP=Math.max(fp,tp),span=maxP-minP||.001;
+  const ticks=STATIONS.filter(s=>s.pos>=minP-.01&&s.pos<=maxP+.01).map(s=>{
+    const frac=(s.pos-minP)/span;
     return`<div class="viz-tick" style="left:${frac*100}%"></div>`;
   }).join("");
-  const myLineFrac0=0, myLineFrac1=100;
   const dots=meetings.map(m=>{
-    const frac=toAbando?(m.pos-minPos)/span:(maxPos-m.pos)/span;
-    const clampedFrac=Math.max(0,Math.min(1,frac));
-    return`<div class="viz-dot" style="left:${clampedFrac*100}%;background:${m.color}" title="${m.meetTime} – ${m.location}"></div>`;
+    const frac=toAbando?(m.pos-minP)/span:(maxP-m.pos)/span;
+    const cf=Math.max(0,Math.min(1,frac));
+    return`<div class="viz-dot" style="left:${cf*100}%;background:${m.color};box-shadow:0 0 7px ${m.color}" title="${m.meetTime} – ${m.location}"></div>`;
   }).join("");
-  const vizHTML=`
-    <div class="viz-wrap">
-      <div class="viz-label-row">
-        <span class="viz-stn">${toAbando?fName:tName}</span>
-        <span class="viz-stn">${toAbando?tName:fName}</span>
-      </div>
-      <div class="viz-track-wrap">
-        <div class="viz-line"></div>
-        <div class="viz-my-line" style="left:0;right:0"></div>
-        ${ticks}${dots}
-      </div>
-      <div class="viz-legend">
-        ${[...new Set(meetings.map(m=>m.kind))].map(k=>{
-          const col=meetings.find(m=>m.kind===k).color;
-          return`<span><span class="legend-dot" style="background:${col}"></span>${k}</span>`;
-        }).join("")}
-        <span style="color:var(--text-dim);font-size:9px">● = punto de encuentro aprox.</span>
-      </div>
-    </div>`;
-
-  // List
+  const vizHTML=`<div class="viz-wrap">
+    <div class="viz-label-row"><span class="viz-stn">${toAbando?fName:tName}</span><span class="viz-stn">${toAbando?tName:fName}</span></div>
+    <div class="viz-track-wrap"><div class="viz-line"></div>${ticks}${dots}</div>
+    <div class="viz-legend">
+      ${[...new Set(meetings.map(m=>m.kind))].map(k=>{const col=meetings.find(m=>m.kind===k).color;return`<span><span class="legend-dot" style="background:${col}"></span>${k}</span>`;}).join("")}
+    </div>
+  </div>`;
   let listHTML="";
   if(meetings.length===0){
     listHTML=`<div class="empty">✓ No se encontrarán trenes en sentido contrario en este trayecto.</div>`;
   } else {
-    // Legend
-    const kinds=[...new Map(meetings.map(m=>[m.kind,{kind:m.kind,color:m.color}])).values()];
     const legendHTML=`<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;padding:10px 12px;background:var(--red-light);border-radius:8px;font-size:11px;">
-      ${kinds.map(k=>`<span style="display:flex;align-items:center;gap:5px;color:var(--text-mid)">
-        <span style="width:10px;height:10px;border-radius:50%;background:${k.color};display:inline-block;flex-shrink:0"></span>
-        <strong style="color:${k.color}">${k.kind}</strong></span>`).join("")}
+      ${kinds.map(k=>`<span style="display:flex;align-items:center;gap:5px;color:var(--text-mid)"><span style="width:10px;height:10px;border-radius:50%;background:${k.color};display:inline-block"></span><strong style="color:${k.color}">${k.kind}</strong></span>`).join("")}
     </div>`;
-
     listHTML=legendHTML+`<div class="meet-list">`+meetings.map(m=>`
       <div class="meet-row">
         <div class="meet-color-bar" style="background:${m.color}"></div>
         <div class="meet-body">
           <div class="meet-loc">${m.location}</div>
-          <div class="meet-meta">
-            <strong style="color:${m.color}">${m.kind}</strong><br>
-            Sale Abando/Llodio: <strong>${m.dep}</strong> · Llega: <strong>${m.arr}</strong>
-          </div>
+          <div class="meet-meta"><strong style="color:${m.color}">${m.kind}</strong> · Sale: <strong>${m.dep}</strong> → Llega: <strong>${m.arr}</strong></div>
         </div>
-        <div class="meet-time-wrap">
-          <div class="meet-time">${m.meetTime}</div>
-          <div class="meet-time-lbl">ENCUENTRO</div>
-        </div>
+        <div class="meet-time-wrap"><div class="meet-time">${m.meetTime}</div><div class="meet-time-lbl">ENCUENTRO</div></div>
       </div>`).join("")+`</div>`;
   }
-
-  document.getElementById("results-inner").innerHTML=
-    sumHTML+vizHTML+listHTML+
-    `<button class="reset-btn" onclick="resetResult()">← Nueva Consulta</button>`;
+  document.getElementById("results-inner").innerHTML=sumHTML+vizHTML+listHTML+`<button class="reset-btn" onclick="resetResult()">← Nueva Consulta</button>`;
   document.getElementById("results-card").style.display="block";
   setTimeout(()=>document.getElementById("results-card").scrollIntoView({behavior:"smooth",block:"start"}),100);
 }
-
 function resetResult(){
   document.getElementById("results-card").style.display="none";
   document.getElementById("sel-time").value="";
@@ -637,191 +467,116 @@ function resetResult(){
   document.getElementById("train-info").style.display="none";
 }
 
-// ── Service Worker ────────────────────────────────────────────────────────────
-if("serviceWorker" in navigator){
-  const sw=`const C="c3-v2";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.add("/"))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
-  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"text/javascript"}))).catch(()=>{});
-}
-
-
-
-// ── PIN + FINGERPRINT LOCK ────────────────────────────────────────────────────
-const PIN_KEY   = "c3_pin";
-const CRED_KEY  = "c3_credId";   // stored Base64 credential ID
-let pinEntry="", pinMode="unlock", pinFirst="";
-
-// ── Dot display ───────────────────────────────────────────────────────────────
-function updateDots(){
-  for(let i=0;i<4;i++)
-    document.getElementById("d"+i).className="lock-dot"+(i<pinEntry.length?" filled":"");
-}
+// ── PIN LOCK ──────────────────────────────────────────────────────────────────
+const PIN_KEY="c3_pin",CRED_KEY="c3_credId";
+let pinEntry="",pinMode="unlock",pinFirst="";
+function updateDots(){for(let i=0;i<4;i++)document.getElementById("d"+i).className="lock-dot"+(i<pinEntry.length?" filled":"");}
 function shakeError(msg){
   document.getElementById("lock-error").textContent=msg;
   const d=document.querySelector(".lock-dots");
-  d.style.transition="none";
-  d.style.transform="translateX(-10px)";
+  d.style.transition="none";d.style.transform="translateX(-10px)";
   setTimeout(()=>{d.style.transition="transform .08s";d.style.transform="translateX(10px)"},80);
   setTimeout(()=>d.style.transform="",160);
 }
-
-// ── PIN entry ─────────────────────────────────────────────────────────────────
-function pinPress(digit){
-  if(pinEntry.length>=4)return;
-  pinEntry+=digit; updateDots();
-  if(pinEntry.length===4) setTimeout(pinSubmit,140);
-}
-function pinDel(){
-  pinEntry=pinEntry.slice(0,-1); updateDots();
-  document.getElementById("lock-error").textContent="";
-}
+function pinPress(digit){if(pinEntry.length>=4)return;pinEntry+=digit;updateDots();if(pinEntry.length===4)setTimeout(pinSubmit,140);}
+function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();document.getElementById("lock-error").textContent="";}
 function pinSubmit(){
   const stored=localStorage.getItem(PIN_KEY);
   if(pinMode==="unlock"){
     if(!stored){startSetup();return;}
-    if(pinEntry===stored){ unlockApp(); }
-    else{ pinEntry=""; updateDots(); shakeError("Incorrect PIN – try again"); }
+    if(pinEntry===stored){unlockApp();}
+    else{pinEntry="";updateDots();shakeError("Incorrect PIN – try again");}
   } else if(pinMode==="setup1"){
-    pinFirst=pinEntry; pinEntry=""; updateDots(); pinMode="setup2";
+    pinFirst=pinEntry;pinEntry="";updateDots();pinMode="setup2";
     document.getElementById("lock-sub").textContent="Confirm your PIN";
     document.getElementById("lock-setup-msg").innerHTML="Re-enter the same 4 digits";
   } else if(pinMode==="setup2"){
     if(pinEntry===pinFirst){
       localStorage.setItem(PIN_KEY,pinEntry);
-      offerFingerprint();          // ← offer biometric after PIN is set
+      offerFingerprint();
     } else {
-      pinEntry=""; pinFirst=""; pinMode="setup1"; updateDots();
+      pinEntry="";pinFirst="";pinMode="setup1";updateDots();
       shakeError("PINs didn't match – start again");
       document.getElementById("lock-sub").textContent="Choose a 4-digit PIN";
     }
   }
 }
-
-// ── Setup flow ────────────────────────────────────────────────────────────────
 function startSetup(){
-  pinMode="setup1"; pinEntry=""; updateDots();
+  pinMode="setup1";pinEntry="";updateDots();
   document.getElementById("lock-sub").textContent="Choose a 4-digit PIN";
-  document.getElementById("lock-setup-msg").innerHTML=
-    'First-time setup &nbsp;·&nbsp; <span onclick="skipLock()">Skip lock</span>';
+  document.getElementById("lock-setup-msg").innerHTML='First-time setup &nbsp;·&nbsp; <span onclick="skipLock()">Skip lock</span>';
   document.getElementById("fp-btn").style.display="none";
 }
-function skipLock(){
-  if(confirm("Open without a PIN or fingerprint? Anyone can use the app.")){
-    localStorage.setItem(PIN_KEY,"NONE");
-    unlockApp();
-  }
-}
-function resetPin(){
-  if(confirm("Reset security? You will set a new PIN and fingerprint.")){
-    localStorage.removeItem(PIN_KEY);
-    localStorage.removeItem(CRED_KEY);
-    pinEntry=""; pinMode="unlock"; updateDots(); startSetup();
-  }
-}
+function skipLock(){if(confirm("Open without a PIN? Anyone can use the app.")){localStorage.setItem(PIN_KEY,"NONE");unlockApp();}}
+function resetPin(){if(confirm("Reset security? You will set a new PIN.")){localStorage.removeItem(PIN_KEY);localStorage.removeItem(CRED_KEY);pinEntry="";pinMode="unlock";updateDots();startSetup();}}
+function unlockApp(){document.getElementById("lock-screen").classList.add("hidden");}
 
-// ── Unlock ────────────────────────────────────────────────────────────────────
-function unlockApp(){
-  document.getElementById("lock-screen").classList.add("hidden");
+// ── FINGERPRINT ───────────────────────────────────────────────────────────────
+async function _fpOk(){
+  if(!window.PublicKeyCredential||!window.crypto)return false;
+  try{return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();}catch(e){return false;}
 }
-
-// ── FINGERPRINT — offer registration after PIN setup ──────────────────────────
 async function offerFingerprint(){
-  // Check if biometrics available
-  if(!window.PublicKeyCredential){ unlockApp(); return; }
-  const ok = await PublicKeyCredential
-    .isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
-  if(!ok){ unlockApp(); return; }
-
-  // Ask user
-  const want=confirm("Would you like to use your fingerprint (or Face ID) to unlock this app next time?");
-  if(!want){ unlockApp(); return; }
-
-  // Register fingerprint
+  const ok=await _fpOk();if(!ok){unlockApp();return;}
+  const want=confirm("👆 Use fingerprint to unlock next time?\n\nTap OK then touch your sensor.");
+  if(!want){unlockApp();return;}
   try{
-    const challenge=crypto.getRandomValues(new Uint8Array(32));
-    const userId   =crypto.getRandomValues(new Uint8Array(16));
     const cred=await navigator.credentials.create({publicKey:{
-      challenge,
-      rp:{name:"C3 Bilbao", id:location.hostname},
-      user:{id:userId, name:"c3user", displayName:"C3 User"},
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      rp:{name:"C3 Bilbao",id:location.hostname},
+      user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"c3user",displayName:"C3 User"},
       pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
-      authenticatorSelection:{
-        authenticatorAttachment:"platform",   // phone biometric only
-        userVerification:"required",
-        residentKey:"preferred"
-      },
+      authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"preferred"},
       timeout:60000
     }});
-    // Save credential ID so we can use it next time
-    const credId=btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
-    localStorage.setItem(CRED_KEY, credId);
-    alert("✅ Fingerprint registered! Next time, just touch the sensor.");
-    unlockApp();
-  } catch(e){
-    // User cancelled or error — just unlock with PIN
-    unlockApp();
-  }
+    if(cred){
+      localStorage.setItem(CRED_KEY,btoa(String.fromCharCode(...new Uint8Array(cred.rawId))));
+      alert("✅ Fingerprint registered!");
+    }
+  }catch(e){}
+  unlockApp();
 }
-
-// ── FINGERPRINT — authenticate on open ───────────────────────────────────────
 async function tryFingerprint(){
-  const errEl=document.getElementById("lock-error");
-  errEl.textContent="";
+  const err=document.getElementById("lock-error");
+  if(err)err.textContent="";
+  const storedId=localStorage.getItem(CRED_KEY);
+  if(!storedId){if(err)err.textContent="No fingerprint registered — use PIN.";return;}
   try{
-    const storedId=localStorage.getItem(CRED_KEY);
-    const rawId=storedId
-      ? Uint8Array.from(atob(storedId),c=>c.charCodeAt(0))
-      : null;
-
-    const challenge=crypto.getRandomValues(new Uint8Array(32));
-    const opts={publicKey:{
-      challenge,
-      timeout:30000,
-      userVerification:"required",
-      rpId:location.hostname,
-      ...(rawId?{allowCredentials:[{type:"public-key",id:rawId,transports:["internal"]}]}:{})
-    }};
-    const assertion=await navigator.credentials.get(opts);
-    if(assertion) unlockApp();
-  } catch(e){
-    if(e.name==="NotAllowedError")
-      errEl.textContent="Fingerprint cancelled – enter PIN below";
-    else
-      errEl.textContent="Biometric failed – enter PIN below";
+    const rawId=Uint8Array.from(atob(storedId),c=>c.charCodeAt(0));
+    const assertion=await navigator.credentials.get({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      timeout:30000,userVerification:"required",rpId:location.hostname,
+      allowCredentials:[{type:"public-key",id:rawId,transports:["internal"]}]
+    }});
+    if(assertion)unlockApp();
+  }catch(e){
+    if(err)err.textContent=e.name==="NotAllowedError"?"Fingerprint cancelled — use PIN":"Biometric error — use PIN";
   }
 }
-
-// ── Initialise lock on app open ───────────────────────────────────────────────
 async function initLock(){
-  const stored   = localStorage.getItem(PIN_KEY);
-  const hasCredId= !!localStorage.getItem(CRED_KEY);
-
-  // No security set yet → setup wizard
-  if(!stored){ startSetup(); return; }
-
-  // Security skipped
-  if(stored==="NONE"){ unlockApp(); return; }
-
-  // Has biometric registered → try fingerprint automatically
-  if(hasCredId && window.PublicKeyCredential){
-    const ok=await PublicKeyCredential
-      .isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+  const stored=localStorage.getItem(PIN_KEY);
+  const credId=localStorage.getItem(CRED_KEY);
+  if(stored==="NONE"){unlockApp();return;}
+  if(!stored){startSetup();return;}
+  if(credId){
+    const ok=await _fpOk();
     if(ok){
       document.getElementById("lock-sub").textContent="Touch fingerprint sensor";
-      document.getElementById("lock-setup-msg").innerHTML=
-        '<span onclick="resetPin()">Reset security</span>';
+      document.getElementById("lock-setup-msg").innerHTML='<span onclick="resetPin()">Reset security</span>';
       document.getElementById("fp-btn").style.display="block";
-      document.getElementById("fp-btn").textContent="☝ Use Fingerprint / Face ID";
-      // Auto-trigger fingerprint scan
-      tryFingerprint();
+      // Trigger fingerprint after 100ms — fast but gives UI time to render
+      setTimeout(tryFingerprint,100);
       return;
     }
   }
-
-  // Fallback: PIN only
   document.getElementById("lock-sub").textContent="Enter your PIN";
-  document.getElementById("lock-setup-msg").innerHTML=
-    '<span onclick="resetPin()">Forgot PIN?</span>';
-  document.getElementById("fp-btn").style.display="none";
+  document.getElementById("lock-setup-msg").innerHTML='<span onclick="resetPin()">Forgot PIN?</span>';
+}
+
+// ── Service Worker ────────────────────────────────────────────────────────────
+if("serviceWorker" in navigator){
+  const sw=`const C="c3-v3";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.add("/"))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"text/javascript"}))).catch(()=>{});
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
