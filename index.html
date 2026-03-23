@@ -1591,6 +1591,39 @@ window.addEventListener("resize", measureHeaderH);
 
 // ── Keyboard input for calculator ────────────────────────────────────
 document.addEventListener('keydown', function(e) {
+  var k = e.key;
+  var tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  // ── PIN pad keyboard (when lock screen is visible) ──────────────────
+  var lockScreen = document.getElementById('lock-screen');
+  if (lockScreen && !lockScreen.classList.contains('hidden')) {
+    if (k >= '0' && k <= '9') { e.preventDefault(); pinPress(k); _flashPinKey(k); return; }
+    if (k === 'Backspace')     { e.preventDefault(); pinDel();     _flashPinKey('del'); return; }
+    if (k === 'Delete' || k === 'Escape') { e.preventDefault(); pinClear(); _flashPinKey('clr'); return; }
+    return; // block all other keys on lock screen
+  }
+});
+
+function _flashPinKey(k) {
+  var map = {
+    '0':'[onclick="pinPress(\'0\')"]','1':'[onclick="pinPress(\'1\')"]',
+    '2':'[onclick="pinPress(\'2\')"]','3':'[onclick="pinPress(\'3\')"]',
+    '4':'[onclick="pinPress(\'4\')"]','5':'[onclick="pinPress(\'5\')"]',
+    '6':'[onclick="pinPress(\'6\')"]','7':'[onclick="pinPress(\'7\')"]',
+    '8':'[onclick="pinPress(\'8\')"]','9':'[onclick="pinPress(\'9\')"]',
+    'del':'[onclick="pinDel()"]','clr':'[onclick="pinClear()"]'
+  };
+  if (map[k]) {
+    var btn = document.querySelector('#lock-screen ' + map[k]);
+    if (btn) {
+      btn.style.background = 'rgba(255,255,255,0.5)';
+      setTimeout(function(){ btn.style.background = ''; }, 120);
+    }
+  }
+}
+
+document.addEventListener('keydown', function(e) {
   // Only active when calculator tab is open
   var calcPanel = document.getElementById('panel-calc');
   if (!calcPanel || !calcPanel.classList.contains('on')) return;
