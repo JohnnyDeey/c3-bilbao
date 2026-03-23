@@ -18,7 +18,8 @@
   --off-white:#FDF6F7;--text:#1A0005;--text-mid:#5A2030;--text-dim:#9A7080;
   --border:#EAD0D5;--card:#FFFFFF;--green:#1A7A3C;--shadow:0 2px 12px rgba(193,0,31,.08);
 }
-body{background:var(--off-white);color:var(--text);font-family:'Helvetica Neue',Arial,sans-serif;min-height:100vh}
+body{background:var(--red);color:var(--text);font-family:'Helvetica Neue',Arial,sans-serif;min-height:100vh}
+body.unlocked{background:var(--off-white);}
 button{font-family:inherit;cursor:pointer;transition:all .12s}
 
 /* PIN Lock */
@@ -148,38 +149,70 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 
 
 /* ── SCIENTIFIC CALCULATOR ── */
-#panel-calc{background:#1a1a2e;min-height:100vh;padding:0}
-.calc-wrap{max-width:420px;margin:0 auto;padding:16px 12px 40px;display:flex;flex-direction:column;gap:0}
-.calc-display{background:#0f0f1a;border-radius:14px;padding:16px 18px;margin-bottom:10px;min-height:110px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}
-.calc-expr{font-size:13px;color:#7c7ca0;font-family:monospace;min-height:20px;text-align:right;word-break:break-all;letter-spacing:.02em}
-.calc-result{font-size:42px;font-weight:700;color:#e8e8ff;font-family:monospace;text-align:right;word-break:break-all;line-height:1.1}
-.calc-result.small{font-size:28px}
-.calc-result.error{color:#ff6b6b;font-size:24px}
-.calc-mode-row{display:flex;gap:6px;margin-bottom:10px}
-.calc-mode-btn{flex:1;padding:7px 4px;border-radius:7px;border:none;font-size:10px;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:all .12s}
-.calc-mode-btn.deg{background:#2d2d4e;color:#a0a0d0}
-.calc-mode-btn.deg.on{background:#C1001F;color:#fff}
-.calc-mode-btn.std{background:#2d2d4e;color:#a0a0d0}
-.calc-mode-btn.std.on{background:#4a4a7a;color:#fff}
-.calc-grid{display:grid;gap:8px}
-.calc-grid.sci{grid-template-columns:repeat(5,1fr)}
-.calc-grid.main{grid-template-columns:repeat(4,1fr);margin-top:8px}
-.cb{height:52px;border-radius:11px;border:none;font-size:14px;font-weight:600;font-family:monospace;cursor:pointer;transition:all .1s;letter-spacing:.02em}
-.cb:active{transform:scale(.93);opacity:.85}
-/* Colour classes */
-.cb.num{background:#2d2d4e;color:#e8e8ff}
-.cb.op{background:#3d2d5e;color:#c8a8ff}
-.cb.fn{background:#1e3050;color:#80c8ff;font-size:12px}
-.cb.eq{background:#C1001F;color:#fff;font-size:18px}
-.cb.clr{background:#4a2030;color:#ff9090}
-.cb.zero{grid-column:span 2}
-.cb.mem{background:#1e3a2a;color:#80e8a0;font-size:12px}
-.calc-hist{margin-top:12px;background:#0f0f1a;border-radius:12px;padding:12px 14px;max-height:140px;overflow-y:auto}
-.calc-hist-title{font-size:9px;letter-spacing:.14em;color:#5050708;color:#505080;margin-bottom:8px;font-weight:700}
-.calc-hist-item{font-size:12px;color:#7070a0;font-family:monospace;padding:4px 0;border-bottom:1px solid #1e1e30;cursor:pointer}
-.calc-hist-item:last-child{border-bottom:none}
-.calc-hist-item:hover{color:#e8e8ff}
-.calc-hist-item span{color:#a0c8ff;float:right}
+
+/* Display */
+.calc-display{background:#000;border-radius:14px;padding:10px 16px 12px;min-height:76px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
+.calc-expr{font-size:12px;color:#888;font-family:'SF Mono',monospace;text-align:right;min-height:20px;word-break:break-all}
+.calc-result{font-size:38px;font-weight:300;color:#fff;font-family:'SF Pro Display','Helvetica Neue',sans-serif;text-align:right;word-break:break-all;line-height:1.1}
+.calc-result.small{font-size:32px}
+.calc-result.error{color:#ff453a;font-size:26px}
+
+/* Mode row */
+.calc-mode-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.calc-mode-btn{padding:6px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;letter-spacing:.06em;cursor:pointer;font-family:inherit;background:#2c2c2e;color:#8e8e93}
+.calc-mode-btn.on{background:var(--red);color:#fff}
+
+/* Button grids */
+.calc-sci-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.calc-main-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+
+/* Base button */
+.cb{
+  height:46px;border-radius:11px;border:none;
+  font-size:18px;font-weight:500;font-family:'SF Pro Display','Helvetica Neue',sans-serif;
+  cursor:pointer;transition:opacity .1s, transform .08s;
+  display:flex;align-items:center;justify-content:center;
+}
+.cb:active{opacity:.7;transform:scale(.94)}
+
+/* Colour themes */
+.cb.num {background:#333335;color:#fff}
+.cb.op  {background:#7b5ea7;color:#fff}       /* purple operators */
+.cb.fn  {background:#2a3f5c;color:#4fc3f7;font-size:14px;font-weight:600}
+.cb.eq  {background:var(--red);color:#fff;font-size:24px;font-weight:400}
+.cb.clr {background:#5a1a22;color:#ff6b6b}
+.cb.del {background:#3d2840;color:#d4a0ff}
+.cb.pct {background:#3d2840;color:#d4a0ff}
+.cb.mem {background:#1a3d2a;color:#4caf7d;font-size:13px;font-weight:600}
+.cb.zero{grid-column:span 2;justify-content:flex-start;padding-left:22px}
+
+
+/* Calculator: fixed full-screen overlay below header */
+#panel-calc {
+  display: none;
+  position: fixed;
+  top: var(--header-h, 95px); /* set by JS on load */
+  left: 0; right: 0; bottom: 0;
+  background: #1c1c1e;
+  overflow-y: auto;
+  z-index: 50;
+}
+#panel-calc.on {
+  display: flex;
+  flex-direction: column;
+}
+.calc-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 8px 10px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.calc-main-grid .cb { height: 52px; }
+.calc-sci-grid .cb  { height: 40px; }
 
 /* ── ADMIN PANEL ── */
 .admin-section{margin-bottom:20px;border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
@@ -351,93 +384,6 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 
   </div>
   <!-- ═══ CALCULATOR TAB ═══ -->
-  <div class="tab-panel" id="panel-calc" style="gap:0;padding:0">
-    <div class="calc-wrap">
-
-      <!-- Display -->
-      <div class="calc-display">
-        <div class="calc-expr" id="calc-expr"></div>
-        <div class="calc-result" id="calc-disp">0</div>
-      </div>
-
-      <!-- Degree / Mode row -->
-      <div class="calc-mode-row">
-        <button class="calc-mode-btn deg on" id="calc-deg-btn" onclick="calcToggleDeg()">DEG</button>
-        <button class="calc-mode-btn deg" id="calc-rad-btn" onclick="calcToggleRad()">RAD</button>
-        <button class="calc-mode-btn std" id="calc-inv-btn" onclick="calcToggleInv()">INV</button>
-        <button class="calc-mode-btn std" id="calc-hist-btn" onclick="calcToggleHist()">HIST</button>
-      </div>
-
-      <!-- Scientific row -->
-      <div class="calc-grid sci">
-        <button class="cb fn" id="calc-norm-sin" onclick="calcFn('sin')">sin</button>
-        <button class="cb fn" id="calc-norm-cos" onclick="calcFn('cos')">cos</button>
-        <button class="cb fn" id="calc-norm-tan" onclick="calcFn('tan')">tan</button>
-        <button class="cb fn" id="calc-norm-log" onclick="calcFn('log')">log</button>
-        <button class="cb fn" id="calc-norm-ln" onclick="calcFn('ln')">ln</button>
-
-        <button class="cb fn" id="calc-inv-sin" onclick="calcFn('asin')" style="display:none">sin⁻¹</button>
-        <button class="cb fn" id="calc-inv-cos" onclick="calcFn('acos')" style="display:none">cos⁻¹</button>
-        <button class="cb fn" id="calc-inv-tan" onclick="calcFn('atan')" style="display:none">tan⁻¹</button>
-        <button class="cb fn" id="calc-inv-log" onclick="calcFn('pow10')" style="display:none">10ˣ</button>
-        <button class="cb fn" id="calc-inv-ln" onclick="calcFn('exp')" style="display:none">eˣ</button>
-
-        <button class="cb fn" onclick="calcFn('sqrt')">√</button>
-        <button class="cb fn" onclick="calcFn('sq')">x²</button>
-        <button class="cb fn" onclick="calcFn('cube')">x³</button>
-        <button class="cb fn" onclick="calcOp('^')">xʸ</button>
-        <button class="cb fn" onclick="calcFn('inv')">1/x</button>
-
-        <button class="cb fn" onclick="calcInsert('Math.PI')">π</button>
-        <button class="cb fn" onclick="calcInsert('Math.E')">e</button>
-        <button class="cb fn" onclick="calcFn('abs')">|x|</button>
-        <button class="cb fn" onclick="calcFn('fact')">n!</button>
-        <button class="cb fn" onclick="calcInsert('(')">(  )</button>
-
-        <button class="cb mem" onclick="calcMem('ms')">MS</button>
-        <button class="cb mem" onclick="calcMem('mr')">MR</button>
-        <button class="cb mem" onclick="calcMem('mc')">MC</button>
-        <button class="cb mem" onclick="calcMem('m+')">M+</button>
-        <button class="cb mem" onclick="calcMem('m-')">M−</button>
-      </div>
-
-      <!-- Main keypad -->
-      <div class="calc-grid main">
-        <button class="cb clr" onclick="calcClear()">AC</button>
-        <button class="cb clr" onclick="calcDel()">⌫</button>
-        <button class="cb op"  onclick="calcFn('pct')">%</button>
-        <button class="cb op"  onclick="calcOp('/')">÷</button>
-
-        <button class="cb num" onclick="calcNum('7')">7</button>
-        <button class="cb num" onclick="calcNum('8')">8</button>
-        <button class="cb num" onclick="calcNum('9')">9</button>
-        <button class="cb op"  onclick="calcOp('*')">×</button>
-
-        <button class="cb num" onclick="calcNum('4')">4</button>
-        <button class="cb num" onclick="calcNum('5')">5</button>
-        <button class="cb num" onclick="calcNum('6')">6</button>
-        <button class="cb op"  onclick="calcOp('-')">−</button>
-
-        <button class="cb num" onclick="calcNum('1')">1</button>
-        <button class="cb num" onclick="calcNum('2')">2</button>
-        <button class="cb num" onclick="calcNum('3')">3</button>
-        <button class="cb op"  onclick="calcOp('+')">+</button>
-
-        <button class="cb num zero" onclick="calcNum('0')">0</button>
-        <button class="cb num" onclick="calcDot()">.</button>
-        <button class="cb eq"  onclick="calcEquals()">=</button>
-      </div>
-
-      <!-- History -->
-      <div class="calc-hist" id="calc-hist-panel" style="display:none">
-        <div class="calc-hist-title">HISTORY</div>
-        <div id="calc-hist-list"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ═══ TAB 3: ADMIN / SCHEDULE UPDATE ═══ -->
   <div class="tab-panel" id="panel-admin">
 
     <div class="card" style="border-color:var(--red);background:var(--red-light)">
@@ -591,6 +537,100 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
   </div>
 
 </main>
+
+  <div class="tab-panel" id="panel-calc" style="gap:0;padding:0">
+    <div class="calc-wrap">
+
+      <!-- Display -->
+      <div class="calc-display">
+        <div class="calc-expr" id="calc-expr"></div>
+        <div class="calc-result" id="calc-disp">0</div>
+      </div>
+
+      <!-- Mode buttons -->
+      <div class="calc-mode-row">
+        <button class="calc-mode-btn on" id="calc-deg-btn" onclick="calcToggleDeg()">DEG</button>
+        <button class="calc-mode-btn" id="calc-rad-btn" onclick="calcToggleRad()">RAD</button>
+        <button class="calc-mode-btn" id="calc-inv-btn" onclick="calcToggleInv()">INV</button>
+        <button class="calc-mode-btn" id="calc-hist-btn" onclick="calcToggleHist()">HIST</button>
+      </div>
+
+      <!-- Scientific row -->
+      <div class="calc-sci-grid">
+        <button class="cb fn" id="calc-norm-sin" onclick="calcFn('sin')">sin</button>
+        <button class="cb fn" id="calc-norm-cos" onclick="calcFn('cos')">cos</button>
+        <button class="cb fn" id="calc-norm-tan" onclick="calcFn('tan')">tan</button>
+        <button class="cb fn" id="calc-norm-log" onclick="calcFn('log')">log</button>
+        <button class="cb fn" id="calc-norm-ln"  onclick="calcFn('ln')">ln</button>
+
+        <button class="cb fn" id="calc-inv-sin" onclick="calcFn('asin')" style="display:none">sin⁻¹</button>
+        <button class="cb fn" id="calc-inv-cos" onclick="calcFn('acos')" style="display:none">cos⁻¹</button>
+        <button class="cb fn" id="calc-inv-tan" onclick="calcFn('atan')" style="display:none">tan⁻¹</button>
+        <button class="cb fn" id="calc-inv-log" onclick="calcFn('pow10')" style="display:none">10ˣ</button>
+        <button class="cb fn" id="calc-inv-ln"  onclick="calcFn('exp')" style="display:none">eˣ</button>
+
+        <button class="cb fn" onclick="calcFn('sqrt')">√</button>
+        <button class="cb fn" onclick="calcFn('sq')">x²</button>
+        <button class="cb fn" onclick="calcFn('cube')">x³</button>
+        <button class="cb fn" onclick="calcOp('^')">xʸ</button>
+        <button class="cb fn" onclick="calcFn('inv')">1/x</button>
+
+        <button class="cb fn" onclick="calcInsert('Math.PI')">π</button>
+        <button class="cb fn" onclick="calcInsert('Math.E')">e</button>
+        <button class="cb fn" onclick="calcFn('abs')">|x|</button>
+        <button class="cb fn" onclick="calcFn('fact')">n!</button>
+        <button class="cb fn" onclick="calcFn('pct')">%</button>
+
+        <button class="cb fn" onclick="calcOpen()">(</button>
+        <button class="cb fn" onclick="calcClose()">)</button>
+
+        <button class="cb mem" onclick="calcMem('ms')">MS</button>
+        <button class="cb mem" onclick="calcMem('mr')">MR</button>
+        <button class="cb mem" onclick="calcMem('mc')">MC</button>
+      </div>
+      <!-- M+ M- full-width row, each half width like zero button -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+        <button class="cb mem" onclick="calcMem('m+')" style="font-size:15px;font-weight:700">M+</button>
+        <button class="cb mem" onclick="calcMem('m-')" style="font-size:15px;font-weight:700">M−</button>
+      </div>
+
+      <!-- Main keypad -->
+      <div class="calc-main-grid">
+        <button class="cb clr" onclick="calcClear()">AC</button>
+        <button class="cb del" onclick="calcDel()">⌫</button>
+        <button class="cb pct" onclick="calcFn('pct')">%</button>
+        <button class="cb op"  onclick="calcOp('/')">÷</button>
+
+        <button class="cb num" onclick="calcNum('7')">7</button>
+        <button class="cb num" onclick="calcNum('8')">8</button>
+        <button class="cb num" onclick="calcNum('9')">9</button>
+        <button class="cb op"  onclick="calcOp('*')">×</button>
+
+        <button class="cb num" onclick="calcNum('4')">4</button>
+        <button class="cb num" onclick="calcNum('5')">5</button>
+        <button class="cb num" onclick="calcNum('6')">6</button>
+        <button class="cb op"  onclick="calcOp('-')">−</button>
+
+        <button class="cb num" onclick="calcNum('1')">1</button>
+        <button class="cb num" onclick="calcNum('2')">2</button>
+        <button class="cb num" onclick="calcNum('3')">3</button>
+        <button class="cb op"  onclick="calcOp('+')">+</button>
+
+        <button class="cb num zero" onclick="calcNum('0')">0</button>
+        <button class="cb num" onclick="calcDot()">.</button>
+        <button class="cb eq"  onclick="calcEquals()">=</button>
+      </div>
+
+      <!-- History panel -->
+      <div id="calc-hist-panel" style="display:none;background:#000;border-radius:14px;padding:12px 14px;max-height:160px;overflow-y:auto">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:#555;margin-bottom:8px">HISTORY</div>
+        <div id="calc-hist-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ TAB 3: ADMIN / SCHEDULE UPDATE ═══ -->
 
 <footer>Renfe Cercanías C3 · Tramvía EuskoTren Bilbao · Horario Invierno 2025</footer>
 
@@ -996,10 +1036,19 @@ setInterval(()=>{if(document.getElementById("tram-from-sel").value&&document.get
 // ── APP TABS ─────────────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════
 function switchTab(name){
+  // Hide calc panel (it lives outside <main>)
+  var cp = document.getElementById("panel-calc");
+  if(cp) cp.className = "panel-calc";
+  // Normal tab panels
   document.querySelectorAll(".tab-panel").forEach(p=>p.className="tab-panel");
   document.querySelectorAll(".app-tab").forEach(b=>b.className="app-tab");
-  document.getElementById("panel-"+name).className="tab-panel on";
   document.getElementById("tab-"+name).className="app-tab on";
+  if(name==="calc"){
+    // Show calc full-screen
+    if(cp) cp.className = "panel-calc on";
+  } else {
+    document.getElementById("panel-"+name).className="tab-panel on";
+  }
   if(name==="tram")renderTramNext();
 }
 
@@ -1041,7 +1090,10 @@ function startSetup(){
 }
 function skipLock(){if(confirm("Open without a PIN?")){localStorage.setItem(PIN_KEY,"NONE");unlockApp();}}
 function resetPin(){if(confirm("Reset security?")){localStorage.removeItem(PIN_KEY);pinEntry="";pinMode="unlock";updateDots();startSetup();}}
-function unlockApp(){document.getElementById("lock-screen").classList.add("hidden");}
+function unlockApp(){
+  document.getElementById("lock-screen").classList.add("hidden");
+  document.body.classList.add("unlocked");
+}
 
 function initLock(){
   const stored=localStorage.getItem(PIN_KEY);
@@ -1091,8 +1143,16 @@ function _factorial(n) {
 }
 
 function calcNum(d) {
-  if (_cNewNum) { _cVal = d === '0' ? '0' : d; _cNewNum = false; }
-  else { if (_cVal === '0' && d !== '.') _cVal = d; else _cVal += d; }
+  if (_cNewNum) {
+    // If expression ends with ) and user types a digit, insert * automatically
+    var trimExpr = _cExpr.trimRight ? _cExpr.trimRight() : _cExpr.trim();
+    if (trimExpr.slice(-1) === ')') {
+      _cExpr += '*';
+    }
+    _cVal = d === '0' ? '0' : d; _cNewNum = false;
+  } else {
+    if (_cVal === '0' && d !== '.') _cVal = d; else _cVal += d;
+  }
   _cDisp(_cVal);
 }
 function calcDot() {
@@ -1103,24 +1163,38 @@ function calcDot() {
 function calcOp(op) {
   var sym = {'+':'+', '-':'−', '*':'×', '/':'÷', '^':'^'}[op] || op;
   if (_cNewNum && _cExpr) {
-    // Replace last operator
+    // Replace last operator if expr ends with one
     _cExpr = _cExpr.replace(/[+\-×÷^]\s*$/, sym + ' ');
   } else {
-    _cExpr += _cVal + ' ' + sym + ' ';
+    // Use _cVal only if it's non-empty, else just append operator after expr
+    _cExpr += (_cVal !== '' ? _cVal : '') + ' ' + sym + ' ';
     _cNewNum = true;
   }
   _cExprDisp(_cExpr);
 }
 function calcInsert(s) {
-  if (s === '(') {
-    // Toggle: if current val is not empty and not an operator, insert )*
-    _cExpr += _cVal + '*(';
-    _cVal = '0'; _cNewNum = true;
-  } else {
-    _cVal = s; _cNewNum = true;
-  }
+  _cVal = s; _cNewNum = true;
   _cExprDisp(_cExpr + _cVal);
   _cDisp(s === 'Math.PI' ? 'π' : s === 'Math.E' ? 'e' : s);
+}
+// Dedicated open bracket
+function calcOpen() {
+  if (!_cNewNum && _cVal !== '' && _cVal !== '0') _cExpr += _cVal + '*(';
+  else _cExpr += '(';
+  _cVal = ''; _cNewNum = true;
+  _cExprDisp(_cExpr);
+  _cDisp('(');
+}
+// Dedicated close bracket
+function calcClose() {
+  var openCount  = (_cExpr + _cVal).split('(').length - 1;
+  var closeCount = (_cExpr + _cVal).split(')').length - 1;
+  if (openCount <= closeCount) return; // no open bracket to close
+  if (_cVal !== '' && !_cNewNum) _cExpr += _cVal;
+  _cExpr += ')';
+  _cVal = ''; _cNewNum = true;
+  _cExprDisp(_cExpr);
+  _cDisp(')');
 }
 function calcFn(fn) {
   var x = parseFloat(_cVal);
@@ -1157,13 +1231,17 @@ function calcFn(fn) {
   _cVal = res; _cNewNum = true; _cExpr = '';
 }
 function calcEquals() {
-  var full = _cExpr + _cVal;
+  // Only append _cVal if it's a real number (not empty)
+  var full = _cExpr + (_cVal !== '' ? _cVal : '');
   if (!full.trim()) return;
   var expr = full
     .replace(/×/g,'*').replace(/÷/g,'/')
     .replace(/−/g,'-').replace(/\^/g,'**')
     .replace(/Math\.PI/g, String(Math.PI))
-    .replace(/Math\.E/g,  String(Math.E));
+    .replace(/Math\.E/g,  String(Math.E))
+    // Auto-insert * for implicit multiplication: )( → )*( and )0-9 → )*digit
+    .replace(/\)\s*\(/g, ')*(')
+    .replace(/\)\s*([0-9\.π])/g, ')*$1');
   var r;
   try {
     r = eval(expr);
@@ -1501,10 +1579,19 @@ if("serviceWorker"in navigator){
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"text/javascript"}))).catch(()=>{});
 }
 
+
+// Measure header height for calc panel positioning
+function measureHeaderH(){
+  var h=document.querySelector("header");
+  if(h) document.documentElement.style.setProperty("--header-h", h.offsetHeight+"px");
+}
+window.addEventListener("resize", measureHeaderH);
+
 // ── Init ──────────────────────────────────────────────────────────────
 applyC3CustomSchedule();
 applyTramCustomSchedule();
 updateAdminBadges();
+measureHeaderH();
 initStationSelects();
 initTramStopSelects();
 
