@@ -370,11 +370,11 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 
       <!-- Scientific row -->
       <div class="calc-grid sci">
-        <button class="cb fn" onclick="calcFn('sin')">sin</button>
-        <button class="cb fn" onclick="calcFn('cos')">cos</button>
-        <button class="cb fn" onclick="calcFn('tan')">tan</button>
-        <button class="cb fn" onclick="calcFn('log')">log</button>
-        <button class="cb fn" onclick="calcFn('ln')">ln</button>
+        <button class="cb fn" id="calc-norm-sin" onclick="calcFn('sin')">sin</button>
+        <button class="cb fn" id="calc-norm-cos" onclick="calcFn('cos')">cos</button>
+        <button class="cb fn" id="calc-norm-tan" onclick="calcFn('tan')">tan</button>
+        <button class="cb fn" id="calc-norm-log" onclick="calcFn('log')">log</button>
+        <button class="cb fn" id="calc-norm-ln" onclick="calcFn('ln')">ln</button>
 
         <button class="cb fn" id="calc-inv-sin" onclick="calcFn('asin')" style="display:none">sin⁻¹</button>
         <button class="cb fn" id="calc-inv-cos" onclick="calcFn('acos')" style="display:none">cos⁻¹</button>
@@ -1207,14 +1207,16 @@ function calcToggleRad() {
 function calcToggleInv() {
   _cInv = !_cInv;
   document.getElementById('calc-inv-btn').className = 'calc-mode-btn std' + (_cInv?' on':'');
-  var normals = ['sin','cos','tan','log','ln'];
-  var inverses = ['sin','cos','tan','log','ln'].map(s=>'inv-'+s);
-  // Toggle visibility
-  ['sin','cos','tan','log','ln'].forEach(function(n){
-    var norm = document.querySelector('.cb.fn[onclick="calcFn(''+n+'')"]');
-    var inv  = document.getElementById('calc-inv-'+n);
-    if(norm) norm.style.display = _cInv?'none':'';
-    if(inv)  inv.style.display  = _cInv?'':'none';
+  // Normal sci buttons get IDs so we can toggle them cleanly
+  var norms = ['calc-norm-sin','calc-norm-cos','calc-norm-tan','calc-norm-log','calc-norm-ln'];
+  var invs  = ['calc-inv-sin','calc-inv-cos','calc-inv-tan','calc-inv-log','calc-inv-ln'];
+  norms.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = _cInv ? 'none' : '';
+  });
+  invs.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = _cInv ? '' : 'none';
   });
 }
 function calcToggleHist() {
