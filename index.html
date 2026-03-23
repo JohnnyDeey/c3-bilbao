@@ -35,6 +35,7 @@ button{font-family:inherit;cursor:pointer;transition:all .12s}
 .pin-btn{height:64px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:22px;font-weight:600;cursor:pointer}
 .pin-btn:active{background:rgba(255,255,255,.3);transform:scale(.95)}
 .pin-btn.del{font-size:16px}
+.pin-btn.clr{font-size:13px;font-weight:700;letter-spacing:.06em;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
 .pin-btn.empty{border:none;background:transparent;cursor:default}
 .lock-setup{color:rgba(255,255,255,.8);font-size:11px;margin-top:20px;text-align:center;line-height:1.6}
 .lock-setup span{text-decoration:underline;cursor:pointer;color:#fff}
@@ -144,6 +145,67 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .sched-section{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--tram);margin:14px 0 6px;text-transform:uppercase}
 .now-badge{background:var(--green);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px}
 
+
+
+/* ── SCIENTIFIC CALCULATOR ── */
+#panel-calc{background:#1a1a2e;min-height:100vh;padding:0}
+.calc-wrap{max-width:420px;margin:0 auto;padding:16px 12px 40px;display:flex;flex-direction:column;gap:0}
+.calc-display{background:#0f0f1a;border-radius:14px;padding:16px 18px;margin-bottom:10px;min-height:110px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}
+.calc-expr{font-size:13px;color:#7c7ca0;font-family:monospace;min-height:20px;text-align:right;word-break:break-all;letter-spacing:.02em}
+.calc-result{font-size:42px;font-weight:700;color:#e8e8ff;font-family:monospace;text-align:right;word-break:break-all;line-height:1.1}
+.calc-result.small{font-size:28px}
+.calc-result.error{color:#ff6b6b;font-size:24px}
+.calc-mode-row{display:flex;gap:6px;margin-bottom:10px}
+.calc-mode-btn{flex:1;padding:7px 4px;border-radius:7px;border:none;font-size:10px;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:all .12s}
+.calc-mode-btn.deg{background:#2d2d4e;color:#a0a0d0}
+.calc-mode-btn.deg.on{background:#C1001F;color:#fff}
+.calc-mode-btn.std{background:#2d2d4e;color:#a0a0d0}
+.calc-mode-btn.std.on{background:#4a4a7a;color:#fff}
+.calc-grid{display:grid;gap:8px}
+.calc-grid.sci{grid-template-columns:repeat(5,1fr)}
+.calc-grid.main{grid-template-columns:repeat(4,1fr);margin-top:8px}
+.cb{height:52px;border-radius:11px;border:none;font-size:14px;font-weight:600;font-family:monospace;cursor:pointer;transition:all .1s;letter-spacing:.02em}
+.cb:active{transform:scale(.93);opacity:.85}
+/* Colour classes */
+.cb.num{background:#2d2d4e;color:#e8e8ff}
+.cb.op{background:#3d2d5e;color:#c8a8ff}
+.cb.fn{background:#1e3050;color:#80c8ff;font-size:12px}
+.cb.eq{background:#C1001F;color:#fff;font-size:18px}
+.cb.clr{background:#4a2030;color:#ff9090}
+.cb.zero{grid-column:span 2}
+.cb.mem{background:#1e3a2a;color:#80e8a0;font-size:12px}
+.calc-hist{margin-top:12px;background:#0f0f1a;border-radius:12px;padding:12px 14px;max-height:140px;overflow-y:auto}
+.calc-hist-title{font-size:9px;letter-spacing:.14em;color:#5050708;color:#505080;margin-bottom:8px;font-weight:700}
+.calc-hist-item{font-size:12px;color:#7070a0;font-family:monospace;padding:4px 0;border-bottom:1px solid #1e1e30;cursor:pointer}
+.calc-hist-item:last-child{border-bottom:none}
+.calc-hist-item:hover{color:#e8e8ff}
+.calc-hist-item span{color:#a0c8ff;float:right}
+
+/* ── ADMIN PANEL ── */
+.admin-section{margin-bottom:20px;border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
+.admin-section-hdr{padding:12px 14px;font-size:11px;font-weight:700;letter-spacing:.14em;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.admin-section-hdr.red{background:var(--red-light);color:var(--red)}
+.admin-section-hdr.blue{background:var(--tram-light);color:var(--tram)}
+.admin-section-body{padding:14px;display:none;background:#fff}
+.admin-section-body.open{display:block}
+.admin-field{margin-bottom:14px}
+.admin-field:last-child{margin-bottom:0}
+.admin-label{font-size:11px;font-weight:700;color:var(--text-mid);margin-bottom:5px;display:block}
+.admin-hint{font-size:10px;color:var(--text-dim);background:#f9f4f5;border-left:3px solid var(--red-mid);padding:6px 10px;border-radius:0 4px 4px 0;margin-bottom:6px;line-height:1.6;font-family:monospace}
+.admin-hint.blue{border-left-color:var(--tram-mid);background:#f0f6fc}
+.admin-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:monospace;font-size:12px;color:var(--text);background:#fafafa;resize:vertical;min-height:80px;outline:none;line-height:1.5}
+.admin-textarea:focus{border-color:var(--red);background:#fff;box-shadow:0 0 0 3px rgba(193,0,31,.08)}
+.admin-textarea.blue:focus{border-color:var(--tram);box-shadow:0 0 0 3px rgba(0,91,172,.08)}
+.admin-save-btn{width:100%;padding:13px;border-radius:9px;background:var(--red);border:none;color:#fff;font-size:13px;font-weight:700;font-family:inherit;letter-spacing:.08em;cursor:pointer;margin-top:4px}
+.admin-save-btn.blue{background:var(--tram)}
+.admin-save-btn:active{opacity:.85}
+.admin-status{font-size:11px;text-align:center;margin-top:8px;height:16px;font-weight:600}
+.admin-status.ok{color:var(--green)}
+.admin-status.err{color:var(--red)}
+.admin-reset-row{display:flex;gap:8px;margin-top:10px}
+.admin-reset-btn{flex:1;padding:9px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:11px;font-family:inherit;cursor:pointer}
+.admin-custom-badge{font-size:9px;background:var(--green);color:#fff;padding:2px 6px;border-radius:10px;margin-left:6px;font-weight:700;letter-spacing:.06em;vertical-align:middle}
+
 footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);letter-spacing:.06em;border-top:1px solid var(--border);background:#fff}
 </style>
 </head>
@@ -169,7 +231,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     <button class="pin-btn" onclick="pinPress('7')">7</button>
     <button class="pin-btn" onclick="pinPress('8')">8</button>
     <button class="pin-btn" onclick="pinPress('9')">9</button>
-    <button class="pin-btn empty"></button>
+    <button class="pin-btn clr" onclick="pinClear()">CLR</button>
     <button class="pin-btn" onclick="pinPress('0')">0</button>
     <button class="pin-btn del" onclick="pinDel()">⌫</button>
   </div>
@@ -188,6 +250,8 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
   <div class="app-tabs">
     <button class="app-tab on" id="tab-c3" onclick="switchTab('c3')">🚂 C3 CERCANÍAS</button>
     <button class="app-tab" id="tab-tram" onclick="switchTab('tram')">🚃 TRAMVÍA</button>
+    <button class="app-tab" id="tab-calc" onclick="switchTab('calc')">🧮 CALC</button>
+    <button class="app-tab" id="tab-admin" onclick="switchTab('admin')">⚙️</button>
   </div>
 </header>
 
@@ -286,6 +350,246 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     </div>
 
   </div>
+  <!-- ═══ CALCULATOR TAB ═══ -->
+  <div class="tab-panel" id="panel-calc" style="gap:0;padding:0">
+    <div class="calc-wrap">
+
+      <!-- Display -->
+      <div class="calc-display">
+        <div class="calc-expr" id="calc-expr"></div>
+        <div class="calc-result" id="calc-disp">0</div>
+      </div>
+
+      <!-- Degree / Mode row -->
+      <div class="calc-mode-row">
+        <button class="calc-mode-btn deg on" id="calc-deg-btn" onclick="calcToggleDeg()">DEG</button>
+        <button class="calc-mode-btn deg" id="calc-rad-btn" onclick="calcToggleRad()">RAD</button>
+        <button class="calc-mode-btn std" id="calc-inv-btn" onclick="calcToggleInv()">INV</button>
+        <button class="calc-mode-btn std" id="calc-hist-btn" onclick="calcToggleHist()">HIST</button>
+      </div>
+
+      <!-- Scientific row -->
+      <div class="calc-grid sci">
+        <button class="cb fn" onclick="calcFn('sin')">sin</button>
+        <button class="cb fn" onclick="calcFn('cos')">cos</button>
+        <button class="cb fn" onclick="calcFn('tan')">tan</button>
+        <button class="cb fn" onclick="calcFn('log')">log</button>
+        <button class="cb fn" onclick="calcFn('ln')">ln</button>
+
+        <button class="cb fn" id="calc-inv-sin" onclick="calcFn('asin')" style="display:none">sin⁻¹</button>
+        <button class="cb fn" id="calc-inv-cos" onclick="calcFn('acos')" style="display:none">cos⁻¹</button>
+        <button class="cb fn" id="calc-inv-tan" onclick="calcFn('atan')" style="display:none">tan⁻¹</button>
+        <button class="cb fn" id="calc-inv-log" onclick="calcFn('pow10')" style="display:none">10ˣ</button>
+        <button class="cb fn" id="calc-inv-ln" onclick="calcFn('exp')" style="display:none">eˣ</button>
+
+        <button class="cb fn" onclick="calcFn('sqrt')">√</button>
+        <button class="cb fn" onclick="calcFn('sq')">x²</button>
+        <button class="cb fn" onclick="calcFn('cube')">x³</button>
+        <button class="cb fn" onclick="calcOp('^')">xʸ</button>
+        <button class="cb fn" onclick="calcFn('inv')">1/x</button>
+
+        <button class="cb fn" onclick="calcInsert('Math.PI')">π</button>
+        <button class="cb fn" onclick="calcInsert('Math.E')">e</button>
+        <button class="cb fn" onclick="calcFn('abs')">|x|</button>
+        <button class="cb fn" onclick="calcFn('fact')">n!</button>
+        <button class="cb fn" onclick="calcInsert('(')">(  )</button>
+
+        <button class="cb mem" onclick="calcMem('ms')">MS</button>
+        <button class="cb mem" onclick="calcMem('mr')">MR</button>
+        <button class="cb mem" onclick="calcMem('mc')">MC</button>
+        <button class="cb mem" onclick="calcMem('m+')">M+</button>
+        <button class="cb mem" onclick="calcMem('m-')">M−</button>
+      </div>
+
+      <!-- Main keypad -->
+      <div class="calc-grid main">
+        <button class="cb clr" onclick="calcClear()">AC</button>
+        <button class="cb clr" onclick="calcDel()">⌫</button>
+        <button class="cb op"  onclick="calcFn('pct')">%</button>
+        <button class="cb op"  onclick="calcOp('/')">÷</button>
+
+        <button class="cb num" onclick="calcNum('7')">7</button>
+        <button class="cb num" onclick="calcNum('8')">8</button>
+        <button class="cb num" onclick="calcNum('9')">9</button>
+        <button class="cb op"  onclick="calcOp('*')">×</button>
+
+        <button class="cb num" onclick="calcNum('4')">4</button>
+        <button class="cb num" onclick="calcNum('5')">5</button>
+        <button class="cb num" onclick="calcNum('6')">6</button>
+        <button class="cb op"  onclick="calcOp('-')">−</button>
+
+        <button class="cb num" onclick="calcNum('1')">1</button>
+        <button class="cb num" onclick="calcNum('2')">2</button>
+        <button class="cb num" onclick="calcNum('3')">3</button>
+        <button class="cb op"  onclick="calcOp('+')">+</button>
+
+        <button class="cb num zero" onclick="calcNum('0')">0</button>
+        <button class="cb num" onclick="calcDot()">.</button>
+        <button class="cb eq"  onclick="calcEquals()">=</button>
+      </div>
+
+      <!-- History -->
+      <div class="calc-hist" id="calc-hist-panel" style="display:none">
+        <div class="calc-hist-title">HISTORY</div>
+        <div id="calc-hist-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ TAB 3: ADMIN / SCHEDULE UPDATE ═══ -->
+  <div class="tab-panel" id="panel-admin">
+
+    <div class="card" style="border-color:var(--red);background:var(--red-light)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:28px">🔧</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:var(--red)">SCHEDULE ADMIN</div>
+          <div style="font-size:11px;color:var(--text-mid);margin-top:2px">Paste updated timetable data here. The app will parse and save it automatically.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── C3 CERCANÍAS ── -->
+    <div class="admin-section">
+      <div class="admin-section-hdr red" onclick="toggleAdminSection(this)">
+        🚂 C3 CERCANÍAS — Departure Times <span id="c3-custom-badge"></span>
+        <span style="margin-left:auto;font-size:16px">▾</span>
+      </div>
+      <div class="admin-section-body">
+
+        <div style="font-size:11px;color:var(--text-mid);background:#fff8f8;border:1px solid var(--red-mid);border-radius:7px;padding:10px 12px;margin-bottom:14px;line-height:1.7">
+          <strong>📋 HOW TO PASTE:</strong><br>
+          Each box below is for <strong>one direction + one day type</strong>.<br>
+          Paste the <strong>departure times only</strong> — one per line, or space/comma separated.<br>
+          Each time must be in <strong>HH:MM</strong> format (24-hour).<br>
+          The app will sort them automatically.<br><br>
+          <strong>⚠️ These are terminus departure times only</strong> (Orduña or Abando).<br>
+          The app calculates intermediate stop times automatically.
+        </div>
+
+        <!-- Weekday -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--red);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--red-mid)">WEEKDAY (LUNES–VIERNES)</div>
+
+        <div class="admin-field">
+          <label class="admin-label">Orduña → Abando · Weekday departures from Orduña</label>
+          <div class="admin-hint">Example:<br>05:01 05:31 06:12 06:34 07:01<br>or one per line:<br>05:01<br>05:31<br>06:12</div>
+          <textarea class="admin-textarea" id="c3-wd-oa" placeholder="Paste Orduña→Abando weekday times here..."></textarea>
+        </div>
+
+        <div class="admin-field">
+          <label class="admin-label">Abando → Orduña · Weekday departures from Abando</label>
+          <div class="admin-hint">Same format — HH:MM times from Abando toward Orduña</div>
+          <textarea class="admin-textarea" id="c3-wd-ao" placeholder="Paste Abando→Orduña weekday times here..."></textarea>
+        </div>
+
+        <div class="admin-field">
+          <label class="admin-label">Llodio → Abando · Weekday departures from Llodio</label>
+          <div class="admin-hint">Short route only — times from Llodio toward Abando</div>
+          <textarea class="admin-textarea" id="c3-wd-la" placeholder="Paste Llodio→Abando weekday times here..."></textarea>
+        </div>
+
+        <div class="admin-field">
+          <label class="admin-label">Abando → Llodio · Weekday departures from Abando</label>
+          <div class="admin-hint">Short route only — times from Abando toward Llodio</div>
+          <textarea class="admin-textarea" id="c3-wd-al" placeholder="Paste Abando→Llodio weekday times here..."></textarea>
+        </div>
+
+        <!-- Weekend -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--red);margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--red-mid)">WEEKEND (SÁBADOS, DOMINGOS Y FESTIVOS)</div>
+
+        <div class="admin-field">
+          <label class="admin-label">Orduña → Abando · Weekend departures from Orduña</label>
+          <textarea class="admin-textarea" id="c3-we-oa" placeholder="Paste Orduña→Abando weekend times here..."></textarea>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Abando → Orduña · Weekend departures from Abando</label>
+          <textarea class="admin-textarea" id="c3-we-ao" placeholder="Paste Abando→Orduña weekend times here..."></textarea>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Llodio → Abando · Weekend departures from Llodio</label>
+          <textarea class="admin-textarea" id="c3-we-la" placeholder="Paste Llodio→Abando weekend times here..."></textarea>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Abando → Llodio · Weekend departures from Abando</label>
+          <textarea class="admin-textarea" id="c3-we-al" placeholder="Paste Abando→Llodio weekend times here..."></textarea>
+        </div>
+
+        <button class="admin-save-btn" onclick="saveC3Schedule()">✓ SAVE C3 SCHEDULE</button>
+        <div class="admin-status" id="c3-status"></div>
+
+        <div class="admin-reset-row">
+          <button class="admin-reset-btn" onclick="resetC3Schedule()">↩ Reset to built-in schedule</button>
+          <button class="admin-reset-btn" onclick="loadC3IntoAdmin()">📋 Load current into fields</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TRAMVÍA ── -->
+    <div class="admin-section">
+      <div class="admin-section-hdr blue" onclick="toggleAdminSection(this)">
+        🚃 TRAMVÍA BILBAO — Departure Times <span id="tram-custom-badge"></span>
+        <span style="margin-left:auto;font-size:16px">▾</span>
+      </div>
+      <div class="admin-section-body">
+
+        <div style="font-size:11px;color:var(--text-mid);background:#f0f7ff;border:1px solid var(--tram-mid);border-radius:7px;padding:10px 12px;margin-bottom:14px;line-height:1.7">
+          <strong>📋 HOW TO PASTE:</strong><br>
+          Each box is for <strong>one direction + one day type</strong>.<br>
+          Paste <strong>departure times from the terminus only</strong> — one per line or space separated.<br>
+          <strong>La Casilla → Bolueta:</strong> paste times from La Casilla.<br>
+          <strong>Bolueta → La Casilla:</strong> paste times from Bolueta.<br><br>
+          <strong>⚠️ Do NOT mix frequencies or intervals</strong> — paste actual listed times only.<br>
+          The app calculates arrival times at each stop automatically using fixed offsets.
+        </div>
+
+        <!-- La Casilla → Bolueta -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--tram);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--tram-mid)">LA CASILLA → BOLUETA</div>
+
+        <div class="admin-field">
+          <label class="admin-label">Weekday (Lunes–Viernes) · Departures from La Casilla</label>
+          <div class="admin-hint blue">Example: 06:26 06:41 06:56 07:11 07:23...</div>
+          <textarea class="admin-textarea blue" id="tram-lcb-wd" placeholder="Paste La Casilla→Bolueta weekday times..."></textarea>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Saturday (Sábados) · Departures from La Casilla</label>
+          <textarea class="admin-textarea blue" id="tram-lcb-sat" placeholder="Paste La Casilla→Bolueta Saturday times..."></textarea>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Sunday/Holiday (Domingos/Festivos) · Departures from La Casilla</label>
+          <textarea class="admin-textarea blue" id="tram-lcb-sun" placeholder="Paste La Casilla→Bolueta Sunday/Holiday times..."></textarea>
+        </div>
+
+        <!-- Bolueta → La Casilla -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--tram);margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--tram-mid)">BOLUETA → LA CASILLA</div>
+
+        <div class="admin-field">
+          <label class="admin-label">Weekday (Lunes–Viernes) · Departures from Bolueta</label>
+          <div class="admin-hint blue">Example: 06:22 06:37 06:52 07:07 07:22...</div>
+          <textarea class="admin-textarea blue" id="tram-blc-wd" placeholder="Paste Bolueta→La Casilla weekday times..."></textarea>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Saturday (Sábados) · Departures from Bolueta</label>
+          <textarea class="admin-textarea blue" id="tram-blc-sat" placeholder="Paste Bolueta→La Casilla Saturday times..."></textarea>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Sunday/Holiday (Domingos/Festivos) · Departures from Bolueta</label>
+          <textarea class="admin-textarea blue" id="tram-blc-sun" placeholder="Paste Bolueta→La Casilla Sunday/Holiday times..."></textarea>
+        </div>
+
+        <button class="admin-save-btn blue" onclick="saveTramSchedule()">✓ SAVE TRAMVÍA SCHEDULE</button>
+        <div class="admin-status" id="tram-status"></div>
+
+        <div class="admin-reset-row">
+          <button class="admin-reset-btn" onclick="resetTramSchedule()">↩ Reset to built-in schedule</button>
+          <button class="admin-reset-btn" onclick="loadTramIntoAdmin()">📋 Load current into fields</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
 </main>
 
 <footer>Renfe Cercanías C3 · Tramvía EuskoTren Bilbao · Horario Invierno 2025</footer>
@@ -474,6 +778,11 @@ function tt(s){const[h,m]=s.split(":").map(Number);return h*60+m}
 
 // Build full departure lists (in minutes from midnight) for La Casilla → Bolueta
 function buildLCBTimes(dayType){
+  // Use custom schedule if available
+  if (window._tramCustom) {
+    var key = dayType==='weekday'?'lcb_wd':dayType==='saturday'?'lcb_sat':'lcb_sun';
+    if (window._tramCustom[key]) return window._tramCustom[key].slice();
+  }
   const times=[];
   if(dayType==="weekday"){
     // 06:26 to 07:10 every 15 min
@@ -501,6 +810,11 @@ function buildLCBTimes(dayType){
 
 // Build full departure lists for Bolueta → La Casilla
 function buildBLTimes(dayType){
+  // Use custom schedule if available
+  if (window._tramCustom) {
+    var key = dayType==='weekday'?'blc_wd':dayType==='saturday'?'blc_sat':'blc_sun';
+    if (window._tramCustom[key]) return window._tramCustom[key].slice();
+  }
   const times=[];
   if(dayType==="weekday"){
     // 06:22 to 07:21 every 15min
@@ -704,6 +1018,7 @@ function shakeError(msg){
 }
 function pinPress(digit){if(pinEntry.length>=4)return;pinEntry+=digit;updateDots();if(pinEntry.length===4)setTimeout(pinSubmit,140);}
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();document.getElementById("lock-error").textContent="";}
+function pinClear(){pinEntry="";updateDots();document.getElementById("lock-error").textContent="";}
 function pinSubmit(){
   const stored=localStorage.getItem(PIN_KEY);
   if(pinMode==="unlock"){
@@ -736,6 +1051,448 @@ function initLock(){
   document.getElementById("lock-setup-msg").innerHTML='<span onclick="resetPin()">Forgot PIN?</span>';
 }
 
+
+
+// ══════════════════════════════════════════════════════════════════════
+// ── SCIENTIFIC CALCULATOR ────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+var _cExpr   = '';      // full expression string
+var _cVal    = '0';     // current display value
+var _cNewNum = true;    // next digit starts a new number
+var _cDeg    = true;    // true = degrees, false = radians
+var _cInv    = false;   // inverse trig mode
+var _cMem    = 0;       // memory store
+var _cHist   = [];      // history [{expr, result}]
+var _cHistOpen = false;
+
+function _cDisp(v) {
+  var el = document.getElementById('calc-disp');
+  var s = String(v);
+  el.textContent = s;
+  el.className = 'calc-result' + (s.length > 12 ? ' small' : '') + (v === 'Error' ? ' error' : '');
+}
+function _cExprDisp(s) {
+  document.getElementById('calc-expr').textContent = s;
+}
+function _toRad(x){ return _cDeg ? x * Math.PI / 180 : x; }
+function _toDeg(x){ return _cDeg ? x * 180 / Math.PI : x; }
+function _fmt(n) {
+  if (!isFinite(n)) return 'Error';
+  if (Number.isInteger(n) && Math.abs(n) < 1e15) return String(n);
+  var s = parseFloat(n.toPrecision(12));
+  return String(s);
+}
+function _factorial(n) {
+  n = Math.floor(n);
+  if (n < 0 || n > 170) return Infinity;
+  var r = 1;
+  for (var i = 2; i <= n; i++) r *= i;
+  return r;
+}
+
+function calcNum(d) {
+  if (_cNewNum) { _cVal = d === '0' ? '0' : d; _cNewNum = false; }
+  else { if (_cVal === '0' && d !== '.') _cVal = d; else _cVal += d; }
+  _cDisp(_cVal);
+}
+function calcDot() {
+  if (_cNewNum) { _cVal = '0.'; _cNewNum = false; }
+  else if (_cVal.indexOf('.') === -1) _cVal += '.';
+  _cDisp(_cVal);
+}
+function calcOp(op) {
+  var sym = {'+':'+', '-':'−', '*':'×', '/':'÷', '^':'^'}[op] || op;
+  if (_cNewNum && _cExpr) {
+    // Replace last operator
+    _cExpr = _cExpr.replace(/[+\-×÷^]\s*$/, sym + ' ');
+  } else {
+    _cExpr += _cVal + ' ' + sym + ' ';
+    _cNewNum = true;
+  }
+  _cExprDisp(_cExpr);
+}
+function calcInsert(s) {
+  if (s === '(') {
+    // Toggle: if current val is not empty and not an operator, insert )*
+    _cExpr += _cVal + '*(';
+    _cVal = '0'; _cNewNum = true;
+  } else {
+    _cVal = s; _cNewNum = true;
+  }
+  _cExprDisp(_cExpr + _cVal);
+  _cDisp(s === 'Math.PI' ? 'π' : s === 'Math.E' ? 'e' : s);
+}
+function calcFn(fn) {
+  var x = parseFloat(_cVal);
+  if (isNaN(x) && _cVal !== 'Math.PI' && _cVal !== 'Math.E') {
+    try { x = eval(_cVal); } catch(e){ _cDisp('Error'); return; }
+  }
+  var r, label;
+  switch(fn) {
+    case 'sin':   r = Math.sin(_toRad(x));  label='sin('+x+')'; break;
+    case 'cos':   r = Math.cos(_toRad(x));  label='cos('+x+')'; break;
+    case 'tan':   r = Math.tan(_toRad(x));  label='tan('+x+')'; break;
+    case 'asin':  r = _toDeg(Math.asin(x)); label='sin⁻¹('+x+')'; break;
+    case 'acos':  r = _toDeg(Math.acos(x)); label='cos⁻¹('+x+')'; break;
+    case 'atan':  r = _toDeg(Math.atan(x)); label='tan⁻¹('+x+')'; break;
+    case 'log':   r = Math.log10(x);        label='log('+x+')'; break;
+    case 'ln':    r = Math.log(x);          label='ln('+x+')'; break;
+    case 'pow10': r = Math.pow(10, x);      label='10^'+x; break;
+    case 'exp':   r = Math.exp(x);          label='e^'+x; break;
+    case 'sqrt':  r = Math.sqrt(x);         label='√('+x+')'; break;
+    case 'sq':    r = x * x;               label=x+'²'; break;
+    case 'cube':  r = x * x * x;           label=x+'³'; break;
+    case 'inv':   r = 1 / x;              label='1/('+x+')'; break;
+    case 'abs':   r = Math.abs(x);         label='|'+x+'|'; break;
+    case 'fact':  r = _factorial(x);       label=x+'!'; break;
+    case 'pct':   r = x / 100;            label=x+'%'; break;
+    default: return;
+  }
+  var res = _fmt(r);
+  _cExprDisp(label + ' =');
+  _cDisp(res);
+  _cHist.unshift({expr: label, result: res});
+  if (_cHist.length > 20) _cHist.pop();
+  _renderCalcHist();
+  _cVal = res; _cNewNum = true; _cExpr = '';
+}
+function calcEquals() {
+  var full = _cExpr + _cVal;
+  if (!full.trim()) return;
+  var expr = full
+    .replace(/×/g,'*').replace(/÷/g,'/')
+    .replace(/−/g,'-').replace(/\^/g,'**')
+    .replace(/Math\.PI/g, String(Math.PI))
+    .replace(/Math\.E/g,  String(Math.E));
+  var r;
+  try {
+    r = eval(expr);
+    if (!isFinite(r)) throw new Error('Infinity');
+  } catch(e) { _cDisp('Error'); _cExprDisp(full + ' ='); return; }
+  var res = _fmt(r);
+  _cExprDisp(full + ' =');
+  _cDisp(res);
+  _cHist.unshift({expr: full, result: res});
+  if (_cHist.length > 20) _cHist.pop();
+  _renderCalcHist();
+  _cVal = res; _cNewNum = true; _cExpr = '';
+}
+function calcClear() { _cVal='0'; _cExpr=''; _cNewNum=true; _cDisp('0'); _cExprDisp(''); }
+function calcDel() {
+  if (_cNewNum || _cVal.length <= 1) { _cVal='0'; _cNewNum=false; }
+  else _cVal = _cVal.slice(0,-1);
+  _cDisp(_cVal);
+}
+function calcMem(op) {
+  var x = parseFloat(_cVal) || 0;
+  switch(op) {
+    case 'ms': _cMem = x; break;
+    case 'mr': _cVal = _fmt(_cMem); _cDisp(_cVal); _cNewNum=true; return;
+    case 'mc': _cMem = 0; break;
+    case 'm+': _cMem += x; break;
+    case 'm-': _cMem -= x; break;
+  }
+  _cExprDisp('M = ' + _fmt(_cMem));
+}
+function calcToggleDeg() {
+  _cDeg = true;
+  document.getElementById('calc-deg-btn').className = 'calc-mode-btn deg on';
+  document.getElementById('calc-rad-btn').className = 'calc-mode-btn deg';
+}
+function calcToggleRad() {
+  _cDeg = false;
+  document.getElementById('calc-deg-btn').className = 'calc-mode-btn deg';
+  document.getElementById('calc-rad-btn').className = 'calc-mode-btn deg on';
+}
+function calcToggleInv() {
+  _cInv = !_cInv;
+  document.getElementById('calc-inv-btn').className = 'calc-mode-btn std' + (_cInv?' on':'');
+  var normals = ['sin','cos','tan','log','ln'];
+  var inverses = ['sin','cos','tan','log','ln'].map(s=>'inv-'+s);
+  // Toggle visibility
+  ['sin','cos','tan','log','ln'].forEach(function(n){
+    var norm = document.querySelector('.cb.fn[onclick="calcFn(''+n+'')"]');
+    var inv  = document.getElementById('calc-inv-'+n);
+    if(norm) norm.style.display = _cInv?'none':'';
+    if(inv)  inv.style.display  = _cInv?'':'none';
+  });
+}
+function calcToggleHist() {
+  _cHistOpen = !_cHistOpen;
+  document.getElementById('calc-hist-btn').className = 'calc-mode-btn std' + (_cHistOpen?' on':'');
+  document.getElementById('calc-hist-panel').style.display = _cHistOpen ? 'block' : 'none';
+}
+function _renderCalcHist() {
+  var el = document.getElementById('calc-hist-list');
+  if (!el) return;
+  el.innerHTML = _cHist.length === 0
+    ? '<div style="font-size:11px;color:#404060;text-align:center;padding:8px">No history yet</div>'
+    : _cHist.map(function(h,i){
+        return '<div class="calc-hist-item" onclick="calcFromHist('+i+')">'
+          + h.expr + ' <span>= ' + h.result + '</span></div>';
+      }).join('');
+}
+function calcFromHist(i) {
+  _cVal = _cHist[i].result;
+  _cDisp(_cVal);
+  _cExprDisp(_cHist[i].expr + ' =');
+  _cNewNum = true;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── ADMIN / SCHEDULE UPDATE LOGIC ────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+
+// Storage keys
+var C3_SCHED_KEY   = 'c3_custom_schedule';
+var TRAM_SCHED_KEY = 'tram_custom_schedule';
+
+// Parse a blob of text into sorted array of {dep, arr} objects
+// Accepts: space/comma/newline separated HH:MM times
+// For C3: dep=departure from terminus, arr=departure+duration
+// For Tram: just departure times (arr computed from offsets)
+function parseTimes(raw) {
+  if (!raw || !raw.trim()) return null;
+  // Extract all HH:MM patterns
+  var matches = raw.match(/\b([0-1]?\d|2[0-3]):[0-5]\d\b/g);
+  if (!matches || matches.length === 0) return null;
+  // Convert to minutes, deduplicate, sort
+  var seen = {};
+  var mins = [];
+  matches.forEach(function(s) {
+    var parts = s.split(':');
+    var m = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    if (!seen[m]) { seen[m] = true; mins.push(m); }
+  });
+  mins.sort(function(a,b){ return a-b; });
+  return mins;
+}
+
+// Convert parsed minutes back to mk() format [{dep, arr}]
+// duration = travel time in minutes for the full route
+function minsToSchedule(mins, duration) {
+  return mins.map(function(dep) {
+    var arr = dep + duration;
+    if (arr < dep) arr += 1440; // overnight
+    return { dep: dep, arr: arr };
+  });
+}
+
+// C3 route durations (Orduña↔Abando = 61min, Llodio↔Abando = 39min)
+var C3_DURATION_OA = 61;
+var C3_DURATION_LA = 39;
+
+function saveC3Schedule() {
+  var status = document.getElementById('c3-status');
+  var fields = {
+    wd_oa: document.getElementById('c3-wd-oa').value,
+    wd_ao: document.getElementById('c3-wd-ao').value,
+    wd_la: document.getElementById('c3-wd-la').value,
+    wd_al: document.getElementById('c3-wd-al').value,
+    we_oa: document.getElementById('c3-we-oa').value,
+    we_ao: document.getElementById('c3-we-ao').value,
+    we_la: document.getElementById('c3-we-la').value,
+    we_al: document.getElementById('c3-we-al').value,
+  };
+
+  // Validate — all 8 fields must have at least some times
+  var errors = [];
+  var parsed = {};
+  var labels = {
+    wd_oa:'Orduña→Abando Weekday', wd_ao:'Abando→Orduña Weekday',
+    wd_la:'Llodio→Abando Weekday', wd_al:'Abando→Llodio Weekday',
+    we_oa:'Orduña→Abando Weekend', we_ao:'Abando→Orduña Weekend',
+    we_la:'Llodio→Abando Weekend', we_al:'Abando→Llodio Weekend'
+  };
+  Object.keys(fields).forEach(function(k) {
+    if (!fields[k].trim()) return; // skip empty — will use existing
+    var times = parseTimes(fields[k]);
+    if (!times) {
+      errors.push(labels[k] + ': no valid HH:MM times found');
+    } else {
+      parsed[k] = times;
+    }
+  });
+
+  if (errors.length > 0) {
+    status.className = 'admin-status err';
+    status.textContent = '✗ ' + errors[0];
+    return;
+  }
+
+  // Build and save the custom schedule
+  var existing = {};
+  try { existing = JSON.parse(localStorage.getItem(C3_SCHED_KEY) || '{}'); } catch(e){}
+
+  Object.keys(parsed).forEach(function(k) {
+    existing[k] = parsed[k];
+  });
+  localStorage.setItem(C3_SCHED_KEY, JSON.stringify(existing));
+
+  // Rebuild WD and WE from stored data
+  applyC3CustomSchedule();
+
+  status.className = 'admin-status ok';
+  var count = Object.keys(parsed).length;
+  status.textContent = '✓ Saved! ' + count + ' table(s) updated. App is using new schedule.';
+  updateAdminBadges();
+  setTimeout(function(){ status.textContent=''; }, 4000);
+}
+
+function applyC3CustomSchedule() {
+  var stored = {};
+  try { stored = JSON.parse(localStorage.getItem(C3_SCHED_KEY) || '{}'); } catch(e){ return; }
+  if (Object.keys(stored).length === 0) return;
+
+  if (stored.wd_oa) WD.ordunaToAbando  = minsToSchedule(stored.wd_oa, C3_DURATION_OA);
+  if (stored.wd_ao) WD.abandoToOrduna  = minsToSchedule(stored.wd_ao, C3_DURATION_OA);
+  if (stored.wd_la) WD.llodioToAbando  = minsToSchedule(stored.wd_la, C3_DURATION_LA);
+  if (stored.wd_al) WD.abandoToLlodio  = minsToSchedule(stored.wd_al, C3_DURATION_LA);
+  if (stored.we_oa) WE.ordunaToAbando  = minsToSchedule(stored.we_oa, C3_DURATION_OA);
+  if (stored.we_ao) WE.abandoToOrduna  = minsToSchedule(stored.we_ao, C3_DURATION_OA);
+  if (stored.we_la) WE.llodioToAbando  = minsToSchedule(stored.we_la, C3_DURATION_LA);
+  if (stored.we_al) WE.abandoToLlodio  = minsToSchedule(stored.we_al, C3_DURATION_LA);
+}
+
+function resetC3Schedule() {
+  if (!confirm('Reset C3 to built-in schedule? Your custom data will be deleted.')) return;
+  localStorage.removeItem(C3_SCHED_KEY);
+  location.reload(); // reload to restore original hardcoded values
+}
+
+function loadC3IntoAdmin() {
+  // Show current stored times in the fields for editing
+  var stored = {};
+  try { stored = JSON.parse(localStorage.getItem(C3_SCHED_KEY) || '{}'); } catch(e){}
+  var map = {
+    wd_oa:'c3-wd-oa', wd_ao:'c3-wd-ao',
+    wd_la:'c3-wd-la', wd_al:'c3-wd-al',
+    we_oa:'c3-we-oa', we_ao:'c3-we-ao',
+    we_la:'c3-we-la', we_al:'c3-we-al'
+  };
+  var hasAny = false;
+  Object.keys(map).forEach(function(k) {
+    if (stored[k]) {
+      document.getElementById(map[k]).value = stored[k].map(function(m){
+        return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+      }).join('\n');
+      hasAny = true;
+    }
+  });
+  if (!hasAny) {
+    document.getElementById('c3-status').className='admin-status err';
+    document.getElementById('c3-status').textContent='No custom data saved yet — showing built-in schedule.';
+    setTimeout(function(){document.getElementById('c3-status').textContent='';},3000);
+  }
+}
+
+// ── TRAMVÍA ADMIN ──────────────────────────────────────────────────────
+function saveTramSchedule() {
+  var status = document.getElementById('tram-status');
+  var fields = {
+    lcb_wd:  document.getElementById('tram-lcb-wd').value,
+    lcb_sat: document.getElementById('tram-lcb-sat').value,
+    lcb_sun: document.getElementById('tram-lcb-sun').value,
+    blc_wd:  document.getElementById('tram-blc-wd').value,
+    blc_sat: document.getElementById('tram-blc-sat').value,
+    blc_sun: document.getElementById('tram-blc-sun').value,
+  };
+
+  var errors = [];
+  var parsed = {};
+  var labels = {
+    lcb_wd:'La Casilla→Bolueta Weekday', lcb_sat:'La Casilla→Bolueta Saturday',
+    lcb_sun:'La Casilla→Bolueta Sunday', blc_wd:'Bolueta→La Casilla Weekday',
+    blc_sat:'Bolueta→La Casilla Saturday', blc_sun:'Bolueta→La Casilla Sunday'
+  };
+
+  Object.keys(fields).forEach(function(k) {
+    if (!fields[k].trim()) return;
+    var times = parseTimes(fields[k]);
+    if (!times) {
+      errors.push(labels[k] + ': no valid HH:MM times found');
+    } else {
+      parsed[k] = times;
+    }
+  });
+
+  if (errors.length > 0) {
+    status.className = 'admin-status err';
+    status.textContent = '✗ ' + errors[0];
+    return;
+  }
+
+  var existing = {};
+  try { existing = JSON.parse(localStorage.getItem(TRAM_SCHED_KEY) || '{}'); } catch(e){}
+  Object.keys(parsed).forEach(function(k){ existing[k] = parsed[k]; });
+  localStorage.setItem(TRAM_SCHED_KEY, JSON.stringify(existing));
+
+  applyTramCustomSchedule();
+
+  status.className = 'admin-status ok';
+  status.textContent = '✓ Saved! ' + Object.keys(parsed).length + ' table(s) updated.';
+  updateAdminBadges();
+  setTimeout(function(){ status.textContent=''; }, 4000);
+}
+
+function applyTramCustomSchedule() {
+  // Override buildLCBTimes and buildBLTimes to use stored data when available
+  var stored = {};
+  try { stored = JSON.parse(localStorage.getItem(TRAM_SCHED_KEY) || '{}'); } catch(e){ return; }
+  if (Object.keys(stored).length === 0) return;
+  // Store in window so the getter functions can access them
+  window._tramCustom = stored;
+}
+
+function resetTramSchedule() {
+  if (!confirm('Reset Tramvía to built-in schedule?')) return;
+  localStorage.removeItem(TRAM_SCHED_KEY);
+  window._tramCustom = null;
+  document.getElementById('tram-status').className='admin-status ok';
+  document.getElementById('tram-status').textContent='✓ Reset. Using built-in schedule.';
+  updateAdminBadges();
+  setTimeout(function(){document.getElementById('tram-status').textContent='';},3000);
+}
+
+function loadTramIntoAdmin() {
+  var stored = {};
+  try { stored = JSON.parse(localStorage.getItem(TRAM_SCHED_KEY) || '{}'); } catch(e){}
+  var map = {
+    lcb_wd:'tram-lcb-wd', lcb_sat:'tram-lcb-sat', lcb_sun:'tram-lcb-sun',
+    blc_wd:'tram-blc-wd', blc_sat:'tram-blc-sat', blc_sun:'tram-blc-sun'
+  };
+  var hasAny = false;
+  Object.keys(map).forEach(function(k){
+    if (stored[k]) {
+      document.getElementById(map[k]).value = stored[k].map(function(m){
+        return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+      }).join('\n');
+      hasAny = true;
+    }
+  });
+  if (!hasAny) {
+    document.getElementById('tram-status').className='admin-status err';
+    document.getElementById('tram-status').textContent='No custom data yet.';
+    setTimeout(function(){document.getElementById('tram-status').textContent='';},2000);
+  }
+}
+
+function updateAdminBadges() {
+  var c3b = document.getElementById('c3-custom-badge');
+  var trb = document.getElementById('tram-custom-badge');
+  var c3stored = localStorage.getItem(C3_SCHED_KEY);
+  var tramstored = localStorage.getItem(TRAM_SCHED_KEY);
+  if (c3b) c3b.innerHTML = c3stored ? '<span class="admin-custom-badge">CUSTOM</span>' : '';
+  if (trb) trb.innerHTML = tramstored ? '<span class="admin-custom-badge">CUSTOM</span>' : '';
+}
+
+function toggleAdminSection(hdr) {
+  var body = hdr.nextElementSibling;
+  var isOpen = body.classList.contains('open');
+  body.className = 'admin-section-body' + (isOpen ? '' : ' open');
+  hdr.querySelector('span:last-child').textContent = isOpen ? '▾' : '▴';
+}
+
 // ── Service Worker ────────────────────────────────────────────────────
 if("serviceWorker"in navigator){
   const sw=`const C="c3-v5";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.add("/"))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
@@ -743,6 +1500,9 @@ if("serviceWorker"in navigator){
 }
 
 // ── Init ──────────────────────────────────────────────────────────────
+applyC3CustomSchedule();
+applyTramCustomSchedule();
+updateAdminBadges();
 initStationSelects();
 initTramStopSelects();
 
