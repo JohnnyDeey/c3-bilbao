@@ -553,23 +553,24 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
         <button class="calc-mode-btn" id="calc-rad-btn" onclick="calcToggleRad()">RAD</button>
         <button class="calc-mode-btn" id="calc-inv-btn" onclick="calcToggleInv()">INV</button>
         <button class="calc-mode-btn" id="calc-hist-btn" onclick="calcToggleHist()">HIST</button>
+        <button class="calc-mode-btn" onclick="downloadCalcManual()" title="Download keyboard shortcuts PDF" style="margin-left:auto;font-size:10px;padding:4px 8px;">⌨️ KB</button>
       </div>
 
       <!-- Scientific row -->
       <div class="calc-sci-grid">
-        <button class="cb fn" id="calc-norm-sin" onclick="calcFn('sin')">sin</button>
-        <button class="cb fn" id="calc-norm-cos" onclick="calcFn('cos')">cos</button>
-        <button class="cb fn" id="calc-norm-tan" onclick="calcFn('tan')">tan</button>
-        <button class="cb fn" id="calc-norm-log" onclick="calcFn('log')">log</button>
-        <button class="cb fn" id="calc-norm-ln"  onclick="calcFn('ln')">ln</button>
+        <button class="cb fn" id="calc-norm-sin" onclick="calcFnOpen('sin','Math.sin')">sin</button>
+        <button class="cb fn" id="calc-norm-cos" onclick="calcFnOpen('cos','Math.cos')">cos</button>
+        <button class="cb fn" id="calc-norm-tan" onclick="calcFnOpen('tan','Math.tan')">tan</button>
+        <button class="cb fn" id="calc-norm-log" onclick="calcFnOpen('log','Math.log10')">log</button>
+        <button class="cb fn" id="calc-norm-ln"  onclick="calcFnOpen('ln','Math.log')">ln</button>
 
-        <button class="cb fn" id="calc-inv-sin" onclick="calcFn('asin')" style="display:none">sin⁻¹</button>
-        <button class="cb fn" id="calc-inv-cos" onclick="calcFn('acos')" style="display:none">cos⁻¹</button>
-        <button class="cb fn" id="calc-inv-tan" onclick="calcFn('atan')" style="display:none">tan⁻¹</button>
-        <button class="cb fn" id="calc-inv-log" onclick="calcFn('pow10')" style="display:none">10ˣ</button>
-        <button class="cb fn" id="calc-inv-ln"  onclick="calcFn('exp')" style="display:none">eˣ</button>
+        <button class="cb fn" id="calc-inv-sin" onclick="calcFnOpen('sin⁻¹','Math.asin')" style="display:none">sin⁻¹</button>
+        <button class="cb fn" id="calc-inv-cos" onclick="calcFnOpen('cos⁻¹','Math.acos')" style="display:none">cos⁻¹</button>
+        <button class="cb fn" id="calc-inv-tan" onclick="calcFnOpen('tan⁻¹','Math.atan')" style="display:none">tan⁻¹</button>
+        <button class="cb fn" id="calc-inv-log" onclick="calcFnOpen('10^','Math.pow10')" style="display:none">10ˣ</button>
+        <button class="cb fn" id="calc-inv-ln"  onclick="calcFnOpen('e^','Math.exp')" style="display:none">eˣ</button>
 
-        <button class="cb fn" onclick="calcFn('sqrt')">√</button>
+        <button class="cb fn" onclick="calcFnOpen('√','Math.sqrt')">√</button>
         <button class="cb fn" onclick="calcFn('sq')">x²</button>
         <button class="cb fn" onclick="calcFn('cube')">x³</button>
         <button class="cb fn" onclick="calcOp('^')">xʸ</button>
@@ -577,7 +578,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 
         <button class="cb fn" onclick="calcInsert('Math.PI')">π</button>
         <button class="cb fn" onclick="calcInsert('Math.E')">e</button>
-        <button class="cb fn" onclick="calcFn('abs')">|x|</button>
+        <button class="cb fn" onclick="calcFnOpen('abs','Math.abs')">|x|</button>
         <button class="cb fn" onclick="calcFn('fact')">n!</button>
         <button class="cb fn" onclick="calcFn('pct')">%</button>
 
@@ -1177,6 +1178,31 @@ function calcInsert(s) {
   _cExprDisp(_cExpr + _cVal);
   _cDisp(s === 'Math.PI' ? 'π' : s === 'Math.E' ? 'e' : s);
 }
+
+// calcFnOpen — insert function name + open bracket so user types argument then closes
+// e.g. pressing 's' inserts "sin(" and user types 30) then Enter
+function calcFnOpen(display, jsName) {
+  // Respect INV mode for trig functions
+  var invMap = {
+    'Math.sin': ['asin', 'Math.asin'],
+    'Math.cos': ['acos', 'Math.acos'],
+    'Math.tan': ['atan', 'Math.atan'],
+    'Math.log10': ['10^', 'Math.pow10']
+  };
+  if (_cInv && invMap[jsName]) {
+    display = invMap[jsName][0];
+    jsName  = invMap[jsName][1];
+  }
+  // If there is a pending value carry it into expression
+  if (!_cNewNum && _cVal !== '' && _cVal !== '0') {
+    _cExpr += _cVal + '*';
+  }
+  _cExpr += jsName + '(';
+  _cVal = ''; _cNewNum = true;
+  _cExprDisp(_cExpr);
+  _cDisp(display + '(');
+}
+
 // Dedicated open bracket
 function calcOpen() {
   if (!_cNewNum && _cVal !== '' && _cVal !== '0') _cExpr += _cVal + '*(';
@@ -1237,6 +1263,7 @@ function calcEquals() {
   var expr = full
     .replace(/×/g,'*').replace(/÷/g,'/')
     .replace(/−/g,'-').replace(/\^/g,'**')
+    .replace(/Math\.pow10\(([^)]+)\)/g, function(m,a){return 'Math.pow(10,('+a+'))'; })
     .replace(/Math\.PI/g, String(Math.PI))
     .replace(/Math\.E/g,  String(Math.E))
     // Auto-insert * for implicit multiplication: )( → )*( and )0-9 → )*digit
@@ -1272,6 +1299,18 @@ function calcMem(op) {
   }
   _cExprDisp('M = ' + _fmt(_cMem));
 }
+
+function downloadCalcManual() {
+  // Direct link to the PDF on GitHub Pages (same repo)
+  var a = document.createElement('a');
+  a.href = 'c3_keyboard_shortcuts.pdf';
+  a.download = 'C3_Bilbao_Keyboard_Shortcuts.pdf';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 function calcToggleDeg() {
   _cDeg = true;
   document.getElementById('calc-deg-btn').className = 'calc-mode-btn deg on';
@@ -1633,8 +1672,8 @@ function _calcFlushKey(seq) {
   _calcKeyTimer = null;
   // Execute the buffered sequence
   switch(seq) {
-    case 'l':   calcFn('log');            _flashCalcBtn('log');  break;
-    case 'ln':  calcFn('ln');             _flashCalcBtn('ln');   break;
+    case 'l':   calcFnOpen('log','Math.log10'); _flashCalcBtn('log');  break;
+    case 'ln':  calcFnOpen('ln','Math.log'); _flashCalcBtn('ln');   break;
     case 'pi':  calcInsert('Math.PI');    _flashCalcBtn('pi');   break;
     case 'p':   calcInsert('Math.PI');    _flashCalcBtn('pi');   break;
     case 'ms':  calcMem('ms');            _flashCalcBtn('ms');   break;
@@ -1642,7 +1681,7 @@ function _calcFlushKey(seq) {
     case 'mc':  calcMem('mc');            _flashCalcBtn('mc');   break;
     case 'm+':  calcMem('m+');            _flashCalcBtn('m+');   break;
     case 'm-':  calcMem('m-');            _flashCalcBtn('m-');   break;
-    case 'm':   calcFn('abs');            _flashCalcBtn('abs');  break;
+    case 'm':   calcFnOpen('|','Math.abs'); _flashCalcBtn('abs');  break;
     case 'x2':  calcFn('sq');             _flashCalcBtn('sq');   break;
     case 'x3':  calcFn('cube');           _flashCalcBtn('cube'); break;
     case 'xy':  calcOp('^');              _flashCalcBtn('xpow'); break;
@@ -1757,16 +1796,16 @@ document.addEventListener('keydown', function(e) {
   if (lk === 'h') { e.preventDefault(); if(typeof calcToggleHist==='function') calcToggleHist(); return; }
 
   // S → sin
-  if (lk === 's') { e.preventDefault(); calcFn('sin'); _flashCalcBtn('sin'); return; }
+  if (lk === 's') { e.preventDefault(); calcFnOpen('sin','Math.sin'); _flashCalcBtn('sin'); return; }
 
   // C → cos
-  if (lk === 'c') { e.preventDefault(); calcFn('cos'); _flashCalcBtn('cos'); return; }
+  if (lk === 'c') { e.preventDefault(); calcFnOpen('cos','Math.cos'); _flashCalcBtn('cos'); return; }
 
   // T → tan
-  if (lk === 't') { e.preventDefault(); calcFn('tan'); _flashCalcBtn('tan'); return; }
+  if (lk === 't') { e.preventDefault(); calcFnOpen('tan','Math.tan'); _flashCalcBtn('tan'); return; }
 
   // V → √ (square root)
-  if (lk === 'v') { e.preventDefault(); calcFn('sqrt'); _flashCalcBtn('sqrt'); return; }
+  if (lk === 'v') { e.preventDefault(); calcFnOpen('√','Math.sqrt'); _flashCalcBtn('sqrt'); return; }
 
   // E → e (Euler's number)
   if (lk === 'e') { e.preventDefault(); calcInsert('Math.E'); _flashCalcBtn('e'); return; }
