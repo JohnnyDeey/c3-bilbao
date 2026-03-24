@@ -1623,6 +1623,45 @@ function _flashPinKey(k) {
   }
 }
 
+// ── Multi-key sequence state ─────────────────────────────────
+var _calcKeyBuf = '';       // pending prefix character(s)
+var _calcKeyTimer = null;   // timeout handle
+
+function _calcFlushKey(seq) {
+  clearTimeout(_calcKeyTimer);
+  _calcKeyBuf = '';
+  _calcKeyTimer = null;
+  // Execute the buffered sequence
+  switch(seq) {
+    case 'l':   calcFn('log');            _flashCalcBtn('log');  break;
+    case 'ln':  calcFn('ln');             _flashCalcBtn('ln');   break;
+    case 'pi':  calcInsert('Math.PI');    _flashCalcBtn('pi');   break;
+    case 'p':   calcInsert('Math.PI');    _flashCalcBtn('pi');   break;
+    case 'ms':  calcMem('ms');            _flashCalcBtn('ms');   break;
+    case 'mr':  calcMem('mr');            _flashCalcBtn('mr');   break;
+    case 'mc':  calcMem('mc');            _flashCalcBtn('mc');   break;
+    case 'm+':  calcMem('m+');            _flashCalcBtn('m+');   break;
+    case 'm-':  calcMem('m-');            _flashCalcBtn('m-');   break;
+    case 'm':   calcFn('abs');            _flashCalcBtn('abs');  break;
+    case 'x2':  calcFn('sq');             _flashCalcBtn('sq');   break;
+    case 'x3':  calcFn('cube');           _flashCalcBtn('cube'); break;
+    case 'xy':  calcOp('^');              _flashCalcBtn('xpow'); break;
+    case 'x':   /* x alone — ignore */    break;
+  }
+}
+
+function _calcFlashToast(msg) {
+  // Show a tiny hint near the display
+  var d = document.getElementById('calc-display');
+  if (!d) return;
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:absolute;top:4px;right:8px;font-family:DM Mono,monospace;font-size:0.6rem;color:rgba(255,255,255,0.5);pointer-events:none;';
+  d.style.position = 'relative';
+  d.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 600);
+}
+
 document.addEventListener('keydown', function(e) {
   // Only active when calculator tab is open
   var calcPanel = document.getElementById('panel-calc');
@@ -1634,8 +1673,46 @@ document.addEventListener('keydown', function(e) {
 
   var k = e.key;
 
+  // ── If we have a pending prefix, check if this completes a sequence ──
+  if (_calcKeyBuf) {
+    var seq = _calcKeyBuf + k.toLowerCase();
+
+    // l + n → ln
+    if (_calcKeyBuf === 'l' && k.toLowerCase() === 'n') {
+      e.preventDefault(); _calcFlushKey('ln'); return;
+    }
+    // p + i → π
+    if (_calcKeyBuf === 'p' && k.toLowerCase() === 'i') {
+      e.preventDefault(); _calcFlushKey('pi'); return;
+    }
+    // m + s/r/c/+/- → memory
+    if (_calcKeyBuf === 'm') {
+      var mk = k.toLowerCase();
+      if (mk === 's') { e.preventDefault(); _calcFlushKey('ms'); return; }
+      if (mk === 'r') { e.preventDefault(); _calcFlushKey('mr'); return; }
+      if (mk === 'c') { e.preventDefault(); _calcFlushKey('mc'); return; }
+      if (k  === '+') { e.preventDefault(); _calcFlushKey('m+'); return; }
+      if (k  === '-') { e.preventDefault(); _calcFlushKey('m-'); return; }
+      // m alone fired already — flush it and fall through to process k normally
+      _calcFlushKey('m');
+    }
+    // x + 2/3/y → x²/x³/xʸ
+    if (_calcKeyBuf === 'x') {
+      if (k === '2') { e.preventDefault(); _calcFlushKey('x2'); return; }
+      if (k === '3') { e.preventDefault(); _calcFlushKey('x3'); return; }
+      if (k.toLowerCase() === 'y') { e.preventDefault(); _calcFlushKey('xy'); return; }
+      // x alone — insert as multiply or fall through
+      _calcFlushKey('x');
+    }
+    // Any other key — flush pending with its single-char meaning and fall through
+    _calcFlushKey(_calcKeyBuf);
+  }
+
+  // ── Single-key shortcuts (no modifier needed) ─────────────────────
+  var lk = k.toLowerCase();
+
   // Digits 0–9
-  if (k >= '0' && k <= '9') { e.preventDefault(); calcNum(k); return; }
+  if (k >= '0' && k <= '9') { e.preventDefault(); calcNum(k); _flashCalcKey(k); return; }
 
   // Decimal
   if (k === '.' || k === ',') { e.preventDefault(); calcDot(); return; }
@@ -1658,29 +1735,114 @@ document.addEventListener('keydown', function(e) {
   // Backspace
   if (k === 'Backspace') { e.preventDefault(); calcDel(); return; }
 
-  // Delete / Escape = AC (clear all)
+  // Delete / Escape = AC
   if (k === 'Delete' || k === 'Escape') { e.preventDefault(); calcClear(); return; }
 
-  // Scientific functions via keyboard shortcuts
-  if (e.altKey) {
-    switch(k) {
-      case 's': e.preventDefault(); calcFn('sin');  return;
-      case 'c': e.preventDefault(); calcFn('cos');  return;
-      case 't': e.preventDefault(); calcFn('tan');  return;
-      case 'l': e.preventDefault(); calcFn('log');  return;
-      case 'n': e.preventDefault(); calcFn('ln');   return;
-      case 'r': e.preventDefault(); calcFn('sqrt'); return;
-      case 'q': e.preventDefault(); calcFn('sq');   return;
-      case 'i': e.preventDefault(); calcFn('inv');  return;
-      case 'p': e.preventDefault(); calcInsert('Math.PI'); return;
-      case 'e': e.preventDefault(); calcInsert('Math.E');  return;
-      case '!': e.preventDefault(); calcFn('fact'); return;
-    }
+  // \ → 1/x (reciprocal)
+  if (k === '\\') { e.preventDefault(); calcFn('inv'); _flashCalcBtn('inv'); return; }
+
+  // ! → n!
+  if (k === '!') { e.preventDefault(); calcFn('fact'); _flashCalcBtn('fact'); return; }
+
+  // D → DEG mode
+  if (lk === 'd') { e.preventDefault(); if(typeof calcToggleDeg==='function') calcToggleDeg(); return; }
+
+  // R → RAD mode
+  if (lk === 'r') { e.preventDefault(); if(typeof calcToggleRad==='function') calcToggleRad(); return; }
+
+  // I (uppercase only) → toggle INV
+  if (k === 'I') { e.preventDefault(); if(typeof calcToggleInv==='function') calcToggleInv(); return; }
+
+  // H → HIST
+  if (lk === 'h') { e.preventDefault(); if(typeof calcToggleHist==='function') calcToggleHist(); return; }
+
+  // S → sin
+  if (lk === 's') { e.preventDefault(); calcFn('sin'); _flashCalcBtn('sin'); return; }
+
+  // C → cos
+  if (lk === 'c') { e.preventDefault(); calcFn('cos'); _flashCalcBtn('cos'); return; }
+
+  // T → tan
+  if (lk === 't') { e.preventDefault(); calcFn('tan'); _flashCalcBtn('tan'); return; }
+
+  // V → √ (square root)
+  if (lk === 'v') { e.preventDefault(); calcFn('sqrt'); _flashCalcBtn('sqrt'); return; }
+
+  // E → e (Euler's number)
+  if (lk === 'e') { e.preventDefault(); calcInsert('Math.E'); _flashCalcBtn('e'); return; }
+
+  // L → start l/ln sequence (log or ln depending on next key)
+  if (lk === 'l') {
+    e.preventDefault();
+    _calcKeyBuf = 'l';
+    _calcFlashToast('l…');
+    _calcKeyTimer = setTimeout(function(){ _calcFlushKey('l'); }, 400);
+    return;
   }
 
-  // Flash the pressed button visually for feedback
+  // P → start p/pi sequence
+  if (lk === 'p') {
+    e.preventDefault();
+    _calcKeyBuf = 'p';
+    _calcFlashToast('p…');
+    _calcKeyTimer = setTimeout(function(){ _calcFlushKey('p'); }, 400);
+    return;
+  }
+
+  // M → start m/ms/mr/mc/m+/m- sequence
+  if (lk === 'm') {
+    e.preventDefault();
+    _calcKeyBuf = 'm';
+    _calcFlashToast('m…');
+    _calcKeyTimer = setTimeout(function(){ _calcFlushKey('m'); }, 400);
+    return;
+  }
+
+  // X → start x2/x3/xy sequence
+  if (lk === 'x') {
+    e.preventDefault();
+    _calcKeyBuf = 'x';
+    _calcFlashToast('x…');
+    _calcKeyTimer = setTimeout(function(){ _calcFlushKey('x'); }, 400);
+    return;
+  }
+
+  // Flash standard keys
   _flashCalcKey(k);
 });
+
+// Flash a scientific button by function name
+function _flashCalcBtn(fn) {
+  var fnMap = {
+    'log':'[onclick="calcFn(\'log\')"]',
+    'ln': '[onclick="calcFn(\'ln\')"]',
+    'sin':'[onclick="calcFn(\'sin\')"]',
+    'cos':'[onclick="calcFn(\'cos\')"]',
+    'tan':'[onclick="calcFn(\'tan\')"]',
+    'sqrt':'[onclick="calcFn(\'sqrt\')"]',
+    'sq':  '[onclick="calcFn(\'sq\')"]',
+    'cube':'[onclick="calcFn(\'cube\')"]',
+    'abs': '[onclick="calcFn(\'abs\')"]',
+    'inv': '[onclick="calcFn(\'inv\')"]',
+    'fact':'[onclick="calcFn(\'fact\')"]',
+    'xpow':'[onclick="calcOp(\'^\')"]',
+    'pi':  '[onclick*="PI"]',
+    'e':   '[onclick*="Math.E"]',
+    'ms':  '[onclick="calcMem(\'ms\')"]',
+    'mr':  '[onclick="calcMem(\'mr\')"]',
+    'mc':  '[onclick="calcMem(\'mc\')"]',
+    'm+':  '[onclick="calcMem(\'m+\')"]',
+    'm-':  '[onclick="calcMem(\'m-\')"]'
+  };
+  var sel = fnMap[fn];
+  if (!sel) return;
+  var btn = document.querySelector('#panel-calc ' + sel);
+  if (btn) {
+    var orig = btn.style.background;
+    btn.style.background = 'rgba(200,150,46,0.5)';
+    setTimeout(function(){ btn.style.background = orig; }, 130);
+  }
+}
 
 function _flashCalcKey(k) {
   // Map key to button selector for visual feedback
