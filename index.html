@@ -591,7 +591,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
       <!-- M+ Keyboard Shortcuts M- row -->
       <div style="display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:5px">
         <button class="cb mem" onclick="calcMem('m+')" style="font-size:15px;font-weight:700">M+</button>
-        <button class="cb mem" onclick="downloadCalcManual()" style="font-size:10px;font-weight:700;letter-spacing:0.5px;line-height:1.3;">⌨️ Keyboard<br>Shortcuts</button>
+        <button class="cb mem" onclick="openCalcManual()" style="font-size:10px;font-weight:700;letter-spacing:0.5px;line-height:1.3;">⌨️ Keyboard<br>Shortcuts</button>
         <button class="cb mem" onclick="calcMem('m-')" style="font-size:15px;font-weight:700">M−</button>
       </div>
 
@@ -1317,22 +1317,91 @@ function calcMem(op) {
   _cExprDisp('M = ' + _fmt(_cMem));
 }
 
-function downloadCalcManual() {
-  // PDF embedded as base64 — works on any host without separate file
-  var b64 = 'JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUiAvRjMgNCAwIFIgL0Y0IDUgMCBSIC9GNSA2IDAgUiAvRjYgOCAwIFIgCiAgL0Y3IDkgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0Jhc2VGb250IC9IZWx2ZXRpY2EtQm9sZCAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjIgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iago0IDAgb2JqCjw8Ci9CYXNlRm9udCAvU3ltYm9sIC9OYW1lIC9GMyAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjUgMCBvYmoKPDwKL0Jhc2VGb250IC9Db3VyaWVyLUJvbGQgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0Y0IC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKNiAwIG9iago8PAovQmFzZUZvbnQgL1phcGZEaW5nYmF0cyAvTmFtZSAvRjUgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iago3IDAgb2JqCjw8Ci9Db250ZW50cyAxNCAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCAxMyAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKOCAwIG9iago8PAovQmFzZUZvbnQgL0hlbHZldGljYS1Cb2xkT2JsaXF1ZSAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjYgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iago5IDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhLU9ibGlxdWUgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0Y3IC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKMTAgMCBvYmoKPDwKL0NvbnRlbnRzIDE1IDAgUiAvTWVkaWFCb3ggWyAwIDAgNTk1LjI3NTYgODQxLjg4OTggXSAvUGFyZW50IDEzIDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iagoxMSAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDEzIDAgUiAvVHlwZSAvQ2F0YWxvZwo+PgplbmRvYmoKMTIgMCBvYmoKPDwKL0F1dGhvciAoXChhbm9ueW1vdXNcKSkgL0NyZWF0aW9uRGF0ZSAoRDoyMDI2MDMyNDA3MjE1OCswMCcwMCcpIC9DcmVhdG9yIChcKHVuc3BlY2lmaWVkXCkpIC9LZXl3b3JkcyAoKSAvTW9kRGF0ZSAoRDoyMDI2MDMyNDA3MjE1OCswMCcwMCcpIC9Qcm9kdWNlciAoUmVwb3J0TGFiIFBERiBMaWJyYXJ5IC0gXChvcGVuc291cmNlXCkpIAogIC9TdWJqZWN0IChcKHVuc3BlY2lmaWVkXCkpIC9UaXRsZSAoXChhbm9ueW1vdXNcKSkgL1RyYXBwZWQgL0ZhbHNlCj4+CmVuZG9iagoxMyAwIG9iago8PAovQ291bnQgMiAvS2lkcyBbIDcgMCBSIDEwIDAgUiBdIC9UeXBlIC9QYWdlcwo+PgplbmRvYmoKMTQgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMzM4NAo+PgpzdHJlYW0KR2F1SE89YDwoVCZxOVNZaSclUnJhWCIwOmthS0lTMy9LZV5cXTZURChuX0krPG10cVxBPnEvW0EsRy8lOzdHNz9mTGZeYCxdMShbSWA6PHU3OTEtcE0kWkRScGNsODlqUDtbUl1xQyQ2RWReVFowRWVyY1EoMjNSNElqZGA6ITU3YmBiZTBiZ0dVVSMkInNRUUs6OjtyLjU9TjonalExQGJSa1VebW5UTk9nOyN0L3BBaSM4MURMJEMhKjhQS0dvJnEvSVI7VkUzVFJqcSJvSEJlUE9vVSNyZUZhbjxcIiJONT05L2tmNVBSbDAlQ04rTCQ5NSZnRmFsU1Q5TUcoViZIRjciJUhJbVR1SUlUciQlYk8malAzNlgpNCReXyowNjVubERWQyVPPEg3NDYwSW1RUj1rOF4nWEJiTSlDT1hnbjVfWzknKiFbT1tqWlxrN2FVRU9zI01AXHI5azNUV1pDIjdQOTBRTTJPUmNNL11IMVIqNEczLCQvN1NbVlpuYi0kVjxEblNXJmxDaj1KPFN0T1Q8USEkX2wjMGhgYTkoTUNtIVM8cig4KGloOic7ZCwnO2hjNmBHLV5ybkdwSyJ0TWU4NUMxXC1wL1Q3ODdfVnNJZF9aNkVwWWU5VCI8KCZUMGJeSVtxKlBxZ0NpUCNPIl9nbStUPmFvLl5ITmwkYCMzdUshdXBPcTxMUysmPiNXUj9DIj03PmA7M14mRGxvZGZdOS9FSz89Ti1ZdWdTaEtlV1RPcTk1YXB1JGpZSGZqMjZcNlMxNl9gWjA5cyMwYT9SVyVfPiciPE0+TGlqZj1wZEk9QT09PVBcdWpAaHJ1TUBiRHI9dFchY2pNJF8uVDEmaFshck8pLl0pViUsZ1NoOmYxcyI2OytRREErbm9hME9DcG1oYjRDO2VqYGJZX0pDJWFjTmEyLGZkZChvVDZIR1wtaTkuSHF0aD46VixCJShQIlpZVmYxTiYlMSlcbzJhIlpCbCwtUD5vXnFNOHAwI2h1LW5wLWJLb01FZHArbkNPNW1KVTkuakVfM18oSjNOa1RKaWVUPjxlJmNGMkE9REIvc1csUihOI2BeYmldIyRnJlNoVmddPjIhPW4+ZWdITmN0W3UqXERJK1RzKW5BPUNNSVtDZFdfS1JwYFtuMGJqLV5JUFJfN2dpcEl0SD5gO2pdZFpoSnEzJzFNaUUvP0InT0knLTtEKWxJNSRHSUdcNF9EMWRsdV44JWlKXC9uMlZUZGRNJzxVXTRObWZNNkVYUzBedT0lR3U+cEtPcWNqPnNpYE1sSGRnQy8kNFwvVWFhcCpMS0hEXVE/NVJXRVVmZkpHUixbWTAnZC8iWzNlYC5vcy0iZmwzXSFfKSVBPixOJzNuNmUjc2hZbEk+SVNPUTlgI2w1U0IxKCxuJ2shKiprSDp0Ol1ZI1ZTPCIjSk0yNDVLbikiXHUmVm8mL2xFIy4jaypIVTZpYHAzQWosYztEU2hFZVYtJGxhJ3U+JCJedDEqOSNSRFxpdFc3bXJzbHMyblJpLVVCbihrSkU+LV4hY1RTRW4tPl5PJE5mNFVDLWY5Qlc8Yz1QX2YpYmFRSjdRaSdPSU01SV0+YGZiWVA1KiprMiUrb3NVYjwlNHVOX1NHdFE1X15KJldZVztua2ppcCQyXTJacEgvXlxVMSIiPClXKDk+XWk7LzhAJ2ZwKDgrP1FOPSptXkI/I208OTRrJktWIVwtOHMlKT9SdWshQ21TY1ZrNHNVXGVGTV9MaGg2SFtiODFsXk90WWliWG5kUVtkcHIwaS4wPGo/Y0xaYEdLWCN0J3JQLnJPQEl1TikuWWFWPVNJNTAwSiEkclVtQkw1JkN1KFRKSEZNRm49bV5DRy8rQUpBNTQlbSVDSVpRRTpENCtWNlc0XWJROEJWU2JGNTsxO1tGVmJeQm9RaCZEWDY9ImJPLT9ZU1xONiFgdWwmPldqaFMwZlpuPjUkaE9ARXRuZkElaSspcDxmbighMWpQNkpQRldmPUJWJS4icGEnZHNjISZSI2BOJUpYMlE/XV4mUysnRDpBYlAjcl0pXTxRKmZNZ0Uya0lEbTQhIj5gQHFGP0NrQEg+Ry1lOmw8TDBGUFQlJkFrVD9ZWj5TUUE5QUspTCpmIWAtMyhpZWBacVNuXDtFJGxvQDJlSDFPMVxmYmw6WVhISDlWKmprJGw5TT1RMS8+clxMSzRtTj0zMV5vRF1XKEJbbWAkLjhtTUMmOUUsbjw0WT1lY2JCMyJpOFgyVXQ2b2JQWC5tTGRXa2ZMdW9vLjFAQm1DZ2BdP3A9J2pTdGk/bSN0cDhrKzxJPzg/dVMlQCYyJmZaV1AnRnFWLiojXDlBLCtRLURBV3E7YlROJz51UF1AMDYvLksxQzp1KSldXU5FMVIhOiowUlFJXFxvSU0uXjMnUEotJS1qT00oXy9eJUU1PClaMlpOME43bShjakFIZShfPkZsJEwjWlpYQWZEIUFBIXI7NDlPXW4yXnFoUkcrN04hb2pUSChNPEtSaC9qKURkSWdIc2k/NnUnMylMaSJBcTgxZnJCJHBoYCsrRzkxP08ycnBbQGleSCJKQVY6XWMtJjQ4RTZvIlMlTChvKSheW25FPEB1NjxZSzxhSjkqQF4mJDxUWEhTMmtBZmA+MDAzJFdTYWhKWig4ISFGaSgvXERzRTxROEMjQigpV0MlW1ktSi8qIyhlVTohbl0oalJrXU5ZXz9SNFRxNEcyQ1FKWiZsSSQyQyJZZyVNbmkvQCovTmxwLCk+T0VdUmU0Ql1YQVZHMnIxRm1QXV5JXVA1ciNaMGokNTFYOms4UDBCY3VIa15YTDlzaVpMIjRNU0lWTyJxSUE5OiwnVCdmWC5lXzZtaixJMFFwUkk9OklKa1leM2pkbDMrc2Q7Nlllc2FuSUpUbFc6PT8wTVRRWzVZbDhvbG0pPG1YV2JPcVVNNHAiWDhnRC1hMi1EVk5UMms2Niw+UmJjQiZWNTwxXXI2TTBpKl05QEUlLyJVL2ptXS1ka1MrajJ0QmhJU2RgYWouJC5TVFVFczdpOXRFTCIuLFY/LjgmTzFuREQlJCZUbzU5VCZhIS1jK0A9MC9QUHFEPS9HSXFzN0AzOlwzYj8zWGRAZlMsUSFaTCQhKSlyWVFQUyFCND1iQlVGRyYsZFxXWTRJYUQtW2gxVT4qNSdsMF5DYyJROCgoMWkrKSlGRDsiMldfYmBqOipjbDQyQk9JOC9QI0dKcltJUnEzdFVwQmlmKU4vcGtXWC0hYyVUZT1wKk45ckJbdVRMWlNJLzAtTm9bVy4uXDVIM2ZraSQsLTEvO2dkRk9JW0IiZmQpKkF1J1QpSjYlKWZALlRQUSo+VDpdK3NoLEo9RGIhV1JfcChWNVtLWj5hZkVoNmAkYmMzYS50XSVRLTRhKilxQDtSck00XTIoW15TbHMhTWZHWmdIRyQ6OVBEX1Y2YWUoWDc2U2lnPVYrWV1vWiY4bE4rJlNSTzsocitMVldrK18uJF1Bc051alVPNTxMP19jRUZKNnBANkooaUE6aVVrK2FdYC47XjgqW1xbNzxLXT5NZzI1K1F1bENUOWYsUD5DOVcmW3IxX004YC5RJ1Q5XlZEKFM7XCsiT0ckLmxYakhETjE8OmE1XGFuMEs1c3JXTzVmWSpFSFw7UVNdKzxVbnJjO0ZTTF5pTGtUJEVjKUxtKyk2Z0xDSFYxLCp1MzI2J3JoJGFwUltcZEpxWzVyIl9AM0FSXV5kb2Q5bSZDNFlRNlNyP2cic2g6RiQnZEZwSF5KXUxibyQ/LjlOVFdCUG5uWjVubi9uLjdjMGNYNWVaO1BOS2xAODkvKFgkXnFoUCJUXTNqSmlNZFRRQGJ0MEwkIW9aOkksXDNANWs7UzVvNjtGKVpjJjNqZVsrUSMsQVwxVDAvXlpIXDZsS25kdDsqKm8/W1siSG1RVWNUckVzPUVgbHIxQzwsJlAnaitPIm82WnE3VyVqbWtXTyddYCZhJyVfXG9WNTFzVGRCPzlSWW1pM05wbCovcmxnVXU7UFVKMUM3TTo5XzxiOFopOj9rMyNUcjkmY1YmZi9QcG5jVDJiT1ZbQTIhajJBYk1ORClPUTVbTipTSFlscUpSPydrUmxsalZoJD4nZnFGVUw/LCZyazxgTUBPIVIlUipMLTkqdSQiOkk1YjxsJzFYSChoKWxaWGA5XkQsRVNYdDpEdWA9MHAiIyEmRlJzbCE4aip0UCRqb1oxPHRgVjhuc2w8NWdlTiRmVlIrNVVCcVNtTE43QiQ8QW50cCQ2cW45ZkRrI2c6Y3Niakg5XlcxJitVdFQoRC1mUV5ZanJTbzQzNnFSLmw3UnA2P3BIWldCanVOc0UoYWp0QHNlU3FAZFw3M2UncW4ndVxFQUpxT1VRRWBMJFRtaThcbmtPc1BeSCxvNmVLTUNcKjRPSkNsM1hPbV5qRjVvS2JvaFMxUTU6WSlZbHBoVmlfS2pHcSpOMmpXUSNPIiU6Iz1RaX4+ZW5kc3RyZWFtCmVuZG9iagoxNSAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAyNjY2Cj4+CnN0cmVhbQpHYiEjXj5CQVEtJnE5U1lmWEsjKjlgbE0vSnNqX0pTMmRXSE5kRENDRi5QNFpUZDtacSxFV0JmWzVIRFRJaG9bcS06TGdlY1pEOlg5RU5pTUchQFBPX2huTjMrLkUuNkQ/MkJRRTpLJWxBTUFUNmFwZWpQSiZCaDdqTXFRWUg8U2ZAYmQ4OD9OXEUkNWldJUY7JThMMnUjVl9ZMTEyO0dNRUwvQTheN1ArNyheZj8sQmVVbC0zMlpnJSNuSzdtKHA3QGlMT3QoRSpQcTkwXFhaXXE+aSVXIlRrcydnLzBQaUk2QEo/RE4rNGZkUXQyXjJoQWpKUi5Ea24mOVRFWGFfQ2haLjhTMU5lYmAhTkgtYXQoPV9PbDJdWGtcSl5oa0M1WFUpI0hbLF41L0xdSnInLnE0QkFAPVw4T0M1N1FjXUszOHVgNSFvJFVSTyFJQS8iLzUqUWpzcVFMamxnLGVkIlQhOigyb2lwK2A7RlQiSnBNT2crUHMyIU5PdWc7N2ZfSF0zUFwpNWlzUWFXKTswZkUlIy81X1Y6TVJKN2pAZS5zcmBTblRwIy9JNmxdKC0xX1o1bWZjPmkpVzMuJEhdMUE2blIzWmRtSyZEY2lIOnBKJG5MTjhpSk8lLjBgI21oVEgyPCc/X2VkWCdsOUlkSmMuaEU9RGVdL2BFP2spKUU2XlFybCVPJUJpXSFadFhLUTxZbygvPUkyJ1xNcU8vNV4mMSZALzdAK1puVWBEWFJdWjc8UkcsPkwjOCpoQyg6Mj9RJClsOkhaIW02MTZ0b00vKU8rMUQqSyk8W3M3LS4oX0lFNiZYY2tJZjFCLnE3QFdePFQtbSpzTz1zKnJkJ0ROM1FMST1WXiJxLyskUTNSZ3NfK11WbTEvQTxtL0UqSHBpRGQ9JDVoZ0dgZzoya2BycilLYG5BMiJpZD00TElhNUdkb01dIiZfUktOUiEySkZBbzA1bSdKVDFCXU1GQS0uSiw3JzBEZV9ZKk1CJV5KZUQtImtDZm5DJ2EqUGgySElVYWJ0aV9bW3NTSVI3T19WW1JSJHQzJl8wdTdmXyFCMlNhQ2Zma1BnTCQoZF5naz47W1dQJ0IqXUolPmRZTWJmVU81TTkycVg1LFcubmtoNCtwUzo4QCx1SjpZUDgvPlA3VWUoLCstWWVRdERocUMhKElaRTYvZTpOWm5RP3EmNT4zYEptdCNMaGdcYGlJaDpMU2JCPi1vSWxWOkxzV0gyPVMwWDhQW19vQFhnLC5cWCUhNGVgOTtDLHVvIkRGamFNYmVRZ0NpMWZkSTFJYj41SzouXCwyZ3NAcjA2UixbIjYxRCl1MV45ZTYkZyc7NmdiTltiXFI6YSUkZWw2NiczMSI2YWtXNChWR049Xy0iQ1daXUdcYmxEYGRIQUooW3V1QEgnZV5pTi4zMF5OZEY+K3FHYD8xa29rTzNrdTd1NSZQQChHMWVqOEZPSmJhNjtHLDZvY11vQ3BQXywyYVFzbSdLajorTjhabnMhKyYvbzlNXVBUcVZpLi07WSw8Y2UsaE1iLkNubUlPNFRSWCEvUl4yVHE2PzVTSlJRVDdkPDUxLm9vVCRlMTYhTEItWSUzLS9cOipwQjxdWihiZF9sN2lrOVRhVTZccjs7SDZIVDBvblUyZjdiOGU3LV5kPmZERzJoM2QubERjRUxnMGZdY2FfUSNMS1M6MDVTYCxnR1MrY0wpUDU6YkMmaUBsRmY5L1hpaUsxYVJsMUdhJmRDVG8/VzBrVS1mU0ctaVtEWWV0NUJtKjlZSksjdGhnbVw0OC5QVkUobHJeLD5sMiVgNDIsM0xZJmEpNnBjJ11jXlU5LmU7KDI7ISYoZmtONF9fM0RdOGVYYzxgbUcxP2BoOzRGaVFgW3I4XlAuITQtdVcwPURAb3FNQiNOQUcyNnUmXT9TaCNXbnVWalxETSttO2s+Z2ItLVkyOlsnbTJZZD5HbS1KWUZnWV0kP2MlU0t0Oj0wRDYrcC5cZEVRbkdRQitvOElVV0E1KmQnKyxDOnQhMyhFVHVESyhQaDYjbikhL1FcKSlMdFw+WTFaSVA3Ny5FdFolRF5Gb1tNKFpDJzVTMUxWUmNvLkBoLSdAaSU4bjFSaCsyXldsOFssRU9OZVpsUUswakJZZERtQy9OVTtLVDhMVyVjXiQ6VTBHMiMyT2FhcUxtVEZmcTM5dUBVUzxSMTNUUiRrNmNRNiNEKiQwZHApNWdDKmwnPV4hRnRBbThEaCclIylqPGRtbC9bUTdgUTVxLlNHMF1nVG5iUSpgSkAqS3RNUjBGcGwoX0lrJVkuUnNtZEA0TD9NX1twJjBpNjVXUz5VLipDKzFNKEpSM1EiZm4qQ3QqI0ZXMG9sNVxqZjkhWTdHOThPWUtPPCNOIzRBPmhPPUZaNWpbYFVoMWRIdW4iSFxkUzpXbCRYMWliQEQsdCVvS1I1WSRUK1c6NjBPaEBFcWk+NCEyYjFvaz9xP11zTzxgXjVlanJZOVc4SEZbU1RZaWhyb0pNSFpCXCdsdWZMW0JzLUE8TFhNIy9RbGo0bHU6TFxTbUtfWCJzKDRqVEVoWVNrZUlwZi4wUXFlUDJXKDNLNEM5OyNCYWc0aEdSWkNpNmZcV0ppNWRDMlpeOj1pLSlyO2c6UFszRTZIL0RgQ0R1cD8xaz5XbyVsXlhLLjNhLkVxJT1YcWVRM140SltHRzZmVSpvS1EtTHUxVXRBVjFRPnRyIjI7cmE+Wk8iPzsjNS1sPlBsJCtpXFQzai40ZFYoUTpgXFJock5APUpxTGQ3a0s1UjRMP2ErJG5fLj9vUTlpME5FR05DLFo4Yy1bazEudVpMOVIkSTBCTmhUaz5eNmRgbnVCZzMjQXReNG1PMCJnZzxjaz0+Zzc9MlM0cScpcDU6cllyc1JvNCw4UU5qRGhrdEI1NzhBSWNwUjlaZ01jKFQqVV8qOWw/PmdGaCsjPG9fQStKczM1PC9jaSFeT0NON3RQZWVTOCpuYiQ2cStxOXEiJEp1N09DVVg5MSg6TzgxKDhvW18/S1JeU1NvMlc9O2FrPS9taEQ+KjwtNy1tYyRKdEpkP09RKzhmbS4/bXFdQi8hYSpSZT0hS0NnLiMrW2BpUC1xRkhqQ2VsOiNOLFIyZDtMdGUpVkQjWTVOVVlQJXAmLihQXUcmXUorXEdZPidFWVVNMStuRG11JltxSzA4JHMkIiciSzAwS0w5XE0mSE5ASzBgZlM6bCJgKDhoMFZhUXM7X3B0cjAhT3FNXWkqV2xUMCZYNSldL2A+K0NsQEJNV2BWcltXP2dCUDBtcnVpJlkwRSdeT3AoMSpGaUw+JyNXdXQyJklBYjxkRlhFUy8+Q0RfODNANSc4JFgkXG5xNSJfJlMnMC0wOitZWU4rPkNcJyE0PldELSpES2VhWVJTKik6YTUicklrRHNrOj1oTSNBSmQ4K2UsKypjMD9tTCVSYFhhSDR0b0lYWTJpQkAjPWgwZmZiXlkuX1BJTGhaSWVkbE82V1JEJDFyWmJdPTI7Oj82WCJAIVItaVg5T1claC1+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDE2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDA2MSAwMDAwMCBuIAowMDAwMDAwMTU1IDAwMDAwIG4gCjAwMDAwMDAyNjIgMDAwMDAgbiAKMDAwMDAwMDM3NCAwMDAwMCBuIAowMDAwMDAwNDUxIDAwMDAwIG4gCjAwMDAwMDA1NjEgMDAwMDAgbiAKMDAwMDAwMDY0NCAwMDAwMCBuIAowMDAwMDAwODQ5IDAwMDAwIG4gCjAwMDAwMDA5NjggMDAwMDAgbiAKMDAwMDAwMTA4MyAwMDAwMCBuIAowMDAwMDAxMjg5IDAwMDAwIG4gCjAwMDAwMDEzNTkgMDAwMDAgbiAKMDAwMDAwMTY0MCAwMDAwMCBuIAowMDAwMDAxNzA3IDAwMDAwIG4gCjAwMDAwMDUxODMgMDAwMDAgbiAKdHJhaWxlcgo8PAovSUQgCls8MjgzMmY3YmVhNDYwY2JiZGNlM2M2NjA4ZGE5OWFlODA+PDI4MzJmN2JlYTQ2MGNiYmRjZTNjNjYwOGRhOTlhZTgwPl0KJSBSZXBvcnRMYWIgZ2VuZXJhdGVkIFBERiBkb2N1bWVudCAtLSBkaWdlc3QgKG9wZW5zb3VyY2UpCgovSW5mbyAxMiAwIFIKL1Jvb3QgMTEgMCBSCi9TaXplIDE2Cj4+CnN0YXJ0eHJlZgo3OTQxCiUlRU9GCg==';
-  var binary = atob(b64);
-  var bytes = new Uint8Array(binary.length);
-  for (var i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
-  var blob = new Blob([bytes], {type:'application/pdf'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'C3_Bilbao_Keyboard_Shortcuts.pdf';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function(){URL.revokeObjectURL(url);}, 2000);
+function openCalcManual() {
+  var overlay = document.getElementById('calc-manual-overlay');
+  var body    = document.getElementById('calc-manual-body');
+  if (!overlay || !body) return;
+
+  function sec(title, color) {
+    return '<div style="font-family:monospace;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:'+color+';font-weight:700;margin:16px 0 6px;padding:6px 10px;background:'+color+'18;border-left:3px solid '+color+';border-radius:3px;">'+title+'</div>';
+  }
+  function row(key, btn, desc, ex) {
+    return '<div style="display:grid;grid-template-columns:70px 80px 1fr;gap:6px;align-items:start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'+
+      '<code style="background:#2a2010;color:#c8962e;padding:2px 6px;border-radius:3px;font-size:0.78rem;font-weight:700;">'+key+'</code>'+
+      '<span style="font-family:monospace;font-size:0.72rem;color:#e0d0b0;">'+btn+'</span>'+
+      '<div>'+
+        '<div style="font-size:0.75rem;color:#c0b090;line-height:1.5;">'+desc+'</div>'+
+        (ex?'<div style="font-family:monospace;font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:2px;">e.g. '+ex+'</div>':'')+'</div>'+
+    '</div>';
+  }
+
+  var h = '';
+  h += '<div style="background:#0f0c08;border-radius:6px;padding:12px 14px;margin-bottom:14px;">';
+  h += '<div style="font-size:0.78rem;color:#c0b090;line-height:1.8;">';
+  h += '📌 <strong style="color:#c8962e;">Insert mode:</strong> Function keys (sin, cos, log…) insert <code style="background:#2a2010;color:#c8962e;padding:1px 4px;border-radius:2px;">sin(</code> and wait for your number. Type the value, close with <code style="background:#2a2010;color:#c8962e;padding:1px 4px;border-radius:2px;">)</code> then <code style="background:#2a2010;color:#c8962e;padding:1px 4px;border-radius:2px;">Enter</code>.';
+  h += '</div>';
+  h += '<div style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-top:6px;">Example: press <code style="background:#2a2010;color:#c8962e;padding:1px 4px;border-radius:2px;">s</code> → display shows <code style="background:#2a2010;color:#c8962e;padding:1px 4px;border-radius:2px;">sin(</code> → type 30 → press <code style="background:#2a2010;color:#c8962e;padding:1px 4px;border-radius:2px;">)</code> → press <code style="background:#2a2010;color:#c8962e;padding:1px 4px;border-radius:2px;">Enter</code> → result: 0.5 (DEG)</div>';
+  h += '<div style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-top:4px;">⏱ Multi-key sequences (l→ln, m→ms, x→x2…) wait <strong>400ms</strong> — type the second key quickly.</div>';
+  h += '</div>';
+
+  h += sec('1 · Mode Toggles', '#4a90d9');
+  h += row('d', 'DEG', 'Switch to Degrees mode', 'sin(90) = 1');
+  h += row('r', 'RAD', 'Switch to Radians mode', 'sin(π/2) = 1');
+  h += row('I', 'INV', 'Toggle Inverse (sin→asin, log→10^x)', 'I then s → asin(');
+  h += row('h', 'HIST', 'Open / close history panel', '');
+
+  h += sec('2 · Arithmetic', '#4a9e6e');
+  h += row('0–9', 'Digit', 'Insert digit', '4 2 → 42');
+  h += row('. or ,', '·', 'Decimal point', '3.14');
+  h += row('+ – * /', '±×÷', 'Four basic operators', '5 * 3 Enter → 15');
+  h += row('^', 'xʸ', 'Power', '2 ^ 8 → 256');
+  h += row('%', '%', 'Percentage', '200 % → 2');
+  h += row('( )', '( )', 'Brackets', '(3+4)*2 → 14');
+  h += row('Enter / =', '=', 'Evaluate', '3 + 4 Enter → 7');
+  h += row('Backspace', '⌫', 'Delete last character', '');
+  h += row('Del / Esc', 'AC', 'Clear all', '');
+
+  h += sec('3 · Scientific — Insert Mode', '#8b5ecf');
+  h += row('s', 'sin', 'Opens sin( — type number then )', 'sin(30) → 0.5 DEG');
+  h += row('c', 'cos', 'Opens cos( — type number then )', 'cos(60) → 0.5');
+  h += row('t', 'tan', 'Opens tan( — type number then )', 'tan(45) → 1');
+  h += row('l (wait)', 'log', 'Opens log( — base 10', 'log(100) → 2');
+  h += row('l n', 'ln', 'Opens ln( — natural log', 'ln(1) → 0');
+  h += row('v', '√', 'Opens sqrt(', 'sqrt(144) → 12');
+  h += row('\\', '1/x', 'Reciprocal of current value', '4 \\ → 0.25');
+  h += row('!', 'n!', 'Factorial', '6 ! → 720');
+  h += row('e', 'e', "Euler's number", '→ 2.71828…');
+  h += row('p i', 'π', 'Pi (type p then i quickly)', '→ 3.14159…');
+  h += row('m (wait)', '|x|', 'Opens abs( — absolute value', 'abs(-7) → 7');
+
+  h += sec('4 · Powers', '#b5451b');
+  h += row('x 2', 'x²', 'Square current value (type x then 2)', '5 x2 → 25');
+  h += row('x 3', 'x³', 'Cube current value (type x then 3)', '3 x3 → 27');
+  h += row('x y', 'xʸ', 'Power operator (type x then y)', '2 xy 10 → 1024');
+
+  h += sec('5 · Memory', '#8b5e3c');
+  h += row('m s', 'MS', 'Store current value', '42 ms → saves 42');
+  h += row('m r', 'MR', 'Recall stored value', 'mr → 42 inserted');
+  h += row('m c', 'MC', 'Clear memory', '');
+  h += row('m +', 'M+', 'Add to memory', 'mem=10, 5 m+ → 15');
+  h += row('m –', 'M−', 'Subtract from memory', 'mem=10, 3 m- → 7');
+
+  h += '<div style="margin-top:14px;padding:10px;background:#0f0c08;border-radius:6px;font-family:monospace;font-size:0.65rem;color:rgba(255,255,255,0.3);text-align:center;">C3 Bilbao App · Keyboard shortcuts active on Calc tab only</div>';
+
+  body.innerHTML = h;
+  overlay.style.display = 'flex';
 }
+
+function closeCalcManual() {
+  var o = document.getElementById('calc-manual-overlay');
+  if (o) o.style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  var o = document.getElementById('calc-manual-overlay');
+  if (o && o.style.display === 'flex' && e.target === o) closeCalcManual();
+});
+
+
 
 function calcToggleDeg() {
   _cDeg = true;
@@ -1939,5 +2008,16 @@ initTramStopSelects();
 
 initLock();
 </script>
+
+<!-- ═══ KEYBOARD MANUAL OVERLAY ═══ -->
+<div id="calc-manual-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(10,8,6,0.88);align-items:flex-start;justify-content:center;padding:16px;padding-top:60px;overflow-y:auto;">
+  <div style="background:#1a1410;border:2px solid #c8962e;border-radius:10px;width:100%;max-width:560px;box-shadow:0 8px 40px rgba(0,0,0,0.7);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(200,150,46,0.3);">
+      <span style="font-family:Georgia,serif;font-size:1rem;font-weight:700;color:#c8962e;">⌨️ Keyboard Shortcuts</span>
+      <button onclick="closeCalcManual()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.3rem;cursor:pointer;">✕</button>
+    </div>
+    <div id="calc-manual-body" style="padding:16px 18px;max-height:70vh;overflow-y:auto;"></div>
+  </div>
+</div>
 </body>
 </html>
