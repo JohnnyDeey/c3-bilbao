@@ -163,6 +163,34 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .tab-panel.in-right{animation:slideR .22s ease}
 .tab-panel.in-left{animation:slideL .22s ease}
 /* ── TIMETABLE CHECK ── */
+/* ── ADMIN GATE (5 quick taps) ── */
+.gate-ov{position:fixed;inset:0;z-index:950;background:rgba(30,10,26,.62);display:none;align-items:center;justify-content:center;padding:20px}
+.gate-ov.on{display:flex}
+.gate-box{background:#fff;border-radius:16px;padding:20px;width:min(360px,100%);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.gate-box h3{font-size:16px;color:var(--brand);margin-bottom:6px}
+.gate-box p{font-size:12px;color:var(--text-mid);line-height:1.5;margin-bottom:12px}
+.gate-box .plan-input{margin-bottom:10px}
+.gate-row{display:flex;gap:8px;margin-top:4px}
+.gate-row button{flex:1;padding:11px;border-radius:9px;font-size:14px;font-weight:700;border:1.5px solid var(--brand);background:#fff;color:var(--brand)}
+.gate-row button.primary{background:var(--brand);color:#fff}
+.gate-err{font-size:12px;color:var(--brand);min-height:16px;margin-bottom:6px}
+.gate-box.shake{animation:pinshake .32s}
+/* ── IMPORT FROM SCREEN RECORDING ── */
+.imp-progress{height:8px;background:var(--brand-light);border-radius:4px;overflow:hidden;margin:10px 0 6px;display:none}
+.imp-progress i{display:block;height:100%;width:0;background:var(--brand);transition:width .2s}
+.imp-row{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer}
+.imp-row:last-child{border-bottom:none}
+.imp-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--brand);flex-shrink:0}
+.imp-time{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;min-width:128px}
+.imp-chips{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.imp-chip{font-size:10px;font-weight:700;border-radius:10px;padding:3px 8px;border:1.5px solid var(--border);background:#fff;color:var(--text-mid)}
+.imp-chip.warn{background:#FFF4D6;border-color:#E9C46A;color:#7A5B00}
+.imp-chip.new{background:var(--tram-light);border-color:var(--tram-mid);color:var(--tram)}
+.imp-chip.alt{cursor:pointer;border-color:var(--brand);color:var(--brand)}
+.imp-sum{font-size:12px;color:var(--text-mid);margin:10px 0;line-height:1.6}
+.imp-actions{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.imp-code{width:100%;min-height:70px;font-family:monospace;font-size:11px;padding:8px;border:1.5px solid var(--border);border-radius:8px;margin-top:8px}
+
 .due-dot{position:absolute;top:8px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:#FFD54A;border:2px solid var(--brand-dark)}
 .chk-link-row{display:flex;gap:8px;margin-bottom:10px}
 .chk-link-btn{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;text-decoration:none;padding:13px;border-radius:10px;border:1.5px solid var(--brand);background:#fff;color:var(--brand);font-size:14px;font-weight:700;cursor:pointer}
@@ -336,7 +364,6 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
   <div class="app-tabs">
     <button class="app-tab on" id="tab-c3" onclick="switchTab('c3')">TRAIN</button>
     <button class="app-tab" id="tab-tram" onclick="switchTab('tram')">TRAM</button>
-    <button class="app-tab" id="tab-admin" onclick="switchTab('admin')" aria-label="Settings" style="display:flex;align-items:center;justify-content:center;position:relative"><span id="due-dot" class="due-dot" style="display:none"></span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </div>
 </header>
 
@@ -421,10 +448,61 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
       <div class="full-schedule" id="full-schedule-wrap"></div>
     </div>
   </div>
-  <!-- ═══ CALCULATOR TAB ═══ -->
-  <div class="tab-panel" id="panel-admin">
+</main>
 
-    <div class="card" id="chk-card">
+  <!-- ═══ TAB 3: ADMIN / SCHEDULE UPDATE ═══ -->
+
+<div class="gate-ov" id="gate-ov">
+  <div class="gate-box" id="gate-box">
+    <h3 id="gate-title">Admin</h3>
+    <p id="gate-text">Enter the admin password.</p>
+    <input class="plan-input" type="password" id="gate-pw" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter')gateSubmit()"/>
+    <input class="plan-input" type="password" id="gate-pw2" placeholder="Repeat password" autocomplete="off" style="display:none" onkeydown="if(event.key==='Enter')gateSubmit()"/>
+    <div class="gate-err" id="gate-err"></div>
+    <div class="gate-row"><button onclick="closeGate()">Cancel</button><button class="primary" onclick="gateSubmit()">Open</button></div>
+  </div>
+</div>
+
+<div class="plan-ov" id="admin-ov">
+  <div class="plan-sheet">
+    <div class="plan-hdr"><h2>Admin</h2><button class="plan-x" onclick="closeAdmin()" aria-label="Close">✕</button></div>
+    <div class="plan-inner" style="display:flex;flex-direction:column;gap:12px">
+
+    <div class="card">
+      <div class="card-title">DATA &amp; APP</div>
+      <div class="live-note" style="margin:0;font-size:12px;line-height:1.7" id="adm-info"></div>
+    </div>
+
+    <div class="card" id="imp-card">
+      <div class="card-title">IMPORT FROM SCREEN RECORDING</div>
+      <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Record the Renfe app while you scroll one route slowly. Pick the video here. The app reads the times, compares them with the current data and lets you confirm each train.</div>
+      <div class="plan-row2">
+        <div class="field"><label>ROUTE</label>
+          <select id="imp-route" onchange="impRouteChange()">
+            <option value="ordunaToAbando">Orduña → Abando</option>
+            <option value="abandoToOrduna">Abando → Orduña</option>
+            <option value="llodioToAbando">Llodio → Abando</option>
+            <option value="abandoToLlodio">Abando → Llodio</option>
+          </select></div>
+        <div class="field"><label>DAY</label>
+          <select id="imp-day"><option value="WD">Mon–Fri</option><option value="WE">Sat–Sun</option></select></div>
+      </div>
+      <div class="field"><label>VIDEO</label><input class="plan-input" type="file" id="imp-file" accept="video/*"/></div>
+      <div class="plan-row2">
+        <div class="field"><label>JOURNEY MIN (MINUTES)</label><input class="plan-input" type="number" id="imp-min" value="58" inputmode="numeric"/></div>
+        <div class="field"><label>JOURNEY MAX (MINUTES)</label><input class="plan-input" type="number" id="imp-max" value="68" inputmode="numeric"/></div>
+      </div>
+      <div class="field"><label>IGNORE TIMES SEEN IN FEWER FRAMES THAN</label><input class="plan-input" type="number" id="imp-minseen" value="2" inputmode="numeric"/></div>
+      <div style="display:flex;gap:8px">
+        <button class="admin-save-btn" id="imp-start" onclick="impRun()" style="flex:1">READ THE VIDEO</button>
+        <button class="admin-save-btn" id="imp-stop" onclick="impCancel=true" style="flex:0 0 90px;background:#fff;color:var(--brand);border:1.5px solid var(--brand);display:none">Stop</button>
+      </div>
+      <div class="imp-progress" id="imp-prog"><i id="imp-bar"></i></div>
+      <div class="plan-msg" id="imp-status"></div>
+      <div id="imp-results"></div>
+    </div>
+
+<div class="card" id="chk-card">
       <div class="card-title">TIMETABLE CHECK</div>
       <div class="chk-status" id="chk-status"></div>
       <div class="chk-link-row">
@@ -443,8 +521,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
         <input class="plan-input" type="url" id="chk-tram-url" placeholder="Paste the tram timetable link" onchange="saveCheckCfg()"/>
         <button class="chk-btn primary" onclick="toggleEdit('tram')">Save</button>
       </div>
-      <div class="live-note" style="margin:-4px 0 12px">The built-in times came from a Winter 2025 timetable. Not sure where it was downloaded? Check your phone's Downloads folder or browser history around late March 2026. Open the link, compare it with the times in this app, and paste new times in the boxes below if anything changed. In the Android app the link opens inside the app.</div>
-      <div class="chk-grid">
+            <div class="chk-grid">
         <div class="field" style="margin:0"><label>REMIND ME</label>
           <select id="chk-interval" onchange="saveCheckCfg()"><option value="0">Off</option><option value="7">Weekly</option><option value="14">2 weeks</option><option value="30">Monthly</option></select></div>
         <div class="field" style="margin:0"><label>AT</label>
@@ -457,95 +534,12 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     </div>
 
 
-    <div class="card" style="border-color:var(--brand);background:var(--brand-light)">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="font-size:28px">🔧</div>
-        <div>
-          <div style="font-size:14px;font-weight:800;color:var(--brand)">SCHEDULE ADMIN</div>
-          <div style="font-size:11px;color:var(--text-mid);margin-top:2px">Paste updated timetable data here. The app will parse and save it automatically.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── C3 LINE ── -->
-    <div class="admin-section">
-      <div class="admin-section-hdr red" onclick="toggleAdminSection(this)">
-        🚂 C3 LINE — Departure Times <span id="c3-custom-badge"></span>
-        <span style="margin-left:auto;font-size:16px">▾</span>
-      </div>
-      <div class="admin-section-body">
-
-        <div style="font-size:11px;color:var(--text-mid);background:#fdf8fc;border:1px solid var(--brand-mid);border-radius:7px;padding:10px 12px;margin-bottom:14px;line-height:1.7">
-          <strong>📋 HOW TO PASTE:</strong><br>
-          Each box below is for <strong>one direction + one day type</strong>.<br>
-          Paste the <strong>departure times only</strong> — one per line, or space/comma separated.<br>
-          Each time must be in <strong>HH:MM</strong> format (24-hour).<br>
-          The app will sort them automatically.<br><br>
-          <strong>⚠️ These are terminus departure times only</strong> (Orduña or Abando).<br>
-          The app calculates intermediate stop times automatically.
-        </div>
-
-        <!-- Weekday -->
-        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--brand);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--brand-mid)">WEEKDAY (MONDAY–FRIDAY)</div>
-
-        <div class="admin-field">
-          <label class="admin-label">Orduña → Abando · Weekday departures from Orduña</label>
-          <div class="admin-hint">Example:<br>05:01 05:31 06:12 06:34 07:01<br>or one per line:<br>05:01<br>05:31<br>06:12</div>
-          <textarea class="admin-textarea" id="c3-wd-oa" placeholder="Paste Orduña→Abando weekday times here..."></textarea>
-        </div>
-
-        <div class="admin-field">
-          <label class="admin-label">Abando → Orduña · Weekday departures from Abando</label>
-          <div class="admin-hint">Same format — HH:MM times from Abando toward Orduña</div>
-          <textarea class="admin-textarea" id="c3-wd-ao" placeholder="Paste Abando→Orduña weekday times here..."></textarea>
-        </div>
-
-        <div class="admin-field">
-          <label class="admin-label">Llodio → Abando · Weekday departures from Llodio</label>
-          <div class="admin-hint">Short route only — times from Llodio toward Abando</div>
-          <textarea class="admin-textarea" id="c3-wd-la" placeholder="Paste Llodio→Abando weekday times here..."></textarea>
-        </div>
-
-        <div class="admin-field">
-          <label class="admin-label">Abando → Llodio · Weekday departures from Abando</label>
-          <div class="admin-hint">Short route only — times from Abando toward Llodio</div>
-          <textarea class="admin-textarea" id="c3-wd-al" placeholder="Paste Abando→Llodio weekday times here..."></textarea>
-        </div>
-
-        <!-- Weekend -->
-        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--brand);margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--brand-mid)">WEEKEND (SATURDAYS, SUNDAYS & HOLIDAYS)</div>
-
-        <div class="admin-field">
-          <label class="admin-label">Orduña → Abando · Weekend departures from Orduña</label>
-          <textarea class="admin-textarea" id="c3-we-oa" placeholder="Paste Orduña→Abando weekend times here..."></textarea>
-        </div>
-        <div class="admin-field">
-          <label class="admin-label">Abando → Orduña · Weekend departures from Abando</label>
-          <textarea class="admin-textarea" id="c3-we-ao" placeholder="Paste Abando→Orduña weekend times here..."></textarea>
-        </div>
-        <div class="admin-field">
-          <label class="admin-label">Llodio → Abando · Weekend departures from Llodio</label>
-          <textarea class="admin-textarea" id="c3-we-la" placeholder="Paste Llodio→Abando weekend times here..."></textarea>
-        </div>
-        <div class="admin-field">
-          <label class="admin-label">Abando → Llodio · Weekend departures from Abando</label>
-          <textarea class="admin-textarea" id="c3-we-al" placeholder="Paste Abando→Llodio weekend times here..."></textarea>
-        </div>
-
-        <button class="admin-save-btn" onclick="saveC3Schedule()">✓ SAVE C3 SCHEDULE</button>
-        <div class="admin-status" id="c3-status"></div>
-
-        <div class="admin-reset-row">
-          <button class="admin-reset-btn" onclick="resetC3Schedule()">↩ Reset to built-in schedule</button>
-          <button class="admin-reset-btn" onclick="loadC3IntoAdmin()">📋 Load current into fields</button>
-        </div>
-      </div>
-    </div>
-
+    
+<div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--brand);margin:6px 0 -4px">TRAM TIMETABLE</div>
     <!-- ── TRAMVÍA ── -->
     <div class="admin-section">
       <div class="admin-section-hdr blue" onclick="toggleAdminSection(this)">
-        🚃 BILBAO TRAM — Departure Times <span id="tram-custom-badge"></span>
+        🚃 BILBAO TRAM — Departure times <span id="tram-custom-badge"></span>
         <span style="margin-left:auto;font-size:16px">▾</span>
       </div>
       <div class="admin-section-body">
@@ -594,7 +588,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
           <textarea class="admin-textarea blue" id="tram-blc-sun" placeholder="Paste Bolueta→La Casilla Sunday/Holiday times..."></textarea>
         </div>
 
-        <button class="admin-save-btn blue" onclick="saveTramSchedule()">✓ SAVE TRAMVÍA SCHEDULE</button>
+        <button class="admin-save-btn blue" onclick="saveTramSchedule()">✓ SAVE TRAM SCHEDULE</button>
         <div class="admin-status" id="tram-status"></div>
 
         <div class="admin-reset-row">
@@ -604,14 +598,20 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 
       </div>
     </div>
+    <div class="card">
+      <div class="card-title">ADMIN PASSWORD</div>
+      <div class="field"><label>NEW PASSWORD</label><input class="plan-input" type="password" id="pw-new" autocomplete="off"/></div>
+      <div class="field"><label>REPEAT</label><input class="plan-input" type="password" id="pw-new2" autocomplete="off"/></div>
+      <button class="admin-save-btn" onclick="changeAdminPw()">CHANGE PASSWORD</button>
+      <div class="plan-msg" id="pw-msg"></div>
+      <div class="live-note">The password only exists on this phone. If you forget it, clear the app's storage in Android settings; that also removes your saved data on this phone.</div>
+    </div>
 
+    </div>
   </div>
+</div>
 
-</main>
-
-  <!-- ═══ TAB 3: ADMIN / SCHEDULE UPDATE ═══ -->
-
-<footer>C3 commuter line Orduña–Abando · Bilbao tram · Timetables editable in Settings · build <span id="build-id">__BUILD__</span></footer>
+<footer>C3 commuter line Orduña–Abando · Bilbao tram · Timetable data updated <span id="data-date"></span> · build <span id="build-id">__BUILD__</span></footer>
 
 <div class="plan-ov" id="plan-ov">
   <div class="plan-sheet">
@@ -689,14 +689,14 @@ function segLabel(pos){
 const WD={
     ordunaToAbando:mk([["05:01","06:02"],["05:31","06:32"],["06:12","07:17"],["06:34","07:35"],["07:01","08:02"],["07:29","08:30"],["08:01","09:02"],["08:31","09:32"],["09:01","10:02"],["09:31","10:32"],["10:01","11:02"],["10:31","11:32"],["10:58","11:59"],["11:30","12:31"],["12:01","13:02"],["12:31","13:32"],["13:04","14:05"],["13:31","14:32"],["13:59","15:00"],["14:34","15:35"],["15:06","16:07"],["15:33","16:34"],["16:03","17:04"],["16:43","17:44"],["17:01","18:02"],["17:38","18:39"],["18:01","19:02"],["18:38","19:39"],["19:01","20:02"],["19:31","20:32"],["20:01","21:02"],["20:30","21:31"],["21:05","22:06"],["21:31","22:32"],["21:55","22:56"],["22:24","23:25"],["22:45","23:46"],["23:05","00:06"]]),
     abandoToOrduna:mk([["05:00","06:00"],["05:20","06:20"],["05:50","06:50"],["06:20","07:20"],["06:41","07:48"],["07:18","08:18"],["07:50","08:50"],["08:20","09:20"],["08:50","09:50"],["09:20","10:20"],["09:50","10:50"],["10:18","11:18"],["10:50","11:50"],["11:20","12:20"],["11:50","12:56"],["12:20","13:20"],["12:50","13:50"],["13:20","14:20"],["13:50","14:50"],["14:20","15:20"],["14:43","15:43"],["15:21","16:21"],["15:50","16:50"],["16:20","17:20"],["16:50","17:50"],["17:32","18:32"],["17:50","18:50"],["18:22","19:22"],["18:50","19:50"],["19:22","20:22"],["19:50","20:50"],["20:18","21:18"],["20:50","21:50"],["21:17","22:17"],["21:37","22:37"],["21:53","22:53"],["22:45","23:45"],["23:30","00:30"]]),
-  llodioToAbando:mk([["05:23","06:02"],["05:53","06:32"],["06:13","06:52"],["06:34","07:17"],["06:56","07:35"],["07:11","07:50"],["07:23","08:02"],["07:51","08:30"],["08:13","08:52"],["08:23","09:02"],["08:53","09:32"],["09:13","09:52"],["09:23","10:02"],["09:53","10:32"],["10:13","10:52"],["10:23","11:02"],["10:53","11:32"],["11:13","11:52"],["11:22","12:01"],["11:52","12:31"],["12:13","12:52"],["12:23","13:02"],["12:53","13:32"],["13:13","13:52"],["13:26","14:05"],["13:53","14:32"],["14:13","14:52"],["14:21","15:00"],["14:56","15:35"],["15:22","16:01"],["15:28","16:07"],["15:55","16:34"],["16:13","16:52"],["16:25","17:04"],["16:47","17:26"],["17:00","17:39"],["17:23","18:02"],["18:00","18:39"],["18:13","18:52"],["18:23","19:02"],["19:00","19:39"],["19:14","19:53"],["19:23","20:02"],["19:53","20:32"],["20:13","20:52"],["20:23","21:02"],["20:52","21:31"],["21:27","22:06"],["21:46","22:25"],["22:17","22:56"],["22:46","23:25"],["23:07","23:46"],["23:27","00:06"]]),
-  abandoToLlodio:mk([["05:00","05:37"],["05:20","05:57"],["05:30","06:08"],["05:50","06:27"],["06:00","06:38"],["06:20","06:57"],["06:41","07:25"],["07:04","07:42"],["07:18","07:55"],["07:50","08:27"],["08:00","08:38"],["08:20","08:57"],["08:50","09:27"],["09:00","09:38"],["09:20","09:57"],["09:50","10:27"],["10:00","10:38"],["10:18","10:55"],["10:50","11:27"],["11:00","11:38"],["11:20","11:57"],["11:50","12:33"],["12:02","12:40"],["12:20","12:57"],["12:50","13:27"],["13:00","13:38"],["13:20","13:57"],["13:50","14:27"],["14:00","14:38"],["14:20","14:57"],["14:43","15:20"],["15:06","15:44"],["15:21","15:58"],["15:50","16:27"],["16:03","16:41"],["16:20","16:57"],["16:50","17:27"],["17:08","17:46"],["17:32","18:09"],["17:47","18:24"],["18:08","18:46"],["18:22","18:59"],["18:50","19:27"],["19:00","19:38"],["19:22","19:59"],["19:50","20:27"],["20:18","20:55"],["20:50","21:27"],["21:17","21:54"],["21:37","22:14"],["21:53","22:30"],["22:45","23:22"],["23:30","00:07"]])
+  llodioToAbando:mk([["05:23","06:02"],["05:53","06:32"],["06:13","06:52"],["06:34","07:17"],["06:56","07:35"],["07:11","07:50"],["07:23","08:02"],["07:51","08:30"],["08:13","08:52"],["08:23","09:02"],["08:53","09:32"],["09:13","09:52"],["09:23","10:02"],["09:53","10:32"],["10:13","10:52"],["10:23","11:02"],["10:53","11:32"],["11:13","11:52"],["11:20","11:59"],["11:52","12:31"],["12:13","12:52"],["12:23","13:02"],["12:53","13:32"],["13:13","13:52"],["13:26","14:05"],["13:53","14:32"],["14:13","14:52"],["14:21","15:00"],["14:56","15:35"],["15:22","16:01"],["15:28","16:07"],["15:55","16:34"],["16:13","16:52"],["16:25","17:04"],["16:47","17:26"],["17:05","17:44"],["17:23","18:02"],["18:00","18:39"],["18:13","18:52"],["18:23","19:02"],["19:00","19:39"],["19:14","19:53"],["19:23","20:02"],["19:53","20:32"],["20:13","20:52"],["20:23","21:02"],["20:52","21:31"],["21:27","22:06"],["21:53","22:32"],["22:17","22:56"],["22:46","23:25"],["23:07","23:46"],["23:27","00:06"]]),
+  abandoToLlodio:mk([["05:00","05:37"],["05:20","05:57"],["05:30","06:08"],["05:50","06:27"],["06:00","06:38"],["06:20","06:57"],["06:41","07:25"],["07:04","07:42"],["07:18","07:55"],["07:50","08:27"],["08:00","08:38"],["08:20","08:57"],["08:50","09:27"],["09:00","09:38"],["09:20","09:57"],["09:50","10:27"],["10:00","10:38"],["10:18","10:55"],["10:50","11:27"],["11:00","11:38"],["11:20","11:57"],["11:50","12:33"],["12:02","12:40"],["12:20","12:57"],["12:50","13:27"],["13:00","13:38"],["13:20","13:57"],["13:50","14:27"],["14:00","14:38"],["14:20","14:57"],["14:43","15:20"],["15:06","15:44"],["15:21","15:58"],["15:50","16:27"],["16:03","16:41"],["16:20","16:57"],["16:50","17:27"],["17:08","17:46"],["17:32","18:09"],["17:50","18:27"],["18:08","18:46"],["18:22","18:59"],["18:50","19:27"],["19:00","19:38"],["19:22","19:59"],["19:50","20:27"],["20:18","20:55"],["20:50","21:27"],["21:17","21:54"],["21:37","22:14"],["21:53","22:30"],["22:45","23:22"],["23:30","00:07"]])
 };
 const WE={
     ordunaToAbando:mk([["05:01","06:02"],["05:31","06:32"],["06:12","07:17"],["06:34","07:35"],["07:01","08:02"],["07:29","08:30"],["08:01","09:02"],["08:31","09:32"],["09:01","10:02"],["09:31","10:32"],["10:01","11:02"],["10:31","11:32"],["10:58","11:59"],["11:30","12:31"],["12:01","13:02"],["12:31","13:32"],["13:04","14:05"],["13:31","14:32"],["13:59","15:00"],["14:34","15:35"],["15:06","16:07"],["15:33","16:34"],["16:03","17:04"],["16:43","17:44"],["17:01","18:02"],["17:38","18:39"],["18:01","19:02"],["18:38","19:39"],["19:01","20:02"],["19:31","20:32"],["20:01","21:02"],["20:30","21:31"],["21:18","22:19"],["21:31","22:32"],["21:55","22:56"],["22:30","23:31"],["23:00","00:01"],["23:49","00:50"]]),
     abandoToOrduna:mk([["05:00","06:00"],["05:20","06:20"],["05:50","06:50"],["06:20","07:20"],["06:41","07:48"],["07:18","08:18"],["07:50","08:50"],["08:20","09:20"],["08:50","09:50"],["09:20","10:20"],["09:50","10:50"],["10:18","11:18"],["10:50","11:50"],["11:20","12:20"],["11:50","12:56"],["12:20","13:20"],["12:50","13:50"],["13:20","14:20"],["13:50","14:50"],["14:20","15:20"],["14:43","15:43"],["15:21","16:21"],["15:50","16:50"],["16:20","17:20"],["16:50","17:50"],["17:32","18:32"],["17:50","18:50"],["18:22","19:22"],["18:50","19:50"],["19:22","20:22"],["19:50","20:50"],["20:20","21:20"],["20:50","21:50"],["21:20","22:20"],["21:48","22:48"],["22:45","23:45"],["23:28","00:28"]]),
-  llodioToAbando:mk([["05:23","06:02"],["05:53","06:32"],["06:34","07:17"],["06:56","07:35"],["07:23","08:02"],["07:51","08:30"],["08:23","09:02"],["08:53","09:32"],["09:23","10:02"],["09:53","10:32"],["10:23","11:02"],["10:53","11:32"],["11:22","12:01"],["11:52","12:31"],["12:23","13:02"],["12:53","13:32"],["13:26","14:05"],["13:53","14:32"],["14:21","15:00"],["14:56","15:35"],["15:28","16:07"],["15:55","16:34"],["16:25","17:04"],["17:00","17:39"],["17:23","18:02"],["18:00","18:39"],["18:23","19:02"],["19:00","19:39"],["19:23","20:02"],["19:53","20:32"],["20:23","21:02"],["20:52","21:31"],["21:40","22:19"],["21:53","22:37"],["22:22","23:01"],["22:52","23:31"],["23:22","00:01"],["00:02","00:41"]]),
-  abandoToLlodio:mk([["05:00","05:37"],["05:20","05:57"],["05:50","06:27"],["06:20","06:57"],["06:41","07:25"],["07:18","07:55"],["07:50","08:27"],["08:20","08:57"],["08:50","09:27"],["09:20","09:57"],["09:50","10:27"],["10:18","10:55"],["10:50","11:27"],["11:20","11:57"],["11:50","12:33"],["12:20","12:57"],["12:50","13:27"],["13:20","13:57"],["13:50","14:27"],["14:20","14:57"],["14:43","15:20"],["15:21","15:58"],["15:50","16:27"],["16:20","16:57"],["16:50","17:27"],["17:32","18:09"],["17:47","18:24"],["18:22","18:59"],["18:50","19:27"],["19:22","19:59"],["19:50","20:27"],["20:20","20:57"],["20:50","21:27"],["21:20","21:57"],["21:48","22:25"],["22:30","23:07"],["23:28","00:05"]])
+  llodioToAbando:mk([["05:23","06:02"],["05:53","06:32"],["06:34","07:17"],["06:56","07:35"],["07:23","08:02"],["07:51","08:30"],["08:23","09:02"],["08:53","09:32"],["09:23","10:02"],["09:53","10:32"],["10:23","11:02"],["10:53","11:32"],["11:20","11:59"],["11:52","12:31"],["12:23","13:02"],["12:53","13:32"],["13:26","14:05"],["13:53","14:32"],["14:21","15:00"],["14:56","15:35"],["15:28","16:07"],["15:55","16:34"],["16:25","17:04"],["17:05","17:44"],["17:23","18:02"],["18:00","18:39"],["18:23","19:02"],["19:00","19:39"],["19:23","20:02"],["19:53","20:32"],["20:23","21:02"],["20:52","21:31"],["21:40","22:19"],["21:53","22:32"],["22:17","22:56"],["22:52","23:31"],["23:22","00:01"],["00:11","00:50"]]),
+  abandoToLlodio:mk([["05:00","05:37"],["05:20","05:57"],["05:50","06:27"],["06:20","06:57"],["06:41","07:25"],["07:18","07:55"],["07:50","08:27"],["08:20","08:57"],["08:50","09:27"],["09:20","09:57"],["09:50","10:27"],["10:18","10:55"],["10:50","11:27"],["11:20","11:57"],["11:50","12:33"],["12:20","12:57"],["12:50","13:27"],["13:20","13:57"],["13:50","14:27"],["14:20","14:57"],["14:43","15:20"],["15:21","15:58"],["15:50","16:27"],["16:20","16:57"],["16:50","17:27"],["17:32","18:09"],["17:50","18:27"],["18:22","18:59"],["18:50","19:27"],["19:22","19:59"],["19:50","20:27"],["20:20","20:57"],["20:50","21:27"],["21:20","21:57"],["21:48","22:25"],["22:45","23:22"],["23:28","00:05"]])
 };
 
 function timeAt(tr,type,pos){
@@ -784,7 +784,8 @@ function upcomingTrains(fp,tp,nowSec,max){
   return out;
 }
 function trainsInTransit(nowSec){
-  const sc=schedFor(0),nm=nowSec/60,res=[];
+  const nm0=nowSec/60,res=[];
+  const run=(sc,nm)=>{
   const add=(list,type,name,toward)=>list.forEach(tr=>{
     if(nm<tr.dep||nm>tr.arr)return;
     const f=(nm-tr.dep)/(tr.arr-tr.dep);
@@ -795,6 +796,9 @@ function trainsInTransit(nowSec){
   add(sc.abandoToOrduna,"AO","Abando → Orduña","Orduña");
   add(sc.llodioToAbando,"LA","Llodio → Abando","Abando");
   add(sc.abandoToLlodio,"AL","Abando → Llodio","Llodio");
+  };
+  run(schedFor(0),nm0);
+  run(schedFor(-1),nm0+1440);
   return res.sort((a,b)=>a.arr-b.arr);
 }
 function renderLive(){
@@ -837,7 +841,7 @@ const CHK_KEY="c3_timetable_check",CHK_NOTIF_ID=999001;
 const TRAM_SOURCE_URL="https://www.euskotren.eus/sites/default/files/horarios/tranvia%20bilbao_horizontal-A3-%20Invierno%202025_3.pdf";
 function chkCfg(){
   let c={};try{c=JSON.parse(localStorage.getItem(CHK_KEY)||"{}")}catch(e){}
-  const cfg=Object.assign({last:null,interval:7,time:"09:00",train:"",tram:""},c);
+  const cfg=Object.assign({last:null,interval:0,time:"09:00",train:"",tram:""},c);
   if(!cfg.tram)cfg.tram=TRAM_SOURCE_URL;
   return cfg;
 }
@@ -854,7 +858,7 @@ function renderCheck(){
   document.getElementById("chk-train-url").value=c.train;document.getElementById("chk-tram-url").value=c.tram;
   document.getElementById("chk-interval").value=String(c.interval);document.getElementById("chk-time").value=c.time;
   syncOpenLinks();
-  const due=chkDueDate(c),dot=document.getElementById("due-dot");
+  const due=chkDueDate(c);
   let txt,cls="ok",isDue=false;
   if(!c.interval){txt="Reminders are off.";}
   else if(!c.last){txt="Not checked yet. Compare the timetables with the official ones.";cls="due";isDue=true;}
@@ -865,7 +869,6 @@ function renderCheck(){
     else txt=lastTxt+" · next check in "+days+" day"+(days===1?"":"s")+".";
   }
   st.textContent=txt;st.className="chk-status "+cls;
-  if(dot)dot.style.display=isDue?"block":"none";
 }
 function saveCheckCfg(){
   const c=chkCfg();
@@ -1061,7 +1064,7 @@ function renderPlanned(){
   document.getElementById("plan-count").textContent=a.length?"("+a.length+")":"";
   document.getElementById("plan-saved").innerHTML=a.length?a.map(t=>`<div class="plan-saved"><div><span class="live-row-tag" style="margin:0 6px 0 0">${t.mode==="tram"?"TRAM":"TRAIN"}</span><strong>${t.from} → ${t.to}</strong><br>${planWhen(t.date,t.dep).toLocaleDateString([], {weekday:"short",day:"numeric",month:"short"})} · departs ${fmt(t.dep)} · arrives ${fmt(t.arr)}<br><span style="color:var(--text-dim)">🔔 ${t.remind?t.remind+" min before":"at departure"}</span></div><button onclick="delPlan(${t.id})" title="Remove">🗑</button></div>`).join(""):'<div class="live-empty">No planned trips yet.<br>Pick a train in “Plan a trip” and tap Save &amp; remind me.</div>';
 }
-setInterval(renderLive,1000);
+setInterval(()=>{if(!document.hidden&&curTab==="c3")renderLive()},1000);
 
 
 // ══════════════════════════════════════════════════════════════════════
@@ -1276,14 +1279,17 @@ function renderFullSchedule(){
   const days=["weekday","saturday","sunday"],labels=["Monday–Friday","Saturdays","Sundays/Holidays"];
   wrap.innerHTML=days.map((d,di)=>`<div class="sched-section">${labels[di]}</div><table class="sched-table"><thead><tr><th>Departs ${fromStop}</th><th>Arrives ${toStop}</th></tr></thead><tbody>${getStopDepTimes(fromStop,dir,d).map(dep=>`<tr><td>${fmt(dep)}</td><td>${fmt(dep+diff)}</td></tr>`).join("")}</tbody></table>`).join("");
 }
-setInterval(renderTramNext,1000);
+setInterval(()=>{if(!document.hidden&&curTab==="tram")renderTramNext()},1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(curTab==="c3")renderLive();else renderTramNext();}});
 
 // ══════════════════════════════════════════════════════════════════════
 // ── APP TABS ─────────────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════
-const TAB_ORDER=["c3","tram","admin"];
+const TAB_ORDER=["c3","tram"];
+const DATA_UPDATED="2026-10-12";
 let curTab="c3";
 function switchTab(name){
+  if(TAB_ORDER.indexOf(name)<0)return;
   const dir=TAB_ORDER.indexOf(name)-TAB_ORDER.indexOf(curTab);
   curTab=name;
   try{sessionStorage.setItem("c3_tab",name)}catch(e){}
@@ -1298,7 +1304,7 @@ function switchTab(name){
 // Swipe left/right to change tab
 (function(){
   let sx=0,sy=0,st=0,ok=false;
-  const blocked=t=>t.closest&&t.closest("input,select,textarea,details,.plan-ov,#lock-screen,.sched-table");
+  const blocked=t=>t.closest&&t.closest("input,select,textarea,details,.plan-ov,#admin-ov,#gate-ov,#lock-screen,.sched-table");
   document.addEventListener("touchstart",e=>{
     const t=e.touches[0];
     sx=t.clientX;sy=t.clientY;st=Date.now();
@@ -1410,115 +1416,6 @@ function minsToSchedule(mins, duration) {
   });
 }
 
-// C3 route durations (Orduña↔Abando = 61min, Llodio↔Abando = 39min)
-var C3_DURATION_OA = 61;
-var C3_DURATION_LA = 39;
-
-function saveC3Schedule() {
-  var status = document.getElementById('c3-status');
-  var fields = {
-    wd_oa: document.getElementById('c3-wd-oa').value,
-    wd_ao: document.getElementById('c3-wd-ao').value,
-    wd_la: document.getElementById('c3-wd-la').value,
-    wd_al: document.getElementById('c3-wd-al').value,
-    we_oa: document.getElementById('c3-we-oa').value,
-    we_ao: document.getElementById('c3-we-ao').value,
-    we_la: document.getElementById('c3-we-la').value,
-    we_al: document.getElementById('c3-we-al').value,
-  };
-
-  // Validate — all 8 fields must have at least some times
-  var errors = [];
-  var parsed = {};
-  var labels = {
-    wd_oa:'Orduña→Abando Weekday', wd_ao:'Abando→Orduña Weekday',
-    wd_la:'Llodio→Abando Weekday', wd_al:'Abando→Llodio Weekday',
-    we_oa:'Orduña→Abando Weekend', we_ao:'Abando→Orduña Weekend',
-    we_la:'Llodio→Abando Weekend', we_al:'Abando→Llodio Weekend'
-  };
-  Object.keys(fields).forEach(function(k) {
-    if (!fields[k].trim()) return; // skip empty — will use existing
-    var times = parseTimes(fields[k]);
-    if (!times) {
-      errors.push(labels[k] + ': no valid HH:MM times found');
-    } else {
-      parsed[k] = times;
-    }
-  });
-
-  if (errors.length > 0) {
-    status.className = 'admin-status err';
-    status.textContent = '✗ ' + errors[0];
-    return;
-  }
-
-  // Build and save the custom schedule
-  var existing = {};
-  try { existing = JSON.parse(localStorage.getItem(C3_SCHED_KEY) || '{}'); } catch(e){}
-
-  Object.keys(parsed).forEach(function(k) {
-    existing[k] = parsed[k];
-  });
-  localStorage.setItem(C3_SCHED_KEY, JSON.stringify(existing));
-
-  // Rebuild WD and WE from stored data
-  applyC3CustomSchedule();
-
-  status.className = 'admin-status ok';
-  var count = Object.keys(parsed).length;
-  status.textContent = '✓ Saved! ' + count + ' table(s) updated. App is using new schedule.';
-  updateAdminBadges();
-  setTimeout(function(){ status.textContent=''; }, 4000);
-}
-
-function applyC3CustomSchedule() {
-  var stored = {};
-  try { stored = JSON.parse(localStorage.getItem(C3_SCHED_KEY) || '{}'); } catch(e){ return; }
-  if (Object.keys(stored).length === 0) return;
-
-  if (stored.wd_oa) WD.ordunaToAbando  = minsToSchedule(stored.wd_oa, C3_DURATION_OA);
-  if (stored.wd_ao) WD.abandoToOrduna  = minsToSchedule(stored.wd_ao, C3_DURATION_OA);
-  if (stored.wd_la) WD.llodioToAbando  = minsToSchedule(stored.wd_la, C3_DURATION_LA);
-  if (stored.wd_al) WD.abandoToLlodio  = minsToSchedule(stored.wd_al, C3_DURATION_LA);
-  if (stored.we_oa) WE.ordunaToAbando  = minsToSchedule(stored.we_oa, C3_DURATION_OA);
-  if (stored.we_ao) WE.abandoToOrduna  = minsToSchedule(stored.we_ao, C3_DURATION_OA);
-  if (stored.we_la) WE.llodioToAbando  = minsToSchedule(stored.we_la, C3_DURATION_LA);
-  if (stored.we_al) WE.abandoToLlodio  = minsToSchedule(stored.we_al, C3_DURATION_LA);
-}
-
-function resetC3Schedule() {
-  if (!confirm('Reset C3 to built-in schedule? Your custom data will be deleted.')) return;
-  localStorage.removeItem(C3_SCHED_KEY);
-  location.reload(); // reload to restore original hardcoded values
-}
-
-function loadC3IntoAdmin() {
-  // Show current stored times in the fields for editing
-  var stored = {};
-  try { stored = JSON.parse(localStorage.getItem(C3_SCHED_KEY) || '{}'); } catch(e){}
-  var map = {
-    wd_oa:'c3-wd-oa', wd_ao:'c3-wd-ao',
-    wd_la:'c3-wd-la', wd_al:'c3-wd-al',
-    we_oa:'c3-we-oa', we_ao:'c3-we-ao',
-    we_la:'c3-we-la', we_al:'c3-we-al'
-  };
-  var hasAny = false;
-  Object.keys(map).forEach(function(k) {
-    if (stored[k]) {
-      document.getElementById(map[k]).value = stored[k].map(function(m){
-        return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
-      }).join('\n');
-      hasAny = true;
-    }
-  });
-  if (!hasAny) {
-    document.getElementById('c3-status').className='admin-status err';
-    document.getElementById('c3-status').textContent='No custom data saved yet — showing built-in schedule.';
-    setTimeout(function(){document.getElementById('c3-status').textContent='';},3000);
-  }
-}
-
-// ── TRAMVÍA ADMIN ──────────────────────────────────────────────────────
 function saveTramSchedule() {
   var status = document.getElementById('tram-status');
   var fields = {
@@ -1610,11 +1507,8 @@ function loadTramIntoAdmin() {
 }
 
 function updateAdminBadges() {
-  var c3b = document.getElementById('c3-custom-badge');
   var trb = document.getElementById('tram-custom-badge');
-  var c3stored = localStorage.getItem(C3_SCHED_KEY);
   var tramstored = localStorage.getItem(TRAM_SCHED_KEY);
-  if (c3b) c3b.innerHTML = c3stored ? '<span class="admin-custom-badge">CUSTOM</span>' : '';
   if (trb) trb.innerHTML = tramstored ? '<span class="admin-custom-badge">CUSTOM</span>' : '';
 }
 
@@ -1623,6 +1517,353 @@ function toggleAdminSection(hdr) {
   var isOpen = body.classList.contains('open');
   body.className = 'admin-section-body' + (isOpen ? '' : ' open');
   hdr.querySelector('span:last-child').textContent = isOpen ? '▾' : '▴';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── ADMIN LOCK: 5 quick taps anywhere → password → admin panel ───────
+// ══════════════════════════════════════════════════════════════════════
+const ADMIN_KEY="c3_admin_pw",ADMIN_LOCK_KEY="c3_admin_lock";
+let gateMode="unlock",adminTimer=null;
+const PW_ITER=250000;
+async function hashPw(salt,pw,iter){
+  const enc=new TextEncoder();
+  const hex=b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");
+  try{
+    if(window.crypto&&crypto.subtle){
+      if(iter){
+        const k=await crypto.subtle.importKey("raw",enc.encode(pw),"PBKDF2",false,["deriveBits"]);
+        return hex(await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:enc.encode(salt),iterations:iter},k,256));
+      }
+      return hex(await crypto.subtle.digest("SHA-256",enc.encode(salt+":"+pw)));
+    }
+  }catch(e){}
+  const txt=salt+":"+pw;let h=5381;for(let i=0;i<txt.length;i++)h=((h<<5)+h+txt.charCodeAt(i))>>>0;
+  return"s"+h.toString(16);
+}
+function adminRec(){try{return JSON.parse(localStorage.getItem(ADMIN_KEY)||"null")}catch(e){return null}}
+function lockInfo(){try{return JSON.parse(localStorage.getItem(ADMIN_LOCK_KEY)||"{}")}catch(e){return{}}}
+function newSalt(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function gateErr(msg,shake){
+  document.getElementById("gate-err").textContent=msg;
+  if(shake){const b=document.getElementById("gate-box");b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");}
+}
+function openGate(){
+  if(document.getElementById("admin-ov").classList.contains("on"))return;
+  gateMode=adminRec()?"unlock":"create";
+  document.getElementById("gate-title").textContent=gateMode==="create"?"Create admin password":"Admin";
+  document.getElementById("gate-text").textContent=gateMode==="create"
+    ?"Choose a password (at least 4 characters). You will need it to open the admin panel."
+    :"Enter the admin password.";
+  document.getElementById("gate-pw2").style.display=gateMode==="create"?"block":"none";
+  document.getElementById("gate-pw").value="";document.getElementById("gate-pw2").value="";
+  gateErr("");
+  document.getElementById("gate-ov").classList.add("on");
+  setTimeout(()=>document.getElementById("gate-pw").focus(),60);
+}
+function closeGate(){document.getElementById("gate-ov").classList.remove("on");}
+async function gateSubmit(){
+  const pw=document.getElementById("gate-pw").value;
+  if(gateMode==="create"){
+    const pw2=document.getElementById("gate-pw2").value;
+    if(pw.length<4){gateErr("Use at least 4 characters.",true);return;}
+    if(pw!==pw2){gateErr("The two passwords do not match.",true);return;}
+    const salt=newSalt();
+    try{localStorage.setItem(ADMIN_KEY,JSON.stringify({salt,it:PW_ITER,hash:await hashPw(salt,pw,PW_ITER)}));}catch(e){gateErr("Could not save the password on this phone.",true);return;}
+    closeGate();openAdmin();return;
+  }
+  const li=lockInfo(),now=Date.now();
+  if(li.until&&now<li.until){gateErr("Too many tries. Wait "+Math.ceil((li.until-now)/1000)+" s.",true);return;}
+  const rec=adminRec();
+  if(rec&&await hashPw(rec.salt,pw,rec.it||0)===rec.hash){
+    if(!rec.it){try{const s=newSalt();localStorage.setItem(ADMIN_KEY,JSON.stringify({salt:s,it:PW_ITER,hash:await hashPw(s,pw,PW_ITER)}));}catch(e){}}
+    try{localStorage.removeItem(ADMIN_LOCK_KEY)}catch(e){}
+    closeGate();openAdmin();return;
+  }
+  const fails=(li.fails||0)+1,next={fails};
+  if(fails>=5)next.until=now+30000*Math.pow(2,Math.min(fails-5,4));
+  try{localStorage.setItem(ADMIN_LOCK_KEY,JSON.stringify(next))}catch(e){}
+  gateErr(fails>=5?"Too many tries. Locked for a short time.":"Wrong password.",true);
+  document.getElementById("gate-pw").value="";
+}
+function openAdmin(){
+  document.getElementById("admin-ov").classList.add("on");
+  renderAdminInfo();renderCheck();bumpAdmin();
+}
+function closeAdmin(){document.getElementById("admin-ov").classList.remove("on");clearTimeout(adminTimer);}
+function bumpAdmin(){clearTimeout(adminTimer);adminTimer=setTimeout(closeAdmin,5*60*1000);}
+async function changeAdminPw(){
+  const a=document.getElementById("pw-new").value,b=document.getElementById("pw-new2").value,m=document.getElementById("pw-msg");
+  if(a.length<4){m.textContent="Use at least 4 characters.";m.className="plan-msg err";return;}
+  if(a!==b){m.textContent="The two passwords do not match.";m.className="plan-msg err";return;}
+  const salt=newSalt();
+  try{localStorage.setItem(ADMIN_KEY,JSON.stringify({salt,it:PW_ITER,hash:await hashPw(salt,a,PW_ITER)}));}catch(e){m.textContent="Could not save.";m.className="plan-msg err";return;}
+  document.getElementById("pw-new").value="";document.getElementById("pw-new2").value="";
+  m.textContent="Password changed.";m.className="plan-msg";
+}
+(function(){
+  let taps=[];
+  document.addEventListener("pointerdown",e=>{
+    const ov=document.getElementById("admin-ov");
+    if(ov&&ov.classList.contains("on"))bumpAdmin();
+    if(!document.body.classList.contains("unlocked"))return;
+    const t0=e.target;
+    if(t0.closest&&t0.closest("#gate-ov,#admin-ov,#plan-ov"))return;
+    const now=Date.now();
+    taps=taps.filter(x=>now-x<2000);taps.push(now);
+    if(taps.length>=5){taps=[];openGate();}
+  },{passive:true});
+})();
+
+// ══════════════════════════════════════════════════════════════════════
+// ── CUSTOM TIMETABLE DATA (saved on this phone, as departure+arrival) ─
+// ══════════════════════════════════════════════════════════════════════
+const C3_PAIRS_KEY="c3_custom_pairs";
+const ROUTE_KEYS={
+  wd_oa:["WD","ordunaToAbando"],wd_ao:["WD","abandoToOrduna"],wd_la:["WD","llodioToAbando"],wd_al:["WD","abandoToLlodio"],
+  we_oa:["WE","ordunaToAbando"],we_ao:["WE","abandoToOrduna"],we_la:["WE","llodioToAbando"],we_al:["WE","abandoToLlodio"]
+};
+const SCHEDS={WD,WE};
+const ROUTE_SUFFIX={ordunaToAbando:"oa",abandoToOrduna:"ao",llodioToAbando:"la",abandoToLlodio:"al"};
+const ROUTE_NAME={ordunaToAbando:"Orduña → Abando",abandoToOrduna:"Abando → Orduña",llodioToAbando:"Llodio → Abando",abandoToLlodio:"Abando → Llodio"};
+function customPairs(){try{return JSON.parse(localStorage.getItem(C3_PAIRS_KEY)||"{}")}catch(e){return{}}}
+function saveCustomPairs(o){try{localStorage.setItem(C3_PAIRS_KEY,JSON.stringify(o))}catch(e){}}
+function schedToPairs(list){return list.map(x=>[fmt(x.dep),fmt(x.arr)])}
+function applyCustomPairs(){
+  const c=customPairs();
+  Object.keys(c).forEach(k=>{
+    const m=ROUTE_KEYS[k];
+    if(m&&Array.isArray(c[k])&&c[k].length)SCHEDS[m[0]][m[1]]=mk(c[k]);
+  });
+}
+function padTime(s){const p=s.split(":");return String(p[0]).padStart(2,"0")+":"+p[1]}
+function validTime(s){const m=/^(\d{2}):(\d{2})$/.exec(s);return!!m&&+m[1]<24&&+m[2]<60}
+function jm(a,b){return(t(b)-t(a)+1440)%1440}
+function svcMin(m){return(m-180+1440)%1440}
+// "05:01-06:02", "05:01 → 06:02", "05:01 to 06:02"
+function parsePairText(raw){
+  const re=/(\d{1,2}:\d{2})\s*(?:-|–|—|→|->|>|to)\s*(\d{1,2}:\d{2})/gi,out=[],seenK={};
+  let m;
+  while((m=re.exec(raw||""))){
+    const a=padTime(m[1]),b=padTime(m[2]);
+    if(validTime(a)&&validTime(b)&&!seenK[a+b]){seenK[a+b]=1;out.push([a,b]);}
+  }
+  return out.sort((x,y)=>svcMin(t(x[0]))-svcMin(t(y[0])));
+}
+function renderAdminInfo(){
+  const el=document.getElementById("adm-info");if(!el)return;
+  const c=customPairs(),n=Object.keys(c).length;
+  const d=new Date(DATA_UPDATED+"T00:00:00");
+  const bid=document.getElementById("build-id");
+  el.innerHTML="Built-in timetable data updated: <strong>"+d.toLocaleDateString([], {day:"numeric",month:"short",year:"numeric"})+"</strong><br>"
+    +"Custom data saved on this phone: <strong>"+(n?n+" route"+(n>1?"s":""):"none")+"</strong><br>"
+    +"App build: <strong>"+(bid?bid.textContent:"")+"</strong>";
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── IMPORT FROM SCREEN RECORDING (reads the video on the phone) ──────
+// ══════════════════════════════════════════════════════════════════════
+const OCR_CFG=window.OCR_CFG||{
+  lib:"https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js",
+  worker:"https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
+  core:"https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1",
+  lang:"https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int"
+};
+const IMP_RANGE={ordunaToAbando:[58,68],abandoToOrduna:[58,68],llodioToAbando:[33,46],abandoToLlodio:[33,46]};
+const IMP_FPS=3,IMP_CROP_TOP=0.07,IMP_CROP_BOTTOM=0.04;
+let impCancel=false,impBusy=false,impRows=[],impCtx=null;
+function impRouteChange(){
+  const r=document.getElementById("imp-route").value,g=IMP_RANGE[r];
+  document.getElementById("imp-min").value=g[0];document.getElementById("imp-max").value=g[1];
+}
+function impStatus(msg,err){const m=document.getElementById("imp-status");m.textContent=msg;m.className="plan-msg"+(err?" err":"");}
+function impProgress(f){
+  const p=document.getElementById("imp-prog");p.style.display="block";
+  document.getElementById("imp-bar").style.width=Math.max(0,Math.min(100,Math.round(f*100)))+"%";
+}
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector('script[data-src="'+src+'"]'))return res();
+    const s=document.createElement("script");s.src=src;s.dataset.src=src;
+    s.onload=res;s.onerror=()=>rej(new Error("Could not load the reader. Check your internet connection and try again."));
+    document.head.appendChild(s);
+  });
+}
+function waitFor(el,ev,ms){
+  return new Promise((res,rej)=>{
+    const h=()=>{clearTimeout(tm);el.removeEventListener(ev,h);res();};
+    const tm=setTimeout(()=>{el.removeEventListener(ev,h);rej(new Error("timeout "+ev));},ms||8000);
+    el.addEventListener(ev,h);
+  });
+}
+async function impWorker(){
+  if(!window.Tesseract)await loadScript(OCR_CFG.lib);
+  const opts={workerPath:OCR_CFG.worker,corePath:OCR_CFG.core,langPath:OCR_CFG.lang,gzip:true,logger:()=>{}};
+  let w;
+  try{w=await Tesseract.createWorker("eng",1,opts);}
+  catch(e){delete opts.langPath;w=await Tesseract.createWorker("eng",1,opts);}
+  await w.setParameters({tessedit_char_whitelist:"0123456789:.-",tessedit_pageseg_mode:"11",user_defined_dpi:"300"});
+  return w;
+}
+function impTimesIn(text){
+  const out=[],re=/(\d{2})[:.\-](\d{2})/g;let m;
+  while((m=re.exec(text))){const h=+m[1],mi=+m[2];if(h<24&&mi<60)out.push(m[1]+":"+m[2]);}
+  return out;
+}
+function impPairsIn(times,mn,mx){
+  const out=[];
+  for(let i=0;i+1<times.length;i++){
+    const j=jm(times[i],times[i+1]);
+    if(j>=mn&&j<=mx){out.push([times[i],times[i+1]]);i++;}
+  }
+  return out;
+}
+async function impRun(){
+  if(impBusy)return;
+  const f=document.getElementById("imp-file").files[0];
+  if(!f){impStatus("Choose a screen recording first.",true);return;}
+  const route=document.getElementById("imp-route").value,day=document.getElementById("imp-day").value;
+  const mn=parseInt(document.getElementById("imp-min").value,10)||0,mx=parseInt(document.getElementById("imp-max").value,10)||999;
+  const minSeen=parseInt(document.getElementById("imp-minseen").value,10)||1;
+  impBusy=true;impCancel=false;
+  document.getElementById("imp-results").innerHTML="";
+  document.getElementById("imp-start").disabled=true;document.getElementById("imp-stop").style.display="block";
+  let url=null,worker=null;
+  try{
+    impStatus("Loading the reader (the first time needs internet)…");impProgress(0);
+    worker=await impWorker();
+    url=URL.createObjectURL(f);
+    const v=document.createElement("video");v.muted=true;v.playsInline=true;v.preload="auto";v.src=url;
+    await waitFor(v,"loadedmetadata",20000);
+    if(v.readyState<2)await waitFor(v,"loadeddata",20000);
+    let dur=v.duration;
+    if(!isFinite(dur)||!dur){try{v.currentTime=1e7;await waitFor(v,"seeked",8000);}catch(e){}dur=v.currentTime||0;v.currentTime=0;}
+    const VW=v.videoWidth,VH=v.videoHeight;
+    if(!VW||!VH||!dur)throw new Error("This video cannot be read on this phone.");
+    const sy=Math.round(VH*IMP_CROP_TOP),sh=Math.round(VH*(1-IMP_CROP_TOP-IMP_CROP_BOTTOM));
+    const outW=Math.min(VW,900),outH=Math.round(sh*(outW/VW));
+    const cv=document.createElement("canvas");cv.width=outW;cv.height=outH;
+    const cx=cv.getContext("2d",{willReadFrequently:true});
+    const sm=document.createElement("canvas");sm.width=24;sm.height=44;
+    const sx=sm.getContext("2d",{willReadFrequently:true});
+    const step=1/IMP_FPS,total=Math.floor(dur/step);
+    let last=null,used=0;const seen=new Map();
+    for(let i=0;i<=total;i++){
+      if(impCancel)break;
+      const target=Math.min(i*step,Math.max(0,dur-0.05));
+      if(Math.abs(v.currentTime-target)>0.001){v.currentTime=target;try{await waitFor(v,"seeked",8000);}catch(e){}}
+      try{cx.filter="grayscale(1) contrast(1.15)";}catch(e){}
+      cx.drawImage(v,0,sy,VW,sh,0,0,outW,outH);
+      sx.drawImage(cv,0,0,24,44);
+      const d=sx.getImageData(0,0,24,44).data;
+      let diff=1e9;
+      if(last){diff=0;for(let k=0;k<d.length;k+=4)diff+=Math.abs(d[k]-last[k]);diff/=d.length/4;}
+      impProgress(i/Math.max(1,total));
+      if(diff<4)continue;
+      last=d;used++;
+      const res=await worker.recognize(cv);
+      impPairsIn(impTimesIn(res.data.text),mn,mx).forEach(p=>{const k=p[0]+"-"+p[1];seen.set(k,(seen.get(k)||0)+1);});
+      impStatus("Reading… frame "+(i+1)+" of "+(total+1)+" · "+seen.size+" different times found");
+    }
+    if(impCancel){impStatus("Stopped.");}
+    else{impStatus("Done. "+used+" frames read.");impBuildRows(route,day,seen,minSeen);}
+  }catch(e){impStatus((e&&e.message)||String(e),true);}
+  finally{
+    try{if(worker)await worker.terminate();}catch(e){}
+    if(url)URL.revokeObjectURL(url);
+    impBusy=false;
+    document.getElementById("imp-start").disabled=false;document.getElementById("imp-stop").style.display="none";
+  }
+}
+function impNear(a,b){return Math.abs(t(a.dep)-t(b.dep))<=1&&Math.abs(t(a.arr)-t(b.arr))<=1;}
+function impBuildRows(route,day,seen,minSeen){
+  const sched=day==="WD"?WD:WE;
+  const ref=schedToPairs(sched[route]).map(p=>({dep:p[0],arr:p[1],n:0,alts:[],isRef:true}));
+  const extras=[];
+  [...seen.entries()].map(([k,n])=>{const q=k.split("-");return{dep:q[0],arr:q[1],n};})
+    .filter(r=>r.n>=minSeen).sort((a,b)=>b.n-a.n).forEach(r=>{
+      const exact=ref.find(x=>x.dep===r.dep&&x.arr===r.arr);
+      if(exact){exact.n+=r.n;return;}
+      const near=ref.find(x=>impNear(x,r));
+      if(near){near.alts.push(r);return;}
+      const ex=extras.find(x=>impNear(x,r));
+      if(ex)ex.alts.push(r);else extras.push({dep:r.dep,arr:r.arr,n:r.n,alts:[],isRef:false});
+    });
+  impRows=[...ref,...extras].map(x=>({
+    choices:[{dep:x.dep,arr:x.arr,n:x.n}].concat(x.alts),
+    sel:0,include:x.isRef,isRef:x.isRef,
+    flag:!x.isRef?"new":(x.n===0?(x.alts.length?"variant":"missing"):(x.alts.length?"alt":""))
+  }));
+  impRows.sort((a,b)=>svcMin(t(a.choices[0].dep))-svcMin(t(b.choices[0].dep)));
+  impCtx={route,day};
+  impRender();
+}
+function impRender(){
+  const box=document.getElementById("imp-results");
+  if(!impRows.length){box.innerHTML="";return;}
+  const cnt={ok:0,alt:0,missing:0,variant:0,new:0};
+  impRows.forEach(r=>{cnt[r.flag||"ok"]++;});
+  let html='<div class="imp-sum"><strong>'+ROUTE_NAME[impCtx.route]+" · "+(impCtx.day==="WD"?"Mon–Fri":"Sat–Sun")+"</strong><br>"
+    +cnt.ok+" read exactly like the current data · "+cnt.alt+" read with a one-minute difference too · "
+    +cnt.variant+" only seen as a one-minute variant · "+cnt.missing+" not seen in the video · "+cnt.new+" new<br>"
+    +"Checked rows are saved. Tap a time to include or leave it out. Compare doubtful rows with the Renfe app.</div>";
+  impRows.forEach((r,i)=>{
+    const c=r.choices[r.sel];
+    html+='<div class="imp-row" onclick="impToggle('+i+')"><input type="checkbox" '+(r.include?"checked":"")+' tabindex="-1" onclick="event.stopPropagation();impToggle('+i+')"/>'
+      +'<span class="imp-time">'+c.dep+" → "+c.arr+'</span><span class="imp-chips">';
+    if(c.n)html+='<span class="imp-chip">seen '+c.n+'x</span>';
+    if(r.flag==="new")html+='<span class="imp-chip new">NEW</span>';
+    if(r.flag==="missing")html+='<span class="imp-chip warn">NOT SEEN</span>';
+    if(r.flag==="variant")html+='<span class="imp-chip warn">1-MIN VARIANT ONLY</span>';
+    r.choices.forEach((o,j)=>{if(j!==r.sel)html+='<span class="imp-chip alt" onclick="event.stopPropagation();impPick('+i+','+j+')">use '+o.dep+" → "+o.arr+(o.n?" ("+o.n+"x)":" (current)")+'</span>';});
+    html+="</span></div>";
+  });
+  html+='<div class="plan-row2" style="margin-top:12px"><div class="field"><label>ADD A TRAIN: DEPARTS</label><input class="plan-input" type="time" id="imp-add-dep"/></div>'
+    +'<div class="field"><label>ARRIVES</label><input class="plan-input" type="time" id="imp-add-arr"/></div></div>'
+    +'<button class="chk-btn" style="width:100%;justify-content:center" onclick="impAdd()">+ Add this train</button>'
+    +'<div class="imp-actions"><button class="admin-save-btn" onclick="impSave()">SAVE ON THIS PHONE</button>'
+    +'<button class="chk-btn" style="justify-content:center" onclick="impCopy()">Copy as code line (for VS Code)</button>'
+    +'<button class="chk-btn" style="justify-content:center" onclick="impReset()">Reset this route to built-in times</button></div>'
+    +'<textarea class="imp-code" id="imp-code" readonly style="display:none"></textarea><div class="plan-msg" id="imp-save-msg"></div>';
+  box.innerHTML=html;
+}
+function impToggle(i){impRows[i].include=!impRows[i].include;impRender();}
+function impPick(i,j){impRows[i].sel=j;impRows[i].include=true;impRender();}
+function impAdd(){
+  const a=document.getElementById("imp-add-dep").value,b=document.getElementById("imp-add-arr").value;
+  if(!validTime(a)||!validTime(b)){document.getElementById("imp-save-msg").textContent="Enter both times.";document.getElementById("imp-save-msg").className="plan-msg err";return;}
+  impRows.push({choices:[{dep:a,arr:b,n:0}],sel:0,include:true,isRef:false,flag:"new"});
+  impRows.sort((x,y)=>svcMin(t(x.choices[x.sel].dep))-svcMin(t(y.choices[y.sel].dep)));
+  impRender();
+}
+function impFinal(){
+  const seenK={},out=[];
+  impRows.filter(r=>r.include).forEach(r=>{const c=r.choices[r.sel],k=c.dep+c.arr;if(!seenK[k]){seenK[k]=1;out.push([c.dep,c.arr]);}});
+  return out.sort((x,y)=>svcMin(t(x[0]))-svcMin(t(y[0])));
+}
+function impMsg(m,err){const e=document.getElementById("imp-save-msg");e.textContent=m;e.className="plan-msg"+(err?" err":"");}
+function impSave(){
+  const list=impFinal();
+  if(!list.length){impMsg("Nothing is checked.",true);return;}
+  const key=(impCtx.day==="WD"?"wd":"we")+"_"+ROUTE_SUFFIX[impCtx.route];
+  const c=customPairs();c[key]=list;saveCustomPairs(c);applyCustomPairs();
+  updateAdminBadges();renderAdminInfo();renderLive();if(showTrainSched)renderTrainSchedule();
+  impMsg("Saved "+list.length+" trains for "+ROUTE_NAME[impCtx.route]+" ("+(impCtx.day==="WD"?"Mon–Fri":"Sat–Sun")+") on this phone.");
+}
+function impCopy(){
+  const list=impFinal();
+  const txt="  "+impCtx.route+":mk(["+list.map(p=>'["'+p[0]+'","'+p[1]+'"]').join(",")+"]),";
+  const ta=document.getElementById("imp-code");ta.value=txt;ta.style.display="block";ta.focus();ta.select();
+  let done=false;
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>impMsg("Copied "+list.length+" trains. Paste it into the "+(impCtx.day==="WD"?"WD":"WE")+" block in index.html.")).catch(()=>impMsg("Select and copy the text above."));done=true;}}catch(e){}
+  if(!done)impMsg("Select and copy the text above.");
+}
+function impReset(){
+  const key=(impCtx.day==="WD"?"wd":"we")+"_"+ROUTE_SUFFIX[impCtx.route];
+  const c=customPairs();
+  if(!c[key]){impMsg("This route has no saved custom data.");return;}
+  delete c[key];saveCustomPairs(c);
+  impMsg("Reset. Reloading the built-in times…");
+  setTimeout(()=>location.reload(),600);
 }
 
 // ── Service Worker (works on the GitHub Pages site, ignored elsewhere) ──
@@ -1666,8 +1907,9 @@ function _flashPinKey(k) {
   }
 }
 
+{const dd=document.getElementById("data-date");if(dd)dd.textContent=new Date(DATA_UPDATED+"T00:00:00").toLocaleDateString([], {day:"numeric",month:"short",year:"numeric"});}
 {const b=document.getElementById("build-id");if(b&&b.textContent.indexOf("__")===0)b.textContent="dev";}
-applyC3CustomSchedule();
+applyCustomPairs();
 applyTramCustomSchedule();
 updateAdminBadges();
 renderCheck();chkSchedule(false);setInterval(renderCheck,3600000);
