@@ -26,22 +26,28 @@ body.unlocked{background:var(--off-white);}
 button{font-family:inherit;cursor:pointer;transition:all .12s}
 
 /* PIN Lock */
-#lock-screen{position:fixed;inset:0;background:var(--brand);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#lock-screen{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:12px 16px;background:linear-gradient(180deg,var(--brand) 0%,var(--brand-dark) 100%);transition:opacity .22s ease}
 #lock-screen.hidden{display:none}
-.lock-logo{background:#fff;color:var(--brand);font-weight:900;font-size:22px;padding:8px 18px;border-radius:6px;margin-bottom:10px}
-.lock-title{color:#fff;font-size:18px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
-.lock-sub{color:rgba(255,255,255,.7);font-size:12px;margin-bottom:32px;letter-spacing:.04em}
-.lock-dots{display:flex;gap:16px;margin-bottom:32px}
-.lock-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:transparent;transition:all .15s}
-.lock-dot.filled{background:#fff;border-color:#fff}
-.lock-error{color:#E9C9E3;font-size:12px;height:18px;margin-bottom:10px;text-align:center}
-.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:240px}
-.pin-btn{height:64px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:22px;font-weight:600;cursor:pointer}
-.pin-btn:active{background:rgba(255,255,255,.3);transform:scale(.95)}
-.pin-btn.del{font-size:16px}
-.pin-btn.clr{font-size:13px;font-weight:700;letter-spacing:.06em;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+#lock-screen.fade{opacity:0}
+.lock-mark{width:clamp(56px,10vh,84px);height:clamp(56px,10vh,84px);border-radius:22%;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.28);margin-bottom:clamp(8px,1.6vh,14px)}
+.lock-mark svg{display:block;width:100%;height:100%}
+.lock-title{color:#fff;font-size:clamp(18px,2.8vh,22px);font-weight:800;letter-spacing:.04em;margin-bottom:4px}
+.lock-sub{color:rgba(255,255,255,.78);font-size:13px;margin-bottom:clamp(14px,3vh,28px);letter-spacing:.03em;text-align:center;min-height:18px}
+.lock-dots{display:flex;gap:18px;margin-bottom:clamp(10px,2vh,18px)}
+.lock-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:transparent;transition:transform .15s,background .15s,border-color .15s}
+.lock-dot.filled{background:#fff;border-color:#fff;transform:scale(1.18)}
+.lock-error{color:#FFD6F2;font-size:13px;height:20px;margin-bottom:clamp(6px,1.6vh,14px);text-align:center}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,2vh,18px) clamp(14px,4.5vw,22px);width:min(300px,84vw,calc((100dvh - 320px) * .74))}
+.pin-btn{aspect-ratio:1;width:100%;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:clamp(22px,3.6vh,30px);font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,transform .08s;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.pin-btn:active{background:rgba(255,255,255,.38);transform:scale(.92)}
+.pin-btn.del{font-size:clamp(18px,3vh,24px)}
+.pin-btn.clr{font-size:clamp(12px,1.8vh,14px);font-weight:700;letter-spacing:.06em;background:transparent;color:rgba(255,255,255,.8)}
+.pin-btn.clr:active{background:rgba(255,255,255,.2)}
 .pin-btn.empty{border:none;background:transparent;cursor:default}
-.lock-setup{color:rgba(255,255,255,.8);font-size:11px;margin-top:20px;text-align:center;line-height:1.6}
+.lock-setup{color:rgba(255,255,255,.85);font-size:12px;margin-top:clamp(12px,2.4vh,22px);text-align:center;line-height:1.7}
+.lock-setup span{text-decoration:underline;padding:6px 4px}
+@keyframes pinshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+.lock-dots.shake{animation:pinshake .32s}
 .lock-setup span{text-decoration:underline;cursor:pointer;color:#fff}
 
 
@@ -151,8 +157,22 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 
 
 
+/* ── TAB SLIDE ── */
+@keyframes slideR{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+.tab-panel.in-right{animation:slideR .22s ease}
+.tab-panel.in-left{animation:slideL .22s ease}
 /* ── TIMETABLE CHECK ── */
 .due-dot{position:absolute;top:8px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:#FFD54A;border:2px solid var(--brand-dark)}
+.chk-link-row{display:flex;gap:8px;margin-bottom:10px}
+.chk-link-btn{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;text-decoration:none;padding:13px;border-radius:10px;border:1.5px solid var(--brand);background:#fff;color:var(--brand);font-size:14px;font-weight:700;cursor:pointer}
+.chk-link-btn:active{background:var(--brand-light)}
+.chk-link-btn.off{opacity:.55;border-style:dashed}
+.chk-edit-btn{flex:0 0 46px;border-radius:10px;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);display:flex;align-items:center;justify-content:center}
+.chk-edit-btn:active{background:var(--brand-light)}
+.chk-edit-box{display:flex;gap:8px;margin:-2px 0 12px}
+.chk-edit-box[hidden]{display:none}
+.chk-edit-box input{flex:1;min-width:0}
 .chk-row{display:flex;gap:8px;margin-bottom:10px}
 .chk-row input{flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)}
 .chk-btn{display:inline-flex;align-items:center;text-decoration:none;padding:10px 14px;border-radius:9px;border:1.5px solid var(--brand);background:#fff;color:var(--brand);font-size:13px;font-weight:700;white-space:nowrap}
@@ -160,7 +180,9 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .chk-status{font-size:13px;font-weight:700;margin-bottom:10px}
 .chk-status.due{color:var(--brand)}
 .chk-status.ok{color:var(--green)}
-.chk-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.chk-grid .field{min-width:0}
+.chk-grid .chk-btn{grid-column:1/-1;justify-content:center}
 /* ── HERO ROW ── */
 .hero-row{display:flex;gap:10px;align-items:stretch}
 .hero-slot{flex:1;min-width:0}
@@ -274,8 +296,8 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 
 <!-- PIN LOCK -->
 <div id="lock-screen">
-  <div class="lock-logo">C3</div>
-  <div class="lock-title">BILBAO TRANSPORT</div>
+  <div class="lock-mark"><svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">  <defs><linearGradient id="lockg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A3188B"/><stop offset="1" stop-color="#5C0850"/></linearGradient></defs>  <rect width="1024" height="1024" fill="url(#lockg)"/>  <!-- roof lamp -->  <rect x="452" y="196" width="120" height="30" rx="15" fill="#fff" opacity=".9"/>  <!-- train body -->  <path d="M312 282 Q312 236 358 236 H666 Q712 236 712 282 V640 Q712 690 662 690 H362 Q312 690 312 640 Z" fill="#fff"/>  <!-- windshield -->  <rect x="352" y="282" width="320" height="170" rx="26" fill="#4A0640"/>  <path d="M372 440 L452 300 H500 L420 440 Z" fill="#fff" opacity=".18"/>  <!-- C3 plate -->  <rect x="402" y="486" width="220" height="104" rx="22" fill="#850D70"/>  <text x="512" y="565" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-weight="900" font-size="82" fill="#fff">C3</text>  <!-- headlights -->  <circle cx="374" cy="634" r="22" fill="#FFD54A"/><circle cx="650" cy="634" r="22" fill="#FFD54A"/>  <!-- rails -->  <path d="M352 730 L300 800 M672 730 L724 800" stroke="#fff" stroke-width="26" stroke-linecap="round" opacity=".9"/>  <rect x="270" y="800" width="484" height="22" rx="11" fill="#fff" opacity=".9"/></svg></div>
+  <div class="lock-title">C3 Bilbao</div>
   <div class="lock-sub" id="lock-sub">Enter your PIN</div>
   <div class="lock-dots">
     <div class="lock-dot" id="d0"></div><div class="lock-dot" id="d1"></div>
@@ -402,18 +424,29 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     <div class="card" id="chk-card">
       <div class="card-title">TIMETABLE CHECK</div>
       <div class="chk-status" id="chk-status"></div>
-      <div class="field"><label>TRAIN TIMETABLE LINK (C3)</label>
-        <div class="chk-row"><input type="url" id="chk-train-url" placeholder="Paste the link to the train timetable" onchange="saveCheckCfg()"/><a class="chk-btn" id="chk-open-train" target="_blank" rel="noopener" onclick="return openSource('train',event)">Open</a></div></div>
-      <div class="field"><label>TRAM TIMETABLE LINK</label>
-        <div class="chk-row"><input type="url" id="chk-tram-url" placeholder="Paste the link to the tram timetable" onchange="saveCheckCfg()"/><a class="chk-btn" id="chk-open-tram" target="_blank" rel="noopener" onclick="return openSource('tram',event)">Open</a></div></div>
+      <div class="chk-link-row">
+        <a class="chk-link-btn" id="chk-open-train" target="_blank" rel="noopener" onclick="return openSource('train',event)">Open train timetable</a>
+        <button class="chk-edit-btn" onclick="toggleEdit('train')" aria-label="Edit train link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+      </div>
+      <div class="chk-edit-box" id="chk-edit-train" hidden>
+        <input class="plan-input" type="url" id="chk-train-url" placeholder="Paste the train timetable link" onchange="saveCheckCfg()"/>
+        <button class="chk-btn primary" onclick="toggleEdit('train')">Save</button>
+      </div>
+      <div class="chk-link-row">
+        <a class="chk-link-btn" id="chk-open-tram" target="_blank" rel="noopener" onclick="return openSource('tram',event)">Open tram timetable</a>
+        <button class="chk-edit-btn" onclick="toggleEdit('tram')" aria-label="Edit tram link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+      </div>
+      <div class="chk-edit-box" id="chk-edit-tram" hidden>
+        <input class="plan-input" type="url" id="chk-tram-url" placeholder="Paste the tram timetable link" onchange="saveCheckCfg()"/>
+        <button class="chk-btn primary" onclick="toggleEdit('tram')">Save</button>
+      </div>
       <div class="live-note" style="margin:-4px 0 12px">The built-in times came from a Winter 2025 timetable. Not sure where it was downloaded? Check your phone's Downloads folder or browser history around late March 2026. Open the link, compare it with the times in this app, and paste new times in the boxes below if anything changed. In the Android app the link opens inside the app.</div>
       <div class="chk-grid">
         <div class="field" style="margin:0"><label>REMIND ME</label>
           <select id="chk-interval" onchange="saveCheckCfg()"><option value="0">Off</option><option value="7">Weekly</option><option value="14">2 weeks</option><option value="30">Monthly</option></select></div>
         <div class="field" style="margin:0"><label>AT</label>
           <input class="plan-input" type="time" id="chk-time" value="09:00" onchange="saveCheckCfg()"/></div>
-        <div class="field" style="margin:0"><label>&nbsp;</label>
-          <button class="chk-btn primary" style="width:100%;height:100%" onclick="markChecked()">✓ Checked</button></div>
+        <button class="chk-btn primary" onclick="markChecked()">✓ Checked</button>
       </div>
       <div class="plan-msg" id="chk-msg"></div>
     </div>
@@ -832,9 +865,15 @@ function markChecked(){
   const c=chkCfg();c.last=Date.now();chkSave(c);renderCheck();
   chkMsg("Marked as checked.");chkSchedule(true);
 }
+function toggleEdit(which){
+  const box=document.getElementById("chk-edit-"+which),opening=box.hidden;
+  box.hidden=!opening;
+  if(opening)document.getElementById("chk-"+which+"-url").focus();
+  else saveCheckCfg();
+}
 function openSource(which,ev){
   let url=chkCfg()[which];
-  if(!/^https?:\/\//i.test(url)){chkMsg("Paste a full link starting with https:// first.",true);return false;}
+  if(!/^https?:\/\//i.test(url)){chkMsg("No link saved yet. Tap the pencil next to the button and paste it.",true);return false;}
   const B=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Browser;
   if(isNative()&&B){
     if(/\.pdf($|\?)/i.test(url))url="https://docs.google.com/gview?embedded=1&url="+encodeURIComponent(url);
@@ -847,7 +886,9 @@ function syncOpenLinks(){
   const c=chkCfg();
   [["train","chk-open-train"],["tram","chk-open-tram"]].forEach(([k,id])=>{
     const a=document.getElementById(id);if(!a)return;
-    if(/^https?:\/\//i.test(c[k]))a.setAttribute("href",c[k]);else a.removeAttribute("href");
+    const has=/^https?:\/\//i.test(c[k]);
+    if(has)a.setAttribute("href",c[k]);else a.removeAttribute("href");
+    a.classList.toggle("off",!has);
   });
 }
 async function chkSchedule(ask){
@@ -1202,15 +1243,36 @@ setInterval(renderTramNext,1000);
 // ══════════════════════════════════════════════════════════════════════
 // ── APP TABS ─────────────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════
+const TAB_ORDER=["c3","tram","admin"];
+let curTab="c3";
 function switchTab(name){
-  // Normal tab panels
+  const dir=TAB_ORDER.indexOf(name)-TAB_ORDER.indexOf(curTab);
+  curTab=name;
   document.querySelectorAll(".tab-panel").forEach(p=>p.className="tab-panel");
   document.querySelectorAll(".app-tab").forEach(b=>b.className="app-tab");
   document.getElementById("tab-"+name).className="app-tab on";
-  document.getElementById("panel-"+name).className="tab-panel on";
+  document.getElementById("panel-"+name).className="tab-panel on"+(dir>0?" in-right":dir<0?" in-left":"");
+  window.scrollTo(0,0);
   if(name==="c3")renderLive();
   if(name==="tram")renderTramNext();
 }
+// Swipe left/right to change tab
+(function(){
+  let sx=0,sy=0,st=0,ok=false;
+  const blocked=t=>t.closest&&t.closest("input,select,textarea,details,.plan-ov,#lock-screen,.sched-table");
+  document.addEventListener("touchstart",e=>{
+    const t=e.touches[0];
+    sx=t.clientX;sy=t.clientY;st=Date.now();
+    ok=e.touches.length===1&&document.body.classList.contains("unlocked")&&!blocked(e.target)&&sx>24&&sx<window.innerWidth-24;
+  },{passive:true});
+  document.addEventListener("touchend",e=>{
+    if(!ok)return;ok=false;
+    const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Date.now()-st>700||Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.6)return;
+    const i=TAB_ORDER.indexOf(curTab)+(dx<0?1:-1);
+    if(i>=0&&i<TAB_ORDER.length)switchTab(TAB_ORDER[i]);
+  },{passive:true});
+})();
 
 // ══════════════════════════════════════════════════════════════════════
 // ── PIN LOCK ─────────────────────────────────────────────────────────
@@ -1221,9 +1283,7 @@ function updateDots(){for(let i=0;i<4;i++)document.getElementById("d"+i).classNa
 function shakeError(msg){
   document.getElementById("lock-error").textContent=msg;
   const d=document.querySelector(".lock-dots");
-  d.style.transition="none";d.style.transform="translateX(-10px)";
-  setTimeout(()=>{d.style.transition="transform .08s";d.style.transform="translateX(10px)"},80);
-  setTimeout(()=>d.style.transform="",160);
+  d.classList.remove("shake");void d.offsetWidth;d.classList.add("shake");
 }
 function pinPress(digit){if(pinEntry.length>=4)return;pinEntry+=digit;updateDots();if(pinEntry.length===4)setTimeout(pinSubmit,140);}
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();document.getElementById("lock-error").textContent="";}
@@ -1251,8 +1311,10 @@ function startSetup(){
 function skipLock(){if(confirm("Open without a PIN?")){localStorage.setItem(PIN_KEY,"NONE");unlockApp();}}
 function resetPin(){if(confirm("Reset security?")){localStorage.removeItem(PIN_KEY);pinEntry="";pinMode="unlock";updateDots();startSetup();}}
 function unlockApp(){
-  document.getElementById("lock-screen").classList.add("hidden");
+  const ls=document.getElementById("lock-screen");
   document.body.classList.add("unlocked");
+  ls.classList.add("fade");
+  setTimeout(()=>ls.classList.add("hidden"),230);
 }
 
 function initLock(){

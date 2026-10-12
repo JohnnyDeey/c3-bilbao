@@ -5,10 +5,13 @@
   "server": {
     "url": "https://johnnydeey.github.io/c3-bilbao/",
     "cleartext": false,
-    "allowNavigation": ["johnnydeey.github.io"],
+    "allowNavigation": [
+      "johnnydeey.github.io"
+    ],
     "errorPath": "offline.html"
   },
   "android": {
-    "backgroundColor": "#850D70"
+    "backgroundColor": "#850D70",
+    "adjustMarginsForEdgeToEdge": "auto"
   }
 }
