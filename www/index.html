@@ -1272,6 +1272,7 @@ let curTab="c3";
 function switchTab(name){
   const dir=TAB_ORDER.indexOf(name)-TAB_ORDER.indexOf(curTab);
   curTab=name;
+  try{sessionStorage.setItem("c3_tab",name)}catch(e){}
   document.querySelectorAll(".tab-panel").forEach(p=>p.className="tab-panel");
   document.querySelectorAll(".app-tab").forEach(b=>b.className="app-tab");
   document.getElementById("tab-"+name).className="app-tab on";
@@ -1334,17 +1335,22 @@ function startSetup(){
 }
 function skipLock(){if(confirm("Open without a PIN?")){localStorage.setItem(PIN_KEY,"NONE");unlockApp();}}
 function resetPin(){if(confirm("Reset security?")){localStorage.removeItem(PIN_KEY);pinEntry="";pinMode="unlock";updateDots();startSetup();}}
-function unlockApp(){
+function unlockApp(instant){
+  try{sessionStorage.setItem("c3_unlocked","1")}catch(e){}
   const ls=document.getElementById("lock-screen");
   document.body.classList.add("unlocked");
+  if(instant){ls.classList.add("hidden");return;}
   ls.classList.add("fade");
   setTimeout(()=>ls.classList.add("hidden"),230);
 }
 
 function initLock(){
   const stored=localStorage.getItem(PIN_KEY);
-  if(stored==="NONE"){unlockApp();return;}
+  if(stored==="NONE"){unlockApp(true);return;}
   if(!stored){startSetup();return;}
+  let open=false;
+  try{open=sessionStorage.getItem("c3_unlocked")==="1"}catch(e){}
+  if(open){unlockApp(true);return;}
   document.getElementById("lock-sub").textContent="Enter your PIN";
   document.getElementById("lock-setup-msg").innerHTML='<span onclick="resetPin()">Forgot PIN?</span>';
 }
@@ -1655,6 +1661,10 @@ initLiveSelects();
 renderLive();
 initTramStopSelects();
 renderTramNext();
+try{
+  const savedTab=sessionStorage.getItem("c3_tab");
+  if(savedTab&&TAB_ORDER.indexOf(savedTab)>-1&&savedTab!==curTab)switchTab(savedTab);
+}catch(e){}
 
 initLock();
 </script>
