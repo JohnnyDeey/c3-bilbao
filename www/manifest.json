@@ -1,13 +1,13 @@
 {
-  "name": "C3 Cercanías Bilbao – Encuentros",
+  "name": "C3 Bilbao – Live",
   "short_name": "C3 Bilbao",
-  "description": "Renfe Cercanías C3 – Calculadora de trenes encontrados en ruta. Abando ↔ Orduña.",
+  "description": "C3 commuter line – Live departures and arrivals between Orduña and Abando.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FDF6F7",
-  "theme_color": "#C1001F",
-  "lang": "es",
+  "background_color": "#FAF5F9",
+  "theme_color": "#850D70",
+  "lang": "en",
   "icons": [
     {
       "src": "icon-192.png",

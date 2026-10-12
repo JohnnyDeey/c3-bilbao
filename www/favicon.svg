@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A3188B"/><stop offset="1" stop-color="#5C0850"/></linearGradient></defs>
+  <rect width="1024" height="1024" fill="url(#g)"/>
+  <!-- roof lamp -->
+  <rect x="452" y="196" width="120" height="30" rx="15" fill="#fff" opacity=".9"/>
+  <!-- train body -->
+  <path d="M312 282 Q312 236 358 236 H666 Q712 236 712 282 V640 Q712 690 662 690 H362 Q312 690 312 640 Z" fill="#fff"/>
+  <!-- windshield -->
+  <rect x="352" y="282" width="320" height="170" rx="26" fill="#4A0640"/>
+  <path d="M372 440 L452 300 H500 L420 440 Z" fill="#fff" opacity=".18"/>
+  <!-- C3 plate -->
+  <rect x="402" y="486" width="220" height="104" rx="22" fill="#850D70"/>
+  <text x="512" y="565" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-weight="900" font-size="82" fill="#fff">C3</text>
+  <!-- headlights -->
+  <circle cx="374" cy="634" r="22" fill="#FFD54A"/><circle cx="650" cy="634" r="22" fill="#FFD54A"/>
+  <!-- rails -->
+  <path d="M352 730 L300 800 M672 730 L724 800" stroke="#fff" stroke-width="26" stroke-linecap="round" opacity=".9"/>
+  <rect x="270" y="800" width="484" height="22" rx="11" fill="#fff" opacity=".9"/>
+</svg>
