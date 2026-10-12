@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">C3 Bilbao</string>
+    <string name="title_activity_main">C3 Bilbao</string>
+    <string name="package_name">es.c3bilbao.live</string>
+    <string name="custom_url_scheme">es.c3bilbao.live</string>
+</resources>
