@@ -28,6 +28,7 @@ button{font-family:inherit;cursor:pointer;transition:all .12s}
 /* PIN Lock */
 #lock-screen{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:12px 16px;background:linear-gradient(180deg,var(--brand) 0%,var(--brand-dark) 100%);transition:opacity .22s ease}
 #lock-screen.hidden{display:none}
+#lock-screen{display:none!important}
 #lock-screen.fade{opacity:0}
 .lock-mark{width:clamp(56px,10vh,84px);height:clamp(56px,10vh,84px);border-radius:22%;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.28);margin-bottom:clamp(8px,1.6vh,14px)}
 .lock-mark svg{display:block;width:100%;height:100%}
@@ -233,6 +234,13 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 #panel-tram .live-row-in{color:var(--tram)}
 #panel-tram .live-bar{background:var(--tram-light)}
 #panel-tram .live-bar>i{background:var(--tram)}
+.live-row.rt{border-left:5px solid var(--rc);padding-left:10px}
+.live-row.rt strong{color:var(--rc)}
+.live-row.rt .live-bar{background:color-mix(in srgb,var(--rc) 16%,#fff)}
+.live-row.rt .live-bar>i{background:var(--rc)}
+.rt-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 10px;font-size:11px;color:var(--text-mid)}
+.rt-legend span{display:flex;align-items:center;gap:5px}
+.rt-legend i{width:14px;height:6px;border-radius:3px;background:var(--rc)}
 #panel-tram .card-title{color:var(--tram)}
 #panel-tram .swap-btn,#panel-tram .plan-btn{background:var(--tram)}
 #panel-tram select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23005BAC' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")}
@@ -456,8 +464,8 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
   <div class="gate-box" id="gate-box">
     <h3 id="gate-title">Admin</h3>
     <p id="gate-text">Enter the admin password.</p>
-    <input class="plan-input" type="password" id="gate-pw" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter')gateSubmit()"/>
-    <input class="plan-input" type="password" id="gate-pw2" placeholder="Repeat password" autocomplete="off" style="display:none" onkeydown="if(event.key==='Enter')gateSubmit()"/>
+    <input class="plan-input" type="password" id="gate-pw" placeholder="Password" autocomplete="new-password" onkeydown="if(event.key==='Enter')gateSubmit()"/>
+    <input class="plan-input" type="password" id="gate-pw2" placeholder="Repeat password" autocomplete="new-password" style="display:none" onkeydown="if(event.key==='Enter')gateSubmit()"/>
     <div class="gate-err" id="gate-err"></div>
     <div class="gate-row"><button onclick="closeGate()">Cancel</button><button class="primary" onclick="gateSubmit()">Open</button></div>
   </div>
@@ -474,8 +482,8 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     </div>
 
     <div class="card" id="imp-card">
-      <div class="card-title">IMPORT FROM SCREEN RECORDING</div>
-      <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Record the Renfe app while you scroll one route slowly. Pick the video here. The app reads the times, compares them with the current data and lets you confirm each train.</div>
+      <div class="card-title">IMPORT FROM SCREENSHOTS</div>
+      <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Take screenshots of one route while you scroll. Don't leave cards cut in half. Pick all of them at once. The app reads the times, compares them with the current data and lets you confirm each train.</div>
       <div class="plan-row2">
         <div class="field"><label>ROUTE</label>
           <select id="imp-route" onchange="impRouteChange()">
@@ -487,14 +495,14 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
         <div class="field"><label>DAY</label>
           <select id="imp-day"><option value="WD">Mon–Fri</option><option value="WE">Sat–Sun</option></select></div>
       </div>
-      <div class="field"><label>VIDEO</label><input class="plan-input" type="file" id="imp-file" accept="video/*"/></div>
+      <div class="field"><label>SCREENSHOTS</label><input class="plan-input" type="file" id="imp-file" accept="image/*" multiple/></div>
       <div class="plan-row2">
         <div class="field"><label>JOURNEY MIN (MINUTES)</label><input class="plan-input" type="number" id="imp-min" value="58" inputmode="numeric"/></div>
         <div class="field"><label>JOURNEY MAX (MINUTES)</label><input class="plan-input" type="number" id="imp-max" value="68" inputmode="numeric"/></div>
       </div>
-      <div class="field"><label>IGNORE TIMES SEEN IN FEWER FRAMES THAN</label><input class="plan-input" type="number" id="imp-minseen" value="2" inputmode="numeric"/></div>
+      <div class="field"><label>IGNORE TIMES SEEN IN FEWER SCREENSHOTS THAN</label><input class="plan-input" type="number" id="imp-minseen" value="1" inputmode="numeric"/></div>
       <div style="display:flex;gap:8px">
-        <button class="admin-save-btn" id="imp-start" onclick="impRun()" style="flex:1">READ THE VIDEO</button>
+        <button class="admin-save-btn" id="imp-start" onclick="impRun()" style="flex:1">READ THE SCREENSHOTS</button>
         <button class="admin-save-btn" id="imp-stop" onclick="impCancel=true" style="flex:0 0 90px;background:#fff;color:var(--brand);border:1.5px solid var(--brand);display:none">Stop</button>
       </div>
       <div class="imp-progress" id="imp-prog"><i id="imp-bar"></i></div>
@@ -783,6 +791,19 @@ function upcomingTrains(fp,tp,nowSec,max){
   }
   return out;
 }
+// One entry per route and direction. Add the C1 and C2 routes at the END of this list
+// and each gets its colour automatically. Don't reorder it, or the colours shift.
+const ROUTE_LIST=[
+  {type:"OA",label:"Orduña → Abando"},
+  {type:"AO",label:"Abando → Orduña"},
+  {type:"LA",label:"Llodio → Abando"},
+  {type:"AL",label:"Abando → Llodio"}
+];
+const ROUTE_PALETTE=["#850D70","#00796B","#E65100","#1565C0","#C62828","#6A8F00","#8E24AA","#00838F","#F9A825","#5D4037","#455A64","#AD1457"];
+function routeColor(type){
+  const i=ROUTE_LIST.findIndex(r=>r.type===type);
+  return ROUTE_PALETTE[(i<0?0:i)%ROUTE_PALETTE.length];
+}
 function trainsInTransit(nowSec){
   const nm0=nowSec/60,res=[];
   const run=(sc,nm)=>{
@@ -790,7 +811,7 @@ function trainsInTransit(nowSec){
     if(nm<tr.dep||nm>tr.arr)return;
     const f=(nm-tr.dep)/(tr.arr-tr.dep);
     const pos=type==="OA"?f:type==="AO"?1-f:type==="LA"?P_LL+(1-P_LL)*f:1-(1-P_LL)*f;
-    res.push({name,toward,pos,f,dep:tr.dep,arr:tr.arr});
+    res.push({name,toward,type,pos,f,dep:tr.dep,arr:tr.arr});
   });
   add(sc.ordunaToAbando,"OA","Orduña → Abando","Abando");
   add(sc.abandoToOrduna,"AO","Abando → Orduña","Orduña");
@@ -831,10 +852,14 @@ function renderLive(){
     }
   }
   const tr=trainsInTransit(ns);
-  document.getElementById("live-transit").innerHTML=tr.length?tr.map(x=>`<div class="live-row" style="display:block">
+    const types=[...new Set(tr.map(x=>x.type))];
+  document.getElementById("live-transit").innerHTML=tr.length
+    ?`<div class="rt-legend">${ROUTE_LIST.filter(r=>types.includes(r.type)).map(r=>`<span style="--rc:${routeColor(r.type)}"><i></i>${r.label}</span>`).join("")}</div>`
+      +tr.map(x=>`<div class="live-row rt" style="display:block;--rc:${routeColor(x.type)}">
     <div style="display:flex;justify-content:space-between;align-items:baseline"><strong style="font-size:13px">${x.name}</strong><span class="live-row-in">arrives ${fmt(x.arr)}</span></div>
     <div style="font-size:12px;color:var(--text-mid);margin-top:2px">≈ ${segLabel(x.pos)}</div>
-    <div class="live-bar"><i style="width:${Math.round(x.f*100)}%"></i></div></div>`).join(""):`<div class="live-empty">No trains on the line right now</div>`;
+    <div class="live-bar"><i style="width:${Math.round(x.f*100)}%"></i></div></div>`).join("")
+    :`<div class="live-empty">No trains on the line right now</div>`;
 }
 // ── TIMETABLE CHECK (admin reminder) ──────────────────────────────
 const CHK_KEY="c3_timetable_check",CHK_NOTIF_ID=999001;
@@ -1540,7 +1565,8 @@ async function hashPw(salt,pw,iter){
   const txt=salt+":"+pw;let h=5381;for(let i=0;i<txt.length;i++)h=((h<<5)+h+txt.charCodeAt(i))>>>0;
   return"s"+h.toString(16);
 }
-function adminRec(){try{return JSON.parse(localStorage.getItem(ADMIN_KEY)||"null")}catch(e){return null}}
+const ADMIN_FIXED={"salt":"x7Kq-change-this-to-your-own-random-text","it":250000,"hash":"af32bad9927ff7e88a95ec02aa8df9212390654732cae85a0ef3a888928667a4"};
+function adminRec(){return ADMIN_FIXED}
 function lockInfo(){try{return JSON.parse(localStorage.getItem(ADMIN_LOCK_KEY)||"{}")}catch(e){return{}}}
 function newSalt(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function gateErr(msg,shake){
@@ -1568,14 +1594,15 @@ async function gateSubmit(){
     if(pw.length<4){gateErr("Use at least 4 characters.",true);return;}
     if(pw!==pw2){gateErr("The two passwords do not match.",true);return;}
     const salt=newSalt();
-    try{localStorage.setItem(ADMIN_KEY,JSON.stringify({salt,it:PW_ITER,hash:await hashPw(salt,pw,PW_ITER)}));}catch(e){gateErr("Could not save the password on this phone.",true);return;}
+    try{localStorage.setItem(ADMIN_KEY,JSON.stringify({salt,hash:await hashPw(salt,pw)}));}catch(e){gateErr("Could not save the password on this phone.",true);return;}
     closeGate();openAdmin();return;
   }
   const li=lockInfo(),now=Date.now();
   if(li.until&&now<li.until){gateErr("Too many tries. Wait "+Math.ceil((li.until-now)/1000)+" s.",true);return;}
   const rec=adminRec();
-  if(rec&&await hashPw(rec.salt,pw,rec.it||0)===rec.hash){
-    if(!rec.it){try{const s=newSalt();localStorage.setItem(ADMIN_KEY,JSON.stringify({salt:s,it:PW_ITER,hash:await hashPw(s,pw,PW_ITER)}));}catch(e){}}
+  const calc=await hashPw(rec.salt,pw,rec.it||0);
+  console.log("DEBUG typed length:",pw.length,"| expected starts:",rec.hash.slice(0,6),"| computed starts:",calc.slice(0,6));
+  if(calc===rec.hash){
     try{localStorage.removeItem(ADMIN_LOCK_KEY)}catch(e){}
     closeGate();openAdmin();return;
   }
@@ -1596,7 +1623,7 @@ async function changeAdminPw(){
   if(a.length<4){m.textContent="Use at least 4 characters.";m.className="plan-msg err";return;}
   if(a!==b){m.textContent="The two passwords do not match.";m.className="plan-msg err";return;}
   const salt=newSalt();
-  try{localStorage.setItem(ADMIN_KEY,JSON.stringify({salt,it:PW_ITER,hash:await hashPw(salt,a,PW_ITER)}));}catch(e){m.textContent="Could not save.";m.className="plan-msg err";return;}
+  try{localStorage.setItem(ADMIN_KEY,JSON.stringify({salt,hash:await hashPw(salt,a)}));}catch(e){m.textContent="Could not save.";m.className="plan-msg err";return;}
   document.getElementById("pw-new").value="";document.getElementById("pw-new2").value="";
   m.textContent="Password changed.";m.className="plan-msg";
 }
@@ -1669,7 +1696,7 @@ const OCR_CFG=window.OCR_CFG||{
   lang:"https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int"
 };
 const IMP_RANGE={ordunaToAbando:[58,68],abandoToOrduna:[58,68],llodioToAbando:[33,46],abandoToLlodio:[33,46]};
-const IMP_FPS=3,IMP_CROP_TOP=0.07,IMP_CROP_BOTTOM=0.04;
+const IMP_CROP_TOP=0.05,IMP_CROP_BOTTOM=0,IMP_TARGET_W=1200,IMP_INVERT=true;
 let impCancel=false,impBusy=false,impRows=[],impCtx=null;
 function impRouteChange(){
   const r=document.getElementById("imp-route").value,g=IMP_RANGE[r];
@@ -1717,59 +1744,71 @@ function impPairsIn(times,mn,mx){
   }
   return out;
 }
+async function impShot(f){
+  let bmp;
+  try{bmp=await createImageBitmap(f);}
+  catch(e){
+    bmp=await new Promise((res,rej)=>{const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);res(im);};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("Could not open "+f.name));};im.src=u;});
+  }
+  const W=bmp.width||bmp.naturalWidth,H=bmp.height||bmp.naturalHeight;
+  if(!W||!H)throw new Error("Could not open "+f.name);
+  const sy=Math.round(H*IMP_CROP_TOP),sh=Math.round(H*(1-IMP_CROP_TOP-IMP_CROP_BOTTOM));
+  const outW=W<IMP_TARGET_W?IMP_TARGET_W:Math.min(W,1600);   // enlarge small images, never huge
+  const outH=Math.round(sh*outW/W);
+  const cv=document.createElement("canvas");cv.width=outW;cv.height=outH;
+  const cx=cv.getContext("2d",{willReadFrequently:true});
+  cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";
+  cx.drawImage(bmp,0,sy,W,sh,0,0,outW,outH);
+  if(bmp.close)bmp.close();
+  // grey, and flip light-on-dark text to dark-on-light (the reader works better that way)
+  const im=cx.getImageData(0,0,outW,outH),d=im.data;
+  for(let i=0;i<d.length;i+=4){
+    let g=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+    if(IMP_INVERT)g=255-g;
+    d[i]=d[i+1]=d[i+2]=g;
+  }
+  cx.putImageData(im,0,0);
+  return cv;
+}
 async function impRun(){
   if(impBusy)return;
-  const f=document.getElementById("imp-file").files[0];
-  if(!f){impStatus("Choose a screen recording first.",true);return;}
+  const files=Array.from(document.getElementById("imp-file").files||[]).sort((a,b)=>a.name<b.name?-1:1);
+  if(!files.length){impStatus("Choose your screenshots first.",true);return;}
   const route=document.getElementById("imp-route").value,day=document.getElementById("imp-day").value;
   const mn=parseInt(document.getElementById("imp-min").value,10)||0,mx=parseInt(document.getElementById("imp-max").value,10)||999;
   const minSeen=parseInt(document.getElementById("imp-minseen").value,10)||1;
   impBusy=true;impCancel=false;
   document.getElementById("imp-results").innerHTML="";
   document.getElementById("imp-start").disabled=true;document.getElementById("imp-stop").style.display="block";
-  let url=null,worker=null;
+  let worker=null;
   try{
     impStatus("Loading the reader (the first time needs internet)…");impProgress(0);
     worker=await impWorker();
-    url=URL.createObjectURL(f);
-    const v=document.createElement("video");v.muted=true;v.playsInline=true;v.preload="auto";v.src=url;
-    await waitFor(v,"loadedmetadata",20000);
-    if(v.readyState<2)await waitFor(v,"loadeddata",20000);
-    let dur=v.duration;
-    if(!isFinite(dur)||!dur){try{v.currentTime=1e7;await waitFor(v,"seeked",8000);}catch(e){}dur=v.currentTime||0;v.currentTime=0;}
-    const VW=v.videoWidth,VH=v.videoHeight;
-    if(!VW||!VH||!dur)throw new Error("This video cannot be read on this phone.");
-    const sy=Math.round(VH*IMP_CROP_TOP),sh=Math.round(VH*(1-IMP_CROP_TOP-IMP_CROP_BOTTOM));
-    const outW=Math.min(VW,900),outH=Math.round(sh*(outW/VW));
-    const cv=document.createElement("canvas");cv.width=outW;cv.height=outH;
-    const cx=cv.getContext("2d",{willReadFrequently:true});
-    const sm=document.createElement("canvas");sm.width=24;sm.height=44;
-    const sx=sm.getContext("2d",{willReadFrequently:true});
-    const step=1/IMP_FPS,total=Math.floor(dur/step);
-    let last=null,used=0;const seen=new Map();
-    for(let i=0;i<=total;i++){
+    const seen=new Map();let read=0,failed=0,cut=0;
+    for(let i=0;i<files.length;i++){
       if(impCancel)break;
-      const target=Math.min(i*step,Math.max(0,dur-0.05));
-      if(Math.abs(v.currentTime-target)>0.001){v.currentTime=target;try{await waitFor(v,"seeked",8000);}catch(e){}}
-      try{cx.filter="grayscale(1) contrast(1.15)";}catch(e){}
-      cx.drawImage(v,0,sy,VW,sh,0,0,outW,outH);
-      sx.drawImage(cv,0,0,24,44);
-      const d=sx.getImageData(0,0,24,44).data;
-      let diff=1e9;
-      if(last){diff=0;for(let k=0;k<d.length;k+=4)diff+=Math.abs(d[k]-last[k]);diff/=d.length/4;}
-      impProgress(i/Math.max(1,total));
-      if(diff<4)continue;
-      last=d;used++;
-      const res=await worker.recognize(cv);
-      impPairsIn(impTimesIn(res.data.text),mn,mx).forEach(p=>{const k=p[0]+"-"+p[1];seen.set(k,(seen.get(k)||0)+1);});
-      impStatus("Reading… frame "+(i+1)+" of "+(total+1)+" · "+seen.size+" different times found");
+      impStatus("Reading screenshot "+(i+1)+" of "+files.length+" · "+seen.size+" different times found");
+      try{
+        const cv=await impShot(files[i]);
+        const res=await worker.recognize(cv);
+        const times=impTimesIn(res.data.text),pairs=impPairsIn(times,mn,mx);
+        new Set(pairs.map(p=>p[0]+"-"+p[1])).forEach(k=>seen.set(k,(seen.get(k)||0)+1));
+        const used=pairs.flat();   // a time left without a partner = a train cut off at an edge
+        if(times.some(t=>{const k=used.indexOf(t);if(k>=0){used.splice(k,1);return false;}return true;}))cut++;
+        read++;
+      }catch(e){failed++;}
+      impProgress((i+1)/files.length);
     }
     if(impCancel){impStatus("Stopped.");}
-    else{impStatus("Done. "+used+" frames read.");impBuildRows(route,day,seen,minSeen);}
+    else if(!read){impStatus("None of the images could be read.",true);}
+    else{
+      impStatus("Done. "+read+" screenshot"+(read>1?"s":"")+" read"+(failed?", "+failed+" could not be opened":"")
+        +(cut?". Warning: "+cut+" screenshot"+(cut>1?"s have":" has")+" a time without a partner, so a train may be cut off at an edge.":"."),cut>0);
+      impBuildRows(route,day,seen,minSeen);
+    }
   }catch(e){impStatus((e&&e.message)||String(e),true);}
   finally{
     try{if(worker)await worker.terminate();}catch(e){}
-    if(url)URL.revokeObjectURL(url);
     impBusy=false;
     document.getElementById("imp-start").disabled=false;document.getElementById("imp-stop").style.display="none";
   }
@@ -1805,7 +1844,7 @@ function impRender(){
   let html='<div class="imp-sum"><strong>'+ROUTE_NAME[impCtx.route]+" · "+(impCtx.day==="WD"?"Mon–Fri":"Sat–Sun")+"</strong><br>"
     +cnt.ok+" read exactly like the current data · "+cnt.alt+" read with a one-minute difference too · "
     +cnt.variant+" only seen as a one-minute variant · "+cnt.missing+" not seen in the video · "+cnt.new+" new<br>"
-    +"Checked rows are saved. Tap a time to include or leave it out. Compare doubtful rows with the Renfe app.</div>";
+    +"Checked rows are saved. Tap a time to include or leave it out. Compare doubtful rows with the official timetable.</div>";
   impRows.forEach((r,i)=>{
     const c=r.choices[r.sel];
     html+='<div class="imp-row" onclick="impToggle('+i+')"><input type="checkbox" '+(r.include?"checked":"")+' tabindex="-1" onclick="event.stopPropagation();impToggle('+i+')"/>'
@@ -1922,7 +1961,7 @@ try{
   if(savedTab&&TAB_ORDER.indexOf(savedTab)>-1&&savedTab!==curTab)switchTab(savedTab);
 }catch(e){}
 
-initLock();
+unlockApp(true);
 </script>
 
 </body>
