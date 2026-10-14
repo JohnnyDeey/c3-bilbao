@@ -233,6 +233,20 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 #panel-tram .live-bar{background:var(--tram-light)}
 #panel-tram .live-bar>i{background:var(--tram)}
 .live-bar.rev>i{margin-left:auto}
+.live-bar-wrap{position:relative;padding:6px 0;margin-top:4px}
+.live-bar-wrap .live-bar{margin-top:0}
+.mdot{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--mc);border:2px solid #fff;box-shadow:0 0 0 1px var(--mc);box-sizing:border-box;cursor:pointer;z-index:2}
+.mdot::after{content:"";position:absolute;inset:-8px}
+.mdot.hollow{background:#fff;border:2px solid var(--mc);box-shadow:none}
+.meet-tip{font-size:11px;color:var(--text-mid);min-height:14px;margin-top:2px}
+.live-row.rev .meet-tip{text-align:right}
+.live-bar-wrap{position:relative;padding:6px 0;margin-top:4px}
+.live-bar-wrap .live-bar{margin-top:0}
+.mdot{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--mc);border:2px solid #fff;box-shadow:0 0 0 1px var(--mc);box-sizing:border-box;cursor:pointer;z-index:2}
+.mdot::after{content:"";position:absolute;inset:-8px}
+.mdot.hollow{background:#fff;border:2px solid var(--mc);box-shadow:none}
+.meet-tip{font-size:11px;color:var(--text-mid);min-height:14px;margin-top:2px}
+.live-row.rev .meet-tip{text-align:right}
 .live-row.rt{border-left:5px solid var(--rc);padding-left:10px}
 .live-row.rt.rev{border-left:0;padding-left:4px;border-right:5px solid var(--rc);padding-right:10px}
 .live-row.rt strong{color:var(--rc)}
@@ -329,6 +343,19 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .admin-custom-badge{font-size:9px;background:var(--green);color:#fff;padding:2px 6px;border-radius:10px;margin-left:6px;font-weight:700;letter-spacing:.06em;vertical-align:middle}
 
 footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);letter-spacing:.06em;border-top:1px solid var(--border);background:#fff}
+
+.rl-head{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0}
+.rl-head span{font-size:11px;font-weight:800;color:var(--brand)}
+.rl-row{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--border)}
+.rl-st{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px}
+.rl-st small{font-size:10px;color:var(--text-dim)}
+.rl-d{font-weight:800;color:var(--brand)}
+.rl-b{min-width:84px;padding:12px 6px;border-radius:9px;border:1.5px solid var(--brand);background:#fff;color:var(--brand);font-size:13px;font-weight:700;font-family:inherit}
+.rl-b.done{background:var(--brand-light);border-style:dashed;font-variant-numeric:tabular-nums}
+.rl-x{width:34px;padding:12px 0;border:none;background:none;color:var(--text-dim);font-size:15px}
+.rl-row.skip .rl-st{opacity:.5}
+.rl-ev{font-size:12px;margin:6px 0;color:var(--text-mid)}
+.rl-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -480,6 +507,24 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
       <div class="card-title">DATA &amp; APP</div>
       <div class="live-note" style="margin:0;font-size:12px;line-height:1.7" id="adm-info"></div>
     </div>
+
+    <div class="card" id="rl-card">
+  <div class="card-title">RIDE LOG</div>
+  <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Your own observations. Kept separate from the official timetable; they never change it.</div>
+  <div id="rl-setup">
+  <div class="plan-row2">
+    <div class="field"><label>FROM</label><select id="rl-from" onchange="rideFillTrains()"></select></div>
+    <div class="field"><label>TO</label><select id="rl-to" onchange="rideFillTrains()"></select></div>
+  </div>
+  <div class="field"><label>TRAIN (DEPARTS FROM YOUR STATION)</label><select id="rl-train"></select></div>
+  <button class="admin-save-btn" onclick="rideStart()">START TRIP (I'M ON BOARD)</button>
+</div>
+  <div id="rl-box"></div>
+  <div class="plan-msg" id="rl-msg"></div>
+  <div class="live-note" id="rl-count" style="font-size:12px"></div>
+  <button class="chk-btn" style="width:100%;justify-content:center" onclick="rideExport()">Export all trips (JSON)</button>
+  <textarea class="imp-code" id="rl-out" readonly style="display:none"></textarea>
+</div>
 
     <div class="card" id="imp-card">
       <div class="card-title">IMPORT FROM SCREENSHOTS</div>
@@ -805,6 +850,36 @@ function routeColor(type){
   return ROUTE_PALETTE[(i<0?0:i)%ROUTE_PALETTE.length];
 }
 
+// Start and end position of each route type along the line (0 = Orduña, 1 = Abando)
+const LINE_ENDS={OA:[0,1],AO:[1,0],LA:[P_LL,1],AL:[1,P_LL]};
+// Every physical train of a schedule once (through trains are not counted twice)
+function physTrains(sc){
+  const out=[],add=(list,type)=>list.forEach(tr=>out.push({type,dep:tr.dep,arr:tr.arr}));
+  add(sc.ordunaToAbando,"OA");add(sc.abandoToOrduna,"AO");
+  add(sc.llodioToAbando.filter(l=>!sc.ordunaToAbando.some(o=>nearMin(timeAt(o,"OA",P_LL),l.dep,2))),"LA");
+  add(sc.abandoToLlodio.filter(a=>!sc.abandoToOrduna.some(o=>nearMin(o.dep,a.dep,1))),"AL");
+  return out;
+}
+// All meetings of train x with trains going the other way, from its departure to its arrival
+function meetingsFor(x){
+  const toward=t=>t==="OA"||t==="LA",res=[],[a0,a1]=LINE_ENDS[x.type],va=(a1-a0)/(x.arr-x.dep);
+  physTrains(x.sc).forEach(b=>{
+    if(toward(b.type)===toward(x.type))return;
+    const[b0,b1]=LINE_ENDS[b.type],label=(ROUTE_LIST.find(r=>r.type===b.type)||{}).label||b.type;
+    [-1440,0,1440].forEach(sh=>{            // also trains running across midnight
+      const bd=b.dep+sh,ba=b.arr+sh,vb=(b1-b0)/(ba-bd);
+      const t=(b0-a0+va*x.dep-vb*bd)/(va-vb);   // the moment both positions are equal
+      if(t<Math.max(x.dep,bd)+0.5||t>Math.min(x.arr,ba)-0.5)return;   // not on the line at the same time (or only at a terminus)
+      res.push({t,p:a0+va*(t-x.dep),f:(t-x.dep)/(x.arr-x.dep),type:b.type,label,key:x.type+x.dep+"#"+b.type+b.dep+"_"+sh});
+    });
+  });
+  return res.sort((m,n)=>m.t-n.t);
+}
+let meetSel=null;   // the dot you tapped, so its text survives the once-a-second redraw
+function pickMeet(k){meetSel=meetSel===k?null:k;renderLive();}
+// true when two times (in minutes) are within tol minutes of each other, also across midnight
+function nearMin(a,b,tol){const d=Math.abs(a-b)%1440;return Math.min(d,1440-d)<=tol}
+
 function trainsInTransit(nowSec){
   const nm0=nowSec/60,res=[];
   const run=(sc,nm)=>{
@@ -812,12 +887,12 @@ function trainsInTransit(nowSec){
     if(nm<tr.dep||nm>tr.arr)return;
     const f=(nm-tr.dep)/(tr.arr-tr.dep);
     const pos=type==="OA"?f:type==="AO"?1-f:type==="LA"?P_LL+(1-P_LL)*f:1-(1-P_LL)*f;
-    res.push({name,toward,type,pos,f,dep:tr.dep,arr:tr.arr});
+    res.push({name,toward,type,pos,f,dep:tr.dep,arr:tr.arr,nm,sc});
   });
   add(sc.ordunaToAbando,"OA","Orduña → Abando","Abando");
   add(sc.abandoToOrduna,"AO","Orduña ← Abando","Orduña");
-  add(sc.llodioToAbando,"LA","Llodio → Abando","Abando");
-  add(sc.abandoToLlodio,"AL","Llodio ← Abando","Llodio");
+  add(sc.llodioToAbando.filter(l=>!sc.ordunaToAbando.some(o=>nearMin(timeAt(o,"OA",P_LL),l.dep,2))),"LA","Llodio → Abando","Abando");
+  add(sc.abandoToLlodio.filter(a=>!sc.abandoToOrduna.some(o=>nearMin(o.dep,a.dep,1))),"AL","Llodio ← Abando","Llodio");
   };
   run(schedFor(0),nm0);
   run(schedFor(-1),nm0+1440);
@@ -856,10 +931,18 @@ function renderLive(){
     const types=[...new Set(tr.map(x=>x.type))];
   document.getElementById("live-transit").innerHTML=tr.length
     ?`<div class="rt-legend">${ROUTE_LIST.filter(r=>types.includes(r.type)).map(r=>`<span style="--rc:${routeColor(r.type)}"><i></i>${r.label}</span>`).join("")}</div>`
-      +tr.map(x=>`<div class="live-row rt${x.type==="AO"||x.type==="AL"?" rev":""}" style="display:block;--rc:${routeColor(x.type)}">
-    <div style="display:flex;justify-content:space-between;align-items:baseline${x.type==="AO"||x.type==="AL"?";flex-direction:row-reverse":""}"><strong style="font-size:13px">${x.name}</strong><span class="live-row-in">arrives ${fmt(x.arr)}</span></div>
-    <div style="font-size:12px;color:var(--text-mid);margin-top:2px">≈ ${segLabel(x.pos)}</div>
-    <div class="live-bar${x.type==="AO"||x.type==="AL"?" rev":""}"><i style="width:${Math.round(x.f*100)}%"></i></div></div>`).join("")
+      +tr.map(x=>{
+        const rev=x.type==="AO"||x.type==="AL";   // heading away from Abando: right to left
+                let ms=[];try{ms=meetingsFor(x)}catch(e){}
+        const sel=ms.find(m=>m.key===meetSel);
+        const dots=ms.map(m=>`<b class="mdot${m.t<=x.nm?"":" hollow"}" style="left:${((rev?1-m.f:m.f)*100).toFixed(1)}%;--mc:${routeColor(m.type)}" title="${fmt(m.t)} · ${segLabel(m.p)} · ${m.label}" onclick="pickMeet('${m.key}')"></b>`).join("");
+        const tip=sel?`${sel.t<=x.nm?"Met":"Meets"} ${sel.label} at ${fmt(sel.t)} · ${segLabel(sel.p)}`:"";
+        return `<div class="live-row rt${rev?" rev":""}" style="display:block;--rc:${routeColor(x.type)}">
+    <div style="display:flex;justify-content:space-between;align-items:baseline${rev?";flex-direction:row-reverse":""}"><strong style="font-size:13px">${x.name}</strong><span class="live-row-in">arrives ${fmt(x.arr)}</span></div>
+    <div style="font-size:12px;color:var(--text-mid);margin-top:2px${rev?";text-align:right":""}">≈ ${segLabel(x.pos)}</div>
+    <div class="live-bar-wrap"><div class="live-bar${rev?" rev":""}"><i style="width:${Math.round(x.f*100)}%"></i></div>${dots}</div>
+    <div class="meet-tip">${tip}</div></div>`;
+      }).join("")
     :`<div class="live-empty">No trains on the line right now</div>`;
 }
 // ── TIMETABLE CHECK (admin reminder) ──────────────────────────────
@@ -1606,10 +1689,10 @@ async function gateSubmit(){
 }
 function openAdmin(){
   document.getElementById("admin-ov").classList.add("on");
-  renderAdminInfo();renderCheck();bumpAdmin();
+  renderAdminInfo();renderCheck();bumpAdmin();rideFillStations();rideFillTrains();renderRide();
 }
 function closeAdmin(){document.getElementById("admin-ov").classList.remove("on");clearTimeout(adminTimer);}
-function bumpAdmin(){clearTimeout(adminTimer);adminTimer=setTimeout(closeAdmin,5*60*1000);}
+function bumpAdmin(){clearTimeout(adminTimer);adminTimer=setTimeout(()=>{if(!activeTrip())closeAdmin()},5*60*1000);}
 async function changeAdminPw(){
   const a=document.getElementById("pw-new").value,b=document.getElementById("pw-new2").value,m=document.getElementById("pw-msg");
   if(a.length<4){m.textContent="Use at least 4 characters.";m.className="plan-msg err";return;}
@@ -1889,6 +1972,142 @@ function impReset(){
   delete c[key];saveCustomPairs(c);
   impMsg("Reset. Reloading the built-in times…");
   setTimeout(()=>location.reload(),600);
+}
+// ══════════════════════════════════════════════════════════════════════
+// ── RIDE LOG: your own observations (never changes the official timetable) ──
+// ══════════════════════════════════════════════════════════════════════
+const TRIPS_KEY="c3_trips";
+const RIDE_KEY={OA:"ordunaToAbando",AO:"abandoToOrduna",LA:"llodioToAbando",AL:"abandoToLlodio"};
+const REASONS=["Track problem","Signal problem","Waiting for another train","Train fault","Other"];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function loadTrips(){try{return JSON.parse(localStorage.getItem(TRIPS_KEY)||"[]")}catch(e){return[]}}
+function saveTrips(a){try{localStorage.setItem(TRIPS_KEY,JSON.stringify(a));return true}catch(e){return false}}
+function activeTrip(){return loadTrips().find(x=>x.status==="active")||null}
+function rideMsg(m,err){const e=document.getElementById("rl-msg");if(e){e.textContent=m;e.className="plan-msg"+(err?" err":"")}}
+function todayLocal(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function rideClock(t){return new Date(t).toLocaleTimeString([], {hour12:false})}
+
+function rideDelta(t,est){   // actual minus estimate in minutes, signed, safe across midnight
+  const d=new Date(t),act=d.getHours()*60+d.getMinutes()+d.getSeconds()/60;
+  return(((act-est%1440)+720)%1440+1440)%1440-720;
+}
+function fmtDelta(x){return(x>=0?"+":"−")+Math.abs(x).toFixed(1)}
+
+// The two stations of a trip (boarding, getting off). Older test trips without them use the full line.
+function rideEnds(tr){
+  const last=STATIONS.length-1;
+  return[tr.from!=null?tr.from:(tr.type==="AO"?last:0),tr.to!=null?tr.to:(tr.type==="AO"?0:last)];
+}
+// Station indexes of the trip in running order, from boarding to getting off
+function rideOrder(tr){const[f,t]=rideEnds(tr),out=[];for(let i=f;i!==t;i+=t>f?1:-1)out.push(i);out.push(t);return out}
+function rideTitle(tr){const[f,t]=rideEnds(tr),a=STATIONS[f].name,b=STATIONS[t].name;return t>f?a+" → "+b:b+" ← "+a}
+
+function rideFillStations(){
+  const a=document.getElementById("rl-from"),b=document.getElementById("rl-to");
+  if(a.options.length)return;
+  [a,b].forEach(el=>STATIONS.forEach((s,i)=>{const o=document.createElement("option");o.value=i;o.textContent=s.name;el.appendChild(o);}));
+  a.value=liveFrom;b.value=liveTo;   // start from the stations on the live board
+}
+function rideFillTrains(){
+  const f=+document.getElementById("rl-from").value,t=+document.getElementById("rl-to").value,sel=document.getElementById("rl-train");
+  if(f===t){sel.innerHTML="";rideMsg("Choose two different stations.",true);return;}
+  rideMsg("");
+  const S=dayTypeFor(0)==="weekday"?WD:WE,nm=new Date().getHours()*60+new Date().getMinutes();
+  const list=getTrains(STATIONS[f].pos,STATIONS[t].pos,S);
+  const gap=x=>{const d=Math.abs(x.depT%1440-nm);return Math.min(d,1440-d)};
+  let best=0;list.forEach((x,i)=>{if(gap(x)<gap(list[best]))best=i;});   // preselect the train nearest to now
+  sel.innerHTML=list.map((x,i)=>`<option value="${x.type}|${x.tr.dep}|${fmt(x.depT)}"${i===best?" selected":""}>${fmt(x.depT)} → ${fmt(x.arrT)} ${x.label}</option>`).join("");
+}
+function rideStart(){
+  if(activeTrip()){rideMsg("Finish the current trip first.",true);return;}
+  const f=+document.getElementById("rl-from").value,t=+document.getElementById("rl-to").value,v=document.getElementById("rl-train").value;
+  if(f===t||!v){rideMsg("Choose the stations and the train.",true);return;}
+  const p=v.split("|"),a=loadTrips(),b=document.getElementById("build-id");
+  a.push({id:"t"+Date.now(),v:2,build:b?b.textContent:"",data:DATA_UPDATED,day:todayLocal(),dayType:dayTypeFor(0),
+    from:f,to:t,type:p[0],trainDep:+p[1],sched:p[2],status:"active",startedAt:Date.now(),log:[]});
+  saveTrips(a);rideMsg("");renderRide();
+}
+
+function rideLog(entry){      // append one raw entry to the active trip
+  const a=loadTrips(),tr=a.find(x=>x.status==="active");if(!tr)return;
+  tr.log.push(Object.assign({t:Date.now()},entry));
+  saveTrips(a);renderRide();
+}
+function rideTap(k,s){rideLog({k,s})}
+function rideUndoAt(i){if(confirm("Clear this recorded time?"))rideLog({k:"void",ref:i})}
+function rideUndoLast(){
+  const tr=activeTrip();if(!tr)return;
+  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
+  for(let i=tr.log.length-1;i>=0;i--){if(tr.log[i].k!=="void"&&!voided.has(i)){rideLog({k:"void",ref:i});return;}}
+}
+function rideStop(){
+  const tr=activeTrip();if(!tr||rideState(tr).open)return;
+  rideLog({k:"stop",reason:document.getElementById("rl-reason").value,announced:document.getElementById("rl-ann").value.trim()});
+}
+function rideGo(){rideLog({k:"go"})}
+function rideNote(){
+  const el=document.getElementById("rl-note"),v=el.value.trim();if(!v)return;
+  el.value="";rideLog({k:"note",text:v});
+}
+function rideEnd(status){
+  if(!confirm(status==="done"?"Finish this trip?":"Cancel this trip? It stays in the log, marked as cancelled."))return;
+  const a=loadTrips(),tr=a.find(x=>x.status==="active");if(!tr)return;
+  tr.status=status;tr.endedAt=Date.now();saveTrips(a);renderRide();
+}
+// Build the readable table from the raw log. Voided entries are ignored.
+function rideState(tr){
+  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
+  const st={},ev=[],notes=[];let open=null,lastDep=null;
+  tr.log.forEach((e,i)=>{
+    if(e.k==="void"||voided.has(i))return;
+    if(e.k==="arr"||e.k==="dep"||e.k==="skip"){(st[e.s]=st[e.s]||{})[e.k]={t:e.t,i};if(e.k==="dep")lastDep=e.s;}
+    else if(e.k==="stop"&&!open){open={start:e.t,reason:e.reason,announced:e.announced,after:lastDep};ev.push(open);}
+    else if(e.k==="go"&&open){open.end=e.t;open=null;}
+    else if(e.k==="note")notes.push({t:e.t,text:e.text});
+  });
+  return{st,ev,notes,open,disrupted:ev.length>0};
+}
+function renderRide(){
+  const box=document.getElementById("rl-box");if(!box)return;
+  const n=loadTrips().filter(x=>x.status==="done").length;
+  document.getElementById("rl-count").textContent=n+" finished trip"+(n===1?"":"s")+" saved on this phone";
+  const tr=activeTrip();
+  document.getElementById("rl-setup").style.display=tr?"none":"block";
+  if(!tr){box.innerHTML="";return;}
+  const gv=id=>{const e=document.getElementById(id);return e?e.value:""};
+  const keep={note:gv("rl-note"),ann:gv("rl-ann"),reason:gv("rl-reason")};
+  const S=tr.dayType==="weekday"?WD:WE,sch=S[RIDE_KEY[tr.type]].find(x=>tr.trainDep!=null?x.dep===tr.trainDep:fmt(x.dep)===tr.sched);
+  const sx=rideState(tr);
+  const rows=rideOrder(tr).map(s=>{
+    const r=sx.st[s]||{},est=sch?timeAt(sch,tr.type,STATIONS[s].pos):null;
+    const cell=(k,label)=>r[k]
+      ?`<button class="rl-b done" onclick="rideUndoAt(${r[k].i})">${rideClock(r[k].t)}</button>`
+      :`<button class="rl-b" onclick="rideTap('${k}',${s})">${label}</button>`;
+    const d=r.arr&&est!=null?` <span class="rl-d">${fmtDelta(rideDelta(r.arr.t,est))}</span>`:"";
+    const buttons=r.skip
+      ?`<button class="rl-b done" onclick="rideUndoAt(${r.skip.i})">skipped</button>`
+      :cell("arr","Arrived")+cell("dep","Left")+`<button class="rl-x" onclick="rideTap('skip',${s})" title="The train does not stop here">✕</button>`;
+    return`<div class="rl-row${r.skip?" skip":""}"><div class="rl-st"><strong>${STATIONS[s].name}</strong><small>est ${est!=null?fmt(est):"–"}${d}</small></div>${buttons}</div>`;
+  }).join("");
+  const evs=sx.ev.map(e=>`<div class="rl-ev">Stop ${rideClock(e.start)}${e.end?" – "+rideClock(e.end)+" ("+Math.round((e.end-e.start)/1000)+" s)":" (still stopped)"} · ${esc(e.reason)}${e.announced?" · announced "+esc(e.announced)+" min":""}${e.after!=null?" · after "+STATIONS[e.after].name:""}</div>`).join("");
+  const notes=sx.notes.map(x=>`<div class="rl-ev">${rideClock(x.t)} · ${esc(x.text)}</div>`).join("");
+  box.innerHTML=`<div class="rl-head"><strong>${rideTitle(tr)} · ${tr.sched}</strong><span>${sx.disrupted?"DISRUPTED":"normal"}</span></div>${rows}
+    <div class="field" style="margin-top:12px"><label>UNSCHEDULED STOP</label>
+      <select id="rl-reason">${REASONS.map(r=>`<option>${r}</option>`).join("")}</select>
+      <input class="plan-input" id="rl-ann" style="margin-top:6px" placeholder="Announced wait in minutes, for example 10-15"/></div>
+    ${sx.open?`<button class="admin-save-btn" onclick="rideGo()">MOVING AGAIN</button>`:`<button class="admin-save-btn" onclick="rideStop()">STOPPED BETWEEN STATIONS</button>`}
+    ${evs}
+    <div class="field" style="margin-top:12px"><label>NOTE</label><textarea class="admin-textarea" id="rl-note" style="min-height:60px"></textarea></div>
+    <button class="chk-btn" onclick="rideNote()">Add note</button>${notes}
+    <div class="rl-actions"><button class="chk-btn" onclick="rideUndoLast()">Undo last</button><button class="chk-btn" onclick="rideEnd('cancelled')">Cancel trip</button><button class="admin-save-btn" style="flex:1" onclick="rideEnd('done')">FINISH TRIP</button></div>`;
+  document.getElementById("rl-note").value=keep.note;document.getElementById("rl-ann").value=keep.ann;
+  if(keep.reason)document.getElementById("rl-reason").value=keep.reason;
+}
+function rideExport(){
+  const txt=JSON.stringify(loadTrips(),null,1),ta=document.getElementById("rl-out");
+  ta.value=txt;ta.style.display="block";ta.focus();ta.select();
+  try{navigator.clipboard.writeText(txt).then(()=>rideMsg("Copied "+loadTrips().length+" trips.")).catch(()=>rideMsg("Select and copy the text above."));}
+  catch(e){rideMsg("Select and copy the text above.");}
 }
 
 // ── Service Worker (works on the GitHub Pages site, ignored elsewhere) ──
