@@ -191,8 +191,6 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .imp-sum{font-size:12px;color:var(--text-mid);margin:10px 0;line-height:1.6}
 .imp-actions{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .imp-code{width:100%;min-height:70px;font-family:monospace;font-size:11px;padding:8px;border:1.5px solid var(--border);border-radius:8px;margin-top:8px}
-
-.due-dot{position:absolute;top:8px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:#FFD54A;border:2px solid var(--brand-dark)}
 .chk-link-row{display:flex;gap:8px;margin-bottom:10px}
 .chk-link-btn{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;text-decoration:none;padding:13px;border-radius:10px;border:1.5px solid var(--brand);background:#fff;color:var(--brand);font-size:14px;font-weight:700;cursor:pointer}
 .chk-link-btn:active{background:var(--brand-light)}
@@ -1407,7 +1405,7 @@ function initLock(){
 // ══════════════════════════════════════════════════════════════════════
 
 // Storage keys
-var C3_SCHED_KEY   = 'c3_custom_schedule';
+
 var TRAM_SCHED_KEY = 'tram_custom_schedule';
 
 // Parse a blob of text into sorted array of {dep, arr} objects
@@ -1431,15 +1429,7 @@ function parseTimes(raw) {
   return mins;
 }
 
-// Convert parsed minutes back to mk() format [{dep, arr}]
-// duration = travel time in minutes for the full route
-function minsToSchedule(mins, duration) {
-  return mins.map(function(dep) {
-    var arr = dep + duration;
-    if (arr < dep) arr += 1440; // overnight
-    return { dep: dep, arr: arr };
-  });
-}
+
 
 function saveTramSchedule() {
   var status = document.getElementById('tram-status');
@@ -1601,7 +1591,6 @@ async function gateSubmit(){
   if(li.until&&now<li.until){gateErr("Too many tries. Wait "+Math.ceil((li.until-now)/1000)+" s.",true);return;}
   const rec=adminRec();
   const calc=await hashPw(rec.salt,pw,rec.it||0);
-  console.log("DEBUG typed length:",pw.length,"| expected starts:",rec.hash.slice(0,6),"| computed starts:",calc.slice(0,6));
   if(calc===rec.hash){
     try{localStorage.removeItem(ADMIN_LOCK_KEY)}catch(e){}
     closeGate();openAdmin();return;
@@ -1715,13 +1704,7 @@ function loadScript(src){
     document.head.appendChild(s);
   });
 }
-function waitFor(el,ev,ms){
-  return new Promise((res,rej)=>{
-    const h=()=>{clearTimeout(tm);el.removeEventListener(ev,h);res();};
-    const tm=setTimeout(()=>{el.removeEventListener(ev,h);rej(new Error("timeout "+ev));},ms||8000);
-    el.addEventListener(ev,h);
-  });
-}
+
 async function impWorker(){
   if(!window.Tesseract)await loadScript(OCR_CFG.lib);
   const opts={workerPath:OCR_CFG.worker,corePath:OCR_CFG.core,langPath:OCR_CFG.lang,gzip:true,logger:()=>{}};
