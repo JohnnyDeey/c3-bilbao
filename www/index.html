@@ -251,8 +251,8 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .mdot.hollow{background:#fff;border:2px solid var(--mc);box-shadow:none}
 .meet-tip{font-size:11px;color:var(--text-mid);min-height:14px;margin-top:2px}
 .live-row.rev .meet-tip{text-align:right}
-.live-row.rt{border-left:5px solid var(--rc);padding-left:10px}
-.live-row.rt.rev{border-left:0;padding-left:4px;border-right:5px solid var(--rc);padding-right:10px}
+.live-row.rt{border-left:5px solid var(--rc);border-right:5px solid transparent;padding-left:10px;padding-right:10px}
+.live-row.rt.rev{border-left-color:transparent;border-right-color:var(--rc)}
 .live-row.rt strong{color:var(--rc)}
 .live-row.rt .live-bar{background:color-mix(in srgb,var(--rc) 16%,#fff)}
 .live-row.rt .live-bar>i{background:var(--rc)}
@@ -948,7 +948,7 @@ function renderLive(){
         return `<div class="live-row rt${rev?" rev":""}" style="display:block;--rc:${routeColor(x.type)}">
     <div style="display:flex;justify-content:space-between;align-items:baseline${rev?";flex-direction:row-reverse":""}"><strong style="font-size:13px">${x.name}</strong><span class="live-row-in">arrives ${fmt(x.arr)}</span></div>
     <div style="font-size:12px;color:var(--text-mid);margin-top:2px${rev?";text-align:right":""}">≈ ${segLabel(x.pos)}</div>
-    <div class="live-bar-wrap"><div class="live-bar${rev?" rev":""}"><i style="width:${Math.round(x.f*100)}%"></i></div>${dots}</div>
+    <div class="live-bar-wrap"><div class="live-bar${rev?" rev":""}"><i style="width:${(x.f*100).toFixed(1)}%"></i></div>${dots}</div>
     <div class="meet-tip">${tip}</div></div>`;
       }).join("")
     :`<div class="live-empty">No trains on the line right now</div>`;
