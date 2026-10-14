@@ -519,6 +519,16 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     <div class="card" id="rl-card">
   <div class="card-title">RIDE LOG</div>
   <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Your own observations. Kept separate from the official timetable; they never change it.</div>
+  <div class="field" id="cl-box" style="margin-bottom:14px">
+  <label>CLOUD SYNC</label>
+  <div class="live-note" id="cl-status" style="margin:0 0 8px;font-size:12px">Not signed in. Your trips are only on this phone.</div>
+  <div id="cl-login">
+    <input class="plan-input" type="email" id="cl-email" placeholder="Firebase email" autocomplete="username"/>
+    <input class="plan-input" type="password" id="cl-pw" placeholder="Firebase password" autocomplete="current-password" style="margin-top:6px"/>
+    <button class="admin-save-btn" style="margin-top:6px" onclick="cloudSignIn()">SIGN IN TO CLOUD</button>
+  </div>
+  <button class="chk-btn" id="cl-out" style="display:none" onclick="cloudSignOut()">Sign out</button>
+</div>
   <div id="rl-setup">
   <div class="plan-row2">
     <div class="field"><label>FROM</label><select id="rl-from" onchange="rideFillTrains()"></select></div>
@@ -1722,7 +1732,7 @@ async function gateSubmit(){
 }
 function openAdmin(){
   document.getElementById("admin-ov").classList.add("on");
-  renderAdminInfo();renderCheck();bumpAdmin();rideFillStations();rideFillTrains();renderRide();
+  renderAdminInfo();renderCheck();bumpAdmin();rideFillStations();rideFillTrains();renderRide();cloudAuto();
 }
 function closeAdmin(){document.getElementById("admin-ov").classList.remove("on");clearTimeout(adminTimer);}
 function bumpAdmin(){clearTimeout(adminTimer);adminTimer=setTimeout(()=>{if(!activeTrip())closeAdmin()},5*60*1000);}
@@ -2014,7 +2024,7 @@ const RIDE_KEY={OA:"ordunaToAbando",AO:"abandoToOrduna",LA:"llodioToAbando",AL:"
 const REASONS=["Track problem","Signal problem","Waiting for another train","Train fault","Other"];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function loadTrips(){try{return JSON.parse(localStorage.getItem(TRIPS_KEY)||"[]")}catch(e){return[]}}
-function saveTrips(a){try{localStorage.setItem(TRIPS_KEY,JSON.stringify(a));return true}catch(e){return false}}
+function saveTrips(a){try{localStorage.setItem(TRIPS_KEY,JSON.stringify(a));setTimeout(cloudPush,0);return true}catch(e){return false}}
 function activeTrip(){return loadTrips().find(x=>x.status==="active")||null}
 function rideMsg(m,err){const e=document.getElementById("rl-msg");if(e){e.textContent=m;e.className="plan-msg"+(err?" err":"")}}
 function todayLocal(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -2141,6 +2151,81 @@ function rideExport(){
   ta.value=txt;ta.style.display="block";ta.focus();ta.select();
   try{navigator.clipboard.writeText(txt).then(()=>rideMsg("Copied "+loadTrips().length+" trips.")).catch(()=>rideMsg("Select and copy the text above."));}
   catch(e){rideMsg("Select and copy the text above.");}
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── CLOUD SYNC (Firebase): your ride log is also stored on a server ──
+// ══════════════════════════════════════════════════════════════════════
+const FB_CONFIG={
+  apiKey:"AIzaSyCDLqPM5GzcYrV7ro3dDPniYqeaZ37_mRI",
+  authDomain:"c3-bilbao-log.firebaseapp.com",
+  projectId:"c3-bilbao-log",
+  storageBucket:"c3-bilbao-log.firebasestorage.app",
+  messagingSenderId:"6080785197",
+  appId:"1:6080785197:web:e614d597b5e92952b001a4"
+};
+const FB_VER="10.12.2";
+let fb=null;   // the loaded Firebase modules and instances
+async function cloudLoad(){
+  if(fb)return fb;
+  const base="https://www.gstatic.com/firebasejs/"+FB_VER+"/";
+  const[A,Au,F]=await Promise.all([import(base+"firebase-app.js"),import(base+"firebase-auth.js"),import(base+"firebase-firestore.js")]);
+  const app=A.initializeApp(FB_CONFIG);
+  const auth=Au.getAuth(app);
+  const db=F.initializeFirestore(app,{localCache:F.persistentLocalCache()});   // keeps writes safe while offline
+  fb={A,Au,F,app,auth,db};
+  Au.onAuthStateChanged(auth,u=>{cloudState(u);if(u)cloudPush();});
+  return fb;
+}
+function cloudMsg(t,err){const e=document.getElementById("cl-status");if(e){e.textContent=t;e.style.color=err?"var(--brand)":"";}}
+function cloudState(u){
+  document.getElementById("cl-login").style.display=u?"none":"block";
+  document.getElementById("cl-out").style.display=u?"inline-flex":"none";
+  cloudStatus();
+}
+function cloudHash(t){const s=JSON.stringify(t);let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return s.length+":"+h}
+function cloudSeen(){try{return JSON.parse(localStorage.getItem("c3_cloud_seen")||"{}")}catch(e){return{}}}
+function cloudMark(id,h){const s=cloudSeen();s[id]=h;try{localStorage.setItem("c3_cloud_seen",JSON.stringify(s))}catch(e){}}
+function cloudStatus(){
+  const u=fb&&fb.auth.currentUser;
+  if(!u){cloudMsg("Not signed in. Your trips are only on this phone.",true);return}
+  const seen=cloudSeen(),n=loadTrips().filter(t=>seen[t.id]!==cloudHash(t)).length;
+  cloudMsg(n?"Signed in as "+u.email+" · "+n+" trip"+(n>1?"s":"")+" waiting to sync":"Signed in as "+u.email+" · all trips safe in the cloud");
+}
+// Send every trip that changed since it was last confirmed by the server
+function cloudPush(){
+  if(!fb||!fb.auth.currentUser)return;
+  const seen=cloudSeen();
+  loadTrips().forEach(t=>{
+    const h=cloudHash(t);if(seen[t.id]===h)return;
+    fb.F.setDoc(fb.F.doc(fb.db,"trips",t.id),t).then(()=>{cloudMark(t.id,h);cloudStatus();}).catch(()=>{});
+  });
+  cloudStatus();
+}
+async function cloudSignIn(){
+  const e=document.getElementById("cl-email").value.trim(),p=document.getElementById("cl-pw").value;
+  if(!e||!p){cloudMsg("Enter the email and password.",true);return}
+  cloudMsg("Signing in…");
+  try{
+    const f=await cloudLoad();
+    await f.Au.signInWithEmailAndPassword(f.auth,e,p);
+    document.getElementById("cl-pw").value="";
+    try{localStorage.setItem("c3_cloud_on","1")}catch(x){}
+  }catch(err){
+    const c=err&&err.code||"";
+    cloudMsg(c==="auth/invalid-credential"||c==="auth/wrong-password"||c==="auth/user-not-found"?"Wrong email or password."
+      :c==="auth/network-request-failed"?"No connection. Try again with a signal."
+      :c==="auth/unauthorized-domain"?"This address is not authorised in Firebase (Authentication, Settings, Authorized domains)."
+      :"Could not sign in: "+(c||err.message),true);
+  }
+}
+async function cloudSignOut(){
+  try{if(fb)await fb.Au.signOut(fb.auth);}catch(e){}
+  try{localStorage.removeItem("c3_cloud_on")}catch(e){}
+}
+function cloudAuto(){   // restore the sign-in when the admin panel opens
+  if(localStorage.getItem("c3_cloud_on")==="1")cloudLoad().catch(()=>cloudMsg("Cloud not reachable. Trips stay on this phone and sync later.",true));
+  else cloudStatus();
 }
 
 // ── Service Worker (works on the GitHub Pages site, ignored elsewhere) ──
