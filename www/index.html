@@ -233,6 +233,10 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 #panel-tram .live-bar{background:var(--tram-light)}
 #panel-tram .live-bar>i{background:var(--tram)}
 .live-bar.rev>i{margin-left:auto}
+.live-row.rt .live-bar{position:relative}
+.live-row.rt .live-bar::after{content:"";position:absolute;top:0;bottom:0;left:37.6%;width:2px;background:rgba(0,0,0,.35)}
+.live-row.ll .live-bar::after{display:none}
+.ll-line{position:absolute;top:0;bottom:0;width:5px;background:var(--rc)}
 .live-bar-wrap{position:relative;padding:6px 0;margin-top:4px}
 .live-bar-wrap .live-bar{margin-top:0}
 .mdot{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--mc);border:2px solid #fff;box-shadow:0 0 0 1px var(--mc);box-sizing:border-box;cursor:pointer;z-index:2}
@@ -356,6 +360,10 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 .rl-row.skip .rl-st{opacity:.5}
 .rl-ev{font-size:12px;margin:6px 0;color:var(--text-mid)}
 .rl-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+@keyframes mdotblink{0%,100%{opacity:1}50%{opacity:.25}}
+.mdot.live{animation:mdotblink 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.mdot.live{animation:none}}
 </style>
 </head>
 <body>
@@ -1475,6 +1483,31 @@ function unlockApp(instant){
 
 function initLock(){
   const stored=localStorage.getItem(PIN_KEY);
+  // Llodio trains: draw their bar on the real line (Llodio at 37.6%) and move their dots to the real position.
+// Runs after every redraw of the live list and only touches the Llodio rows.
+(function(){
+  const box=document.getElementById("live-transit");if(!box)return;
+  function patch(){
+    box.querySelectorAll(".live-row").forEach(row=>{
+      if(row.dataset.ll)return;                                 // already adjusted
+      const s=row.querySelector("strong"),bar=row.querySelector(".live-bar>i");
+      if(!s||!bar)return;
+      const name=s.textContent.trim();
+      if(!name.startsWith("Llodio"))return;
+      row.dataset.ll="1";
+      const P=P_LL,toward=name.includes("→");                   // Llodio → Abando starts at Llodio; Llodio ← Abando ends at Llodio
+      const f=parseFloat(bar.style.width)/100;
+      bar.style.width=(f*(1-P)*100).toFixed(1)+"%";
+      bar.style.marginLeft=toward?(P*100).toFixed(1)+"%":"";
+      row.querySelectorAll(".mdot").forEach(d=>{
+        const l=parseFloat(d.style.left)/100;
+        d.style.left=((toward?P+(1-P)*l:1-(1-P)*(1-l))*100).toFixed(1)+"%";
+      });
+    });
+  }
+  new MutationObserver(patch).observe(box,{childList:true});   // fires after each redraw, before it is painted
+  patch();
+})();
   if(stored==="NONE"){unlockApp(true);return;}
   if(!stored){startSetup();return;}
   let open=false;
@@ -2168,6 +2201,52 @@ try{
 
 unlockApp(true);
 </script>
-
+<script>
+// Llodio trains: the bar exists only from Llodio (37.6%) to Abando.
+// Llodio → Abando starts at Llodio, so its coloured side line is moved there.
+(function(){
+  const box=document.getElementById("live-transit");if(!box)return;
+  const P=0.376;
+  function patch(){
+    box.querySelectorAll(".live-row").forEach(row=>{
+      if(row.dataset.ll)return;
+      const s=row.querySelector("strong"),wrap=row.querySelector(".live-bar-wrap");
+      if(!s||!wrap||!s.textContent.trim().startsWith("Llodio"))return;
+      row.dataset.ll="1";row.classList.add("ll");
+      wrap.style.marginLeft=(P*100).toFixed(1)+"%";      // the bar starts where Llodio is
+      wrap.style.width=((1-P)*100).toFixed(1)+"%";       // and ends at Abando
+      if(s.textContent.includes("→")){                   // Llodio → Abando: the line moves to the start of its bar
+        row.style.position="relative";
+        row.style.borderLeftColor="transparent";         // hide the line at the far left
+        const line=document.createElement("b");
+        line.className="ll-line";
+        line.style.left=(wrap.offsetLeft-2)+"px";        // exactly where the bar starts
+        row.appendChild(line);
+      }
+    });
+  }
+  new MutationObserver(patch).observe(box,{childList:true});
+  patch();
+})();
+</script>
+<script>
+// Blinking meeting dots: a dot blinks while the OTHER train of that meeting is still on its trip.
+(function(){
+  const box=document.getElementById("live-transit");if(!box)return;
+  function patch(){
+    if(typeof trainsInTransit!=="function")return;
+    const running=trainsInTransit(nowSecs()).map(t=>t.type+"|"+t.dep);
+    const delay="-"+((Date.now()%2400)/1000).toFixed(2)+"s";     // keeps the blink in step across redraws
+    box.querySelectorAll(".mdot").forEach(d=>{
+      const m=/pickMeet\('[^#]*#([^']*)'/.exec(d.getAttribute("onclick")||"");   // the part after # names the other train
+      if(!m)return;
+      const other=m[1],type=other.slice(0,2),dep=parseFloat(other.slice(2));
+      if(running.includes(type+"|"+dep)){d.classList.add("live");d.style.animationDelay=delay;}
+    });
+  }
+  new MutationObserver(patch).observe(box,{childList:true});
+  patch();
+})();
+</script>
 </body>
 </html>
