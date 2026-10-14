@@ -933,7 +933,7 @@ function renderLive(){
     ?`<div class="rt-legend">${ROUTE_LIST.filter(r=>types.includes(r.type)).map(r=>`<span style="--rc:${routeColor(r.type)}"><i></i>${r.label}</span>`).join("")}</div>`
       +tr.map(x=>{
         const rev=x.type==="AO"||x.type==="AL";   // heading away from Abando: right to left
-                let ms=[];try{ms=meetingsFor(x)}catch(e){}
+                let ms=[];try{ms=meetingsFor(x).filter(m=>m.t<=x.nm)}catch(e){}   // only meetings that have already happened
         const sel=ms.find(m=>m.key===meetSel);
         const dots=ms.map(m=>`<b class="mdot${m.t<=x.nm?"":" hollow"}" style="left:${((rev?1-m.f:m.f)*100).toFixed(1)}%;--mc:${routeColor(m.type)}" title="${fmt(m.t)} · ${segLabel(m.p)} · ${m.label}" onclick="pickMeet('${m.key}')"></b>`).join("");
         const tip=sel?`${sel.t<=x.nm?"Met":"Meets"} ${sel.label} at ${fmt(sel.t)} · ${segLabel(sel.p)}`:"";
