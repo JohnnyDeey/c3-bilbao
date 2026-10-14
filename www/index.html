@@ -322,6 +322,11 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .live-empty{font-size:13px;color:var(--text-dim);padding:10px 0;text-align:center}
 
 /* ── ADMIN PANEL ── */
+.adm-tabs{display:flex;gap:6px;padding:0 16px 10px}
+.adm-tab{flex:1;padding:10px 6px;border-radius:9px;border:1.5px solid var(--brand);background:#fff;color:var(--brand);font-size:12px;font-weight:800;letter-spacing:.08em;font-family:inherit}
+.adm-tab.on{background:var(--brand);color:#fff}
+.adm-pane{display:none;flex-direction:column;gap:12px}
+.adm-pane.on{display:flex}
 .admin-section{margin-bottom:20px;border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
 .admin-section-hdr{padding:12px 14px;font-size:11px;font-weight:700;letter-spacing:.14em;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
 .admin-section-hdr.red{background:var(--brand-light);color:var(--brand)}
@@ -361,6 +366,10 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 .rl-ev{font-size:12px;margin:6px 0;color:var(--text-mid)}
 .rl-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 
+.an-t{margin-top:4px}
+.an-h,.an-r{display:grid;grid-template-columns:2.2fr .6fr 1fr 1fr 1fr;gap:4px;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border)}
+.an-h{font-weight:800;color:var(--brand);font-size:10px;letter-spacing:.06em}
+.an-r span:not(:first-child),.an-h span:not(:first-child){text-align:right}
 @keyframes mdotblink{0%,100%{opacity:1}50%{opacity:.25}}
 .mdot.live{animation:mdotblink 2.4s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.mdot.live{animation:none}}
@@ -494,6 +503,12 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 </main>
 
   <!-- ═══ TAB 3: ADMIN / SCHEDULE UPDATE ═══ -->
+<div class="gate-ov" id="ask-ov" style="z-index:960">
+  <div class="gate-box">
+    <p id="ask-text" style="font-size:14px;color:var(--text);margin:0 0 14px"></p>
+    <div class="gate-row"><button id="ask-cancel">Cancel</button><button class="primary" id="ask-ok">OK</button></div>
+  </div>
+</div>
 
 <div class="gate-ov" id="gate-ov">
   <div class="gate-box" id="gate-box">
@@ -509,174 +524,97 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 <div class="plan-ov" id="admin-ov">
   <div class="plan-sheet">
     <div class="plan-hdr"><h2>Admin</h2><button class="plan-x" onclick="closeAdmin()" aria-label="Close">✕</button></div>
-    <div class="plan-inner" style="display:flex;flex-direction:column;gap:12px">
-
-    <div class="card">
-      <div class="card-title">DATA &amp; APP</div>
-      <div class="live-note" style="margin:0;font-size:12px;line-height:1.7" id="adm-info"></div>
+    <div class="adm-tabs">
+      <button class="adm-tab on" id="adm-tab-ride" onclick="admTab('ride')">RIDE</button>
+      <button class="adm-tab" id="adm-tab-data" onclick="admTab('data')">DATA</button>
+      <button class="adm-tab" id="adm-tab-analysis" onclick="admTab('analysis')">ANALYSIS</button>
+      <button class="adm-tab" id="adm-tab-tools" onclick="admTab('tools')">TOOLS</button>
     </div>
+    <div class="plan-inner">
 
-    <div class="card" id="rl-card">
-  <div class="card-title">RIDE LOG</div>
-  <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Your own observations. Kept separate from the official timetable; they never change it.</div>
-  <div class="field" id="cl-box" style="margin-bottom:14px">
-  <label>CLOUD SYNC</label>
-  <div class="live-note" id="cl-status" style="margin:0 0 8px;font-size:12px">Not signed in. Your trips are only on this phone.</div>
-  <div id="cl-login">
-    <input class="plan-input" type="email" id="cl-email" placeholder="Firebase email" autocomplete="username"/>
-    <input class="plan-input" type="password" id="cl-pw" placeholder="Firebase password" autocomplete="current-password" style="margin-top:6px"/>
-    <button class="admin-save-btn" style="margin-top:6px" onclick="cloudSignIn()">SIGN IN TO CLOUD</button>
-  </div>
-  <button class="chk-btn" id="cl-out" style="display:none" onclick="cloudSignOut()">Sign out</button>
+      <!-- ── RIDE ── -->
+      <div class="adm-pane on" id="adm-pane-ride">
+        <div class="card" id="rl-card">
+          <div class="card-title">RIDE LOG</div>
+          <div class="live-note" id="cl-status" style="margin:0 0 8px;font-size:12px">Not signed in. Your trips are only on this phone.</div>
+          <div id="cl-login" style="margin-bottom:12px">
+            <input class="plan-input" type="email" id="cl-email" placeholder="Firebase email" autocomplete="username"/>
+            <input class="plan-input" type="password" id="cl-pw" placeholder="Firebase password" autocomplete="current-password" style="margin-top:6px"/>
+            <button class="admin-save-btn" style="margin-top:6px" onclick="cloudSignIn()">SIGN IN TO CLOUD</button>
+          </div>
+          <div id="rl-setup">
+            <div class="plan-row2">
+              <div class="field"><label>FROM</label><select id="rl-from" onchange="rideFillTrains()"></select></div>
+              <div class="field"><label>TO</label><select id="rl-to" onchange="rideFillTrains()"></select></div>
+            </div>
+            <div style="text-align:center;margin:-2px 0 10px"><button class="swap-btn" onclick="rideSwap()" aria-label="Swap from and to" style="display:inline-flex">⇄</button></div>
+            <div class="field"><label>TRAIN (DEPARTS FROM YOUR STATION)</label><select id="rl-train"></select></div>
+            <button class="admin-save-btn" onclick="rideStart()">START TRIP (I'M ON BOARD)</button>
+          </div>
+          <div id="rl-box"></div>
+          <div class="plan-msg" id="rl-msg"></div>
+          <div class="live-note" id="rl-count" style="font-size:12px"></div>
+        </div>
+      </div>
+
+      <!-- ── DATA ── -->
+      <div class="adm-pane" id="adm-pane-data">
+       
+        <div class="card" id="imp-card">
+          <div class="card-title">IMPORT FROM SCREENSHOTS</div>
+          <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Take screenshots of one route while you scroll. Don't leave cards cut in half. Pick all of them at once. The app reads the times, compares them with the current data and lets you confirm each train.</div>
+          <div class="plan-row2">
+            <div class="field"><label>ROUTE</label>
+              <select id="imp-route" onchange="impRouteChange()">
+                <option value="ordunaToAbando">Orduña → Abando</option>
+                <option value="abandoToOrduna">Abando → Orduña</option>
+                <option value="llodioToAbando">Llodio → Abando</option>
+                <option value="abandoToLlodio">Abando → Llodio</option>
+              </select></div>
+            <div class="field"><label>DAY</label>
+              <select id="imp-day"><option value="WD">Mon–Fri</option><option value="WE">Sat–Sun</option></select></div>
+          </div>
+          <div class="field"><label>SCREENSHOTS</label><input class="plan-input" type="file" id="imp-file" accept="image/*" multiple/></div>
+          <div class="plan-row2">
+            <div class="field"><label>JOURNEY MIN (MINUTES)</label><input class="plan-input" type="number" id="imp-min" value="58" inputmode="numeric"/></div>
+            <div class="field"><label>JOURNEY MAX (MINUTES)</label><input class="plan-input" type="number" id="imp-max" value="68" inputmode="numeric"/></div>
+          </div>
+          <div class="field"><label>IGNORE TIMES SEEN IN FEWER SCREENSHOTS THAN</label><input class="plan-input" type="number" id="imp-minseen" value="1" inputmode="numeric"/></div>
+          <div style="display:flex;gap:8px">
+            <button class="admin-save-btn" id="imp-start" onclick="impRun()" style="flex:1">READ THE SCREENSHOTS</button>
+            <button class="admin-save-btn" id="imp-stop" onclick="impCancel=true" style="flex:0 0 90px;background:#fff;color:var(--brand);border:1.5px solid var(--brand);display:none">Stop</button>
+          </div>
+          <div class="imp-progress" id="imp-prog"><i id="imp-bar"></i></div>
+          <div class="plan-msg" id="imp-status"></div>
+          <div id="imp-results"></div>
+        </div>
+      </div>
+
+      <!-- ── TOOLS ── -->
+       <div class="adm-pane" id="adm-pane-analysis">
+  <div class="card"><div class="card-title">OVERVIEW</div><div id="an-over"></div></div>
+  <div class="card"><div class="card-title">MEETING ACCURACY</div><div id="an-box"></div></div>
+  <div class="card"><div class="card-title">STATIONS (NORMAL TRIPS)</div><div id="an-st"></div></div>
+  <div class="card"><div class="card-title">UNSCHEDULED STOPS</div><div id="an-ev"></div></div>
 </div>
-  <div id="rl-setup">
-  <div class="plan-row2">
-    <div class="field"><label>FROM</label><select id="rl-from" onchange="rideFillTrains()"></select></div>
-    <div class="field"><label>TO</label><select id="rl-to" onchange="rideFillTrains()"></select></div>
-  </div>
-  <div class="field"><label>TRAIN (DEPARTS FROM YOUR STATION)</label><select id="rl-train"></select></div>
-  <button class="admin-save-btn" onclick="rideStart()">START TRIP (I'M ON BOARD)</button>
-</div>
-  <div id="rl-box"></div>
-  <div class="plan-msg" id="rl-msg"></div>
-  <div class="live-note" id="rl-count" style="font-size:12px"></div>
-  <button class="chk-btn" style="width:100%;justify-content:center" onclick="rideExport()">Export all trips (JSON)</button>
-  <textarea class="imp-code" id="rl-out" readonly style="display:none"></textarea>
-</div>
-
-    <div class="card" id="imp-card">
-      <div class="card-title">IMPORT FROM SCREENSHOTS</div>
-      <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Take screenshots of one route while you scroll. Don't leave cards cut in half. Pick all of them at once. The app reads the times, compares them with the current data and lets you confirm each train.</div>
-      <div class="plan-row2">
-        <div class="field"><label>ROUTE</label>
-          <select id="imp-route" onchange="impRouteChange()">
-            <option value="ordunaToAbando">Orduña → Abando</option>
-            <option value="abandoToOrduna">Abando → Orduña</option>
-            <option value="llodioToAbando">Llodio → Abando</option>
-            <option value="abandoToLlodio">Abando → Llodio</option>
-          </select></div>
-        <div class="field"><label>DAY</label>
-          <select id="imp-day"><option value="WD">Mon–Fri</option><option value="WE">Sat–Sun</option></select></div>
-      </div>
-      <div class="field"><label>SCREENSHOTS</label><input class="plan-input" type="file" id="imp-file" accept="image/*" multiple/></div>
-      <div class="plan-row2">
-        <div class="field"><label>JOURNEY MIN (MINUTES)</label><input class="plan-input" type="number" id="imp-min" value="58" inputmode="numeric"/></div>
-        <div class="field"><label>JOURNEY MAX (MINUTES)</label><input class="plan-input" type="number" id="imp-max" value="68" inputmode="numeric"/></div>
-      </div>
-      <div class="field"><label>IGNORE TIMES SEEN IN FEWER SCREENSHOTS THAN</label><input class="plan-input" type="number" id="imp-minseen" value="1" inputmode="numeric"/></div>
-      <div style="display:flex;gap:8px">
-        <button class="admin-save-btn" id="imp-start" onclick="impRun()" style="flex:1">READ THE SCREENSHOTS</button>
-        <button class="admin-save-btn" id="imp-stop" onclick="impCancel=true" style="flex:0 0 90px;background:#fff;color:var(--brand);border:1.5px solid var(--brand);display:none">Stop</button>
-      </div>
-      <div class="imp-progress" id="imp-prog"><i id="imp-bar"></i></div>
-      <div class="plan-msg" id="imp-status"></div>
-      <div id="imp-results"></div>
-    </div>
-
-<div class="card" id="chk-card">
-      <div class="card-title">TIMETABLE CHECK</div>
-      <div class="chk-status" id="chk-status"></div>
-      <div class="chk-link-row">
-        <a class="chk-link-btn" id="chk-open-train" target="_blank" rel="noopener" onclick="return openSource('train',event)">Open train timetable</a>
-        <button class="chk-edit-btn" onclick="toggleEdit('train')" aria-label="Edit train link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-      </div>
-      <div class="chk-edit-box" id="chk-edit-train" hidden>
-        <input class="plan-input" type="url" id="chk-train-url" placeholder="Paste the train timetable link" onchange="saveCheckCfg()"/>
-        <button class="chk-btn primary" onclick="toggleEdit('train')">Save</button>
-      </div>
-      <div class="chk-link-row">
-        <a class="chk-link-btn" id="chk-open-tram" target="_blank" rel="noopener" onclick="return openSource('tram',event)">Open tram timetable</a>
-        <button class="chk-edit-btn" onclick="toggleEdit('tram')" aria-label="Edit tram link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-      </div>
-      <div class="chk-edit-box" id="chk-edit-tram" hidden>
-        <input class="plan-input" type="url" id="chk-tram-url" placeholder="Paste the tram timetable link" onchange="saveCheckCfg()"/>
-        <button class="chk-btn primary" onclick="toggleEdit('tram')">Save</button>
-      </div>
-            <div class="chk-grid">
-        <div class="field" style="margin:0"><label>REMIND ME</label>
-          <select id="chk-interval" onchange="saveCheckCfg()"><option value="0">Off</option><option value="7">Weekly</option><option value="14">2 weeks</option><option value="30">Monthly</option></select></div>
-        <div class="field" style="margin:0"><label>AT</label>
-          <input class="plan-input" type="time" id="chk-time" value="09:00" onchange="saveCheckCfg()"/></div>
-        <button class="chk-btn primary" onclick="markChecked()">✓ Checked</button>
-        <button class="chk-btn" id="refresh-btn" onclick="refreshApp()">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:8px"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Refresh app</button>
-      </div>
-      <div class="plan-msg" id="chk-msg"></div>
-    </div>
-
-
-    
-<div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--brand);margin:6px 0 -4px">TRAM TIMETABLE</div>
-    <!-- ── TRAMVÍA ── -->
-    <div class="admin-section">
-      <div class="admin-section-hdr blue" onclick="toggleAdminSection(this)">
-        🚃 BILBAO TRAM — Departure times <span id="tram-custom-badge"></span>
-        <span style="margin-left:auto;font-size:16px">▾</span>
-      </div>
-      <div class="admin-section-body">
-
-        <div style="font-size:11px;color:var(--text-mid);background:#f0f7ff;border:1px solid var(--tram-mid);border-radius:7px;padding:10px 12px;margin-bottom:14px;line-height:1.7">
-          <strong>📋 HOW TO PASTE:</strong><br>
-          Each box is for <strong>one direction + one day type</strong>.<br>
-          Paste <strong>departure times from the terminus only</strong> — one per line or space separated.<br>
-          <strong>La Casilla → Bolueta:</strong> paste times from La Casilla.<br>
-          <strong>Bolueta → La Casilla:</strong> paste times from Bolueta.<br><br>
-          <strong>⚠️ Do NOT mix frequencies or intervals</strong> — paste actual listed times only.<br>
-          The app calculates arrival times at each stop automatically using fixed offsets.
+      <div class="adm-pane" id="adm-pane-tools">
+        <div class="card">
+          <div class="card-title">DATA &amp; APP</div>
+          <div class="live-note" style="margin:0;font-size:12px;line-height:1.7" id="adm-info"></div>
         </div>
-
-        <!-- La Casilla → Bolueta -->
-        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--tram);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--tram-mid)">LA CASILLA → BOLUETA</div>
-
-        <div class="admin-field">
-          <label class="admin-label">Weekday (Mon–Fri) · Departures from La Casilla</label>
-          <div class="admin-hint blue">Example: 06:26 06:41 06:56 07:11 07:23...</div>
-          <textarea class="admin-textarea blue" id="tram-lcb-wd" placeholder="Paste La Casilla→Bolueta weekday times..."></textarea>
+        <div class="card">
+          <div class="card-title">APP</div>
+          <button class="chk-btn" id="refresh-btn" style="width:100%;justify-content:center" onclick="try{sessionStorage.setItem('c3_reopen',Date.now())}catch(e){}refreshApp()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:8px"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+            Refresh app
+          </button>
+          <div class="plan-msg" id="chk-msg"></div>
         </div>
-        <div class="admin-field">
-          <label class="admin-label">Saturday · Departures from La Casilla</label>
-          <textarea class="admin-textarea blue" id="tram-lcb-sat" placeholder="Paste La Casilla→Bolueta Saturday times..."></textarea>
+        <div class="card">
+          <div class="card-title">CLOUD</div>
+          <button class="chk-btn" id="cl-out" style="display:none;width:100%;justify-content:center" onclick="cloudSignOut()">Sign out of the cloud</button>
         </div>
-        <div class="admin-field">
-          <label class="admin-label">Sunday/Holiday · Departures from La Casilla</label>
-          <textarea class="admin-textarea blue" id="tram-lcb-sun" placeholder="Paste La Casilla→Bolueta Sunday/Holiday times..."></textarea>
-        </div>
-
-        <!-- Bolueta → La Casilla -->
-        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--tram);margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--tram-mid)">BOLUETA → LA CASILLA</div>
-
-        <div class="admin-field">
-          <label class="admin-label">Weekday (Mon–Fri) · Departures from Bolueta</label>
-          <div class="admin-hint blue">Example: 06:22 06:37 06:52 07:07 07:22...</div>
-          <textarea class="admin-textarea blue" id="tram-blc-wd" placeholder="Paste Bolueta→La Casilla weekday times..."></textarea>
-        </div>
-        <div class="admin-field">
-          <label class="admin-label">Saturday · Departures from Bolueta</label>
-          <textarea class="admin-textarea blue" id="tram-blc-sat" placeholder="Paste Bolueta→La Casilla Saturday times..."></textarea>
-        </div>
-        <div class="admin-field">
-          <label class="admin-label">Sunday/Holiday · Departures from Bolueta</label>
-          <textarea class="admin-textarea blue" id="tram-blc-sun" placeholder="Paste Bolueta→La Casilla Sunday/Holiday times..."></textarea>
-        </div>
-
-        <button class="admin-save-btn blue" onclick="saveTramSchedule()">✓ SAVE TRAM SCHEDULE</button>
-        <div class="admin-status" id="tram-status"></div>
-
-        <div class="admin-reset-row">
-          <button class="admin-reset-btn" onclick="resetTramSchedule()">↩ Reset to built-in schedule</button>
-          <button class="admin-reset-btn" onclick="loadTramIntoAdmin()">📋 Load current into fields</button>
-        </div>
-
       </div>
-    </div>
-    <div class="card">
-      <div class="card-title">ADMIN PASSWORD</div>
-      <div class="field"><label>NEW PASSWORD</label><input class="plan-input" type="password" id="pw-new" autocomplete="off"/></div>
-      <div class="field"><label>REPEAT</label><input class="plan-input" type="password" id="pw-new2" autocomplete="off"/></div>
-      <button class="admin-save-btn" onclick="changeAdminPw()">CHANGE PASSWORD</button>
-      <div class="plan-msg" id="pw-msg"></div>
-      <div class="live-note">The password only exists on this phone. If you forget it, clear the app's storage in Android settings; that also removes your saved data on this phone.</div>
-    </div>
 
     </div>
   </div>
@@ -1519,6 +1457,10 @@ function initLock(){
   patch();
 })();
   if(stored==="NONE"){unlockApp(true);return;}
+  try{
+  const t=+sessionStorage.getItem("c3_reopen");sessionStorage.removeItem("c3_reopen");
+  if(t&&Date.now()-t<30000)setTimeout(openAdmin,300);   // came back from Refresh inside the admin panel: reopen it
+}catch(e){}
   if(!stored){startSetup();return;}
   let open=false;
   try{open=sessionStorage.getItem("c3_unlocked")==="1"}catch(e){}
@@ -1732,7 +1674,15 @@ async function gateSubmit(){
 }
 function openAdmin(){
   document.getElementById("admin-ov").classList.add("on");
-  renderAdminInfo();renderCheck();bumpAdmin();rideFillStations();rideFillTrains();renderRide();cloudAuto();
+  renderAdminInfo();renderCheck();bumpAdmin();rideFillStations();rideFillTrains();renderRide();cloudAuto();admTab((function(){try{return sessionStorage.getItem("c3_adm_tab")}catch(e){return null}})()||"ride");
+}
+function admTab(n){
+  ["ride","data","analysis","tools"].forEach(k=>{
+    document.getElementById("adm-pane-"+k).classList.toggle("on",k===n);
+    document.getElementById("adm-tab-"+k).classList.toggle("on",k===n);
+  });
+  try{sessionStorage.setItem("c3_adm_tab",n)}catch(e){}
+  if(n==="analysis"){renderAnalysis();anRefresh();}
 }
 function closeAdmin(){document.getElementById("admin-ov").classList.remove("on");clearTimeout(adminTimer);}
 function bumpAdmin(){clearTimeout(adminTimer);adminTimer=setTimeout(()=>{if(!activeTrip())closeAdmin()},5*60*1000);}
@@ -2070,18 +2020,27 @@ function rideStart(){
     from:f,to:t,type:p[0],trainDep:+p[1],sched:p[2],status:"active",startedAt:Date.now(),log:[]});
   saveTrips(a);rideMsg("");renderRide();
 }
+// An in-app question box (instead of the browser's confirm pop-up)
+function askConfirm(msg,okLabel,onOk){
+  const ov=document.getElementById("ask-ov");
+  document.getElementById("ask-text").textContent=msg;
+  const ok=document.getElementById("ask-ok");ok.textContent=okLabel||"OK";
+  ok.onclick=()=>{ov.classList.remove("on");onOk()};
+  document.getElementById("ask-cancel").onclick=()=>ov.classList.remove("on");
+  ov.classList.add("on");
+}
 
 function rideLog(entry){      // append one raw entry to the active trip
   const a=loadTrips(),tr=a.find(x=>x.status==="active");if(!tr)return;
   tr.log.push(Object.assign({t:Date.now()},entry));
   saveTrips(a);renderRide();
 }
-function rideTap(k,s){rideLog({k,s})}
-function rideUndoAt(i){if(confirm("Clear this recorded time?"))rideLog({k:"void",ref:i})}
-function rideUndoLast(){
-  const tr=activeTrip();if(!tr)return;
-  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
-  for(let i=tr.log.length-1;i>=0;i--){if(tr.log[i].k!=="void"&&!voided.has(i)){rideLog({k:"void",ref:i});return;}}
+function rideUndoAt(i){askConfirm("Clear this recorded time?","Clear",()=>rideLog({k:"void",ref:i}))}
+function rideEnd(status){
+  askConfirm(status==="done"?"Finish this trip?":"Cancel this trip? It stays in the log, marked as cancelled.",status==="done"?"Finish":"Cancel trip",()=>{
+    const a=loadTrips(),tr=a.find(x=>x.status==="active");if(!tr)return;
+    tr.status=status;tr.endedAt=Date.now();saveTrips(a);renderRide();
+  });
 }
 function rideStop(){
   const tr=activeTrip();if(!tr||rideState(tr).open)return;
@@ -2100,15 +2059,16 @@ function rideEnd(status){
 // Build the readable table from the raw log. Voided entries are ignored.
 function rideState(tr){
   const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
-  const st={},ev=[],notes=[];let open=null,lastDep=null;
+  const st={},ev=[],notes=[],meets=[];let open=null,lastDep=null;
   tr.log.forEach((e,i)=>{
     if(e.k==="void"||voided.has(i))return;
     if(e.k==="arr"||e.k==="dep"||e.k==="skip"){(st[e.s]=st[e.s]||{})[e.k]={t:e.t,i};if(e.k==="dep")lastDep=e.s;}
     else if(e.k==="stop"&&!open){open={start:e.t,reason:e.reason,announced:e.announced,after:lastDep};ev.push(open);}
     else if(e.k==="go"&&open){open.end=e.t;open=null;}
     else if(e.k==="note")notes.push({t:e.t,text:e.text});
+    else if(e.k==="meet")meets.push(e);
   });
-  return{st,ev,notes,open,disrupted:ev.length>0};
+  return{st,ev,notes,meets,open,disrupted:ev.length>0};
 }
 function renderRide(){
   const box=document.getElementById("rl-box");if(!box)return;
@@ -2132,6 +2092,7 @@ function renderRide(){
       :cell("arr","Arrived")+cell("dep","Left")+`<button class="rl-x" onclick="rideTap('skip',${s})" title="The train does not stop here">✕</button>`;
     return`<div class="rl-row${r.skip?" skip":""}"><div class="rl-st"><strong>${STATIONS[s].name}</strong><small>est ${est!=null?fmt(est):"–"}${d}</small></div>${buttons}</div>`;
   }).join("");
+    const mets=sx.meets.map(e=>`<div class="rl-ev">Met ${rideClock(e.t)} · ${e.key?esc(e.label)+" · predicted "+fmt(e.pred)+" near "+esc(e.place)+" · "+fmtDelta(e.delta)+" min":"no matching train expected"}</div>`).join("");
   const evs=sx.ev.map(e=>`<div class="rl-ev">Stop ${rideClock(e.start)}${e.end?" – "+rideClock(e.end)+" ("+Math.round((e.end-e.start)/1000)+" s)":" (still stopped)"} · ${esc(e.reason)}${e.announced?" · announced "+esc(e.announced)+" min":""}${e.after!=null?" · after "+STATIONS[e.after].name:""}</div>`).join("");
   const notes=sx.notes.map(x=>`<div class="rl-ev">${rideClock(x.t)} · ${esc(x.text)}</div>`).join("");
   box.innerHTML=`<div class="rl-head"><strong>${rideTitle(tr)} · ${tr.sched}</strong><span>${sx.disrupted?"DISRUPTED":"normal"}</span></div>${rows}
@@ -2139,6 +2100,8 @@ function renderRide(){
       <select id="rl-reason">${REASONS.map(r=>`<option>${r}</option>`).join("")}</select>
       <input class="plan-input" id="rl-ann" style="margin-top:6px" placeholder="Announced wait in minutes, for example 10-15"/></div>
     ${sx.open?`<button class="admin-save-btn" onclick="rideGo()">MOVING AGAIN</button>`:`<button class="admin-save-btn" onclick="rideStop()">STOPPED BETWEEN STATIONS</button>`}
+        <button class="admin-save-btn" style="margin-top:8px" onclick="rideMet()">MET A TRAIN</button>
+    ${mets}
     ${evs}
     <div class="field" style="margin-top:12px"><label>NOTE</label><textarea class="admin-textarea" id="rl-note" style="min-height:60px"></textarea></div>
     <button class="chk-btn" onclick="rideNote()">Add note</button>${notes}
@@ -2331,6 +2294,245 @@ unlockApp(true);
   }
   new MutationObserver(patch).observe(box,{childList:true});
   patch();
+})();
+</script>
+<script>
+(function(){
+  try{
+    const t=+sessionStorage.getItem("c3_reopen");sessionStorage.removeItem("c3_reopen");
+    if(t&&Date.now()-t<30000)setTimeout(function(){if(typeof openAdmin==="function")openAdmin()},400);
+  }catch(e){}
+})();
+</script>
+<script>
+// Silent refresh: only reloads the page if a newer version is published
+async function refreshQuiet(){
+  const btn=document.getElementById("refresh-btn"),msg=document.getElementById("chk-msg");
+  const say=(t,err)=>{if(msg){msg.textContent=t;msg.className="plan-msg"+(err?" err":"")}};
+  if(btn)btn.disabled=true;
+  say("Checking for a new version…");
+  try{
+    const res=await fetch(location.pathname+"?r="+Date.now(),{cache:"no-store"});
+    const html=await res.text();
+    const m=/id="build-id">([^<]*)</.exec(html);
+    const now=(document.getElementById("build-id")||{}).textContent||"";
+    if(m&&m[1].trim()===now.trim()){
+      try{sessionStorage.removeItem("c3_reopen")}catch(e){}
+      say("You already have the latest version ("+now.trim()+").");
+      if(btn)btn.disabled=false;
+      return;
+    }
+    // a different version is waiting: clear the old saved copies, then load it once
+    if("serviceWorker"in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()))}
+    if(window.caches){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)))}
+    say("Updating…");
+    const u=new URL(location.href);u.searchParams.set("r",Date.now());
+    location.replace(u.toString());
+  }catch(e){
+    say("Could not check. Check your connection and try again.",true);
+    if(btn)btn.disabled=false;
+  }
+}
+</script>
+<script>
+// Silent updates: check in the background and never reload while you are looking at the screen.
+let updatePending=false;
+async function checkUpdate(){
+  try{
+    const res=await fetch(location.pathname,{cache:"reload"});      // also refreshes the stored copy
+    const html=await res.text();
+    const m=/id="build-id">([^<]*)</.exec(html);
+    const now=((document.getElementById("build-id")||{}).textContent||"").trim();
+    if(m&&m[1].trim()&&m[1].trim()!==now&&m[1].trim().indexOf("__")!==0){updatePending=true;return"new"}
+    return"same";
+  }catch(e){return"offline"}
+}
+async function refreshQuiet(){
+  const btn=document.getElementById("refresh-btn"),msg=document.getElementById("chk-msg");
+  const say=(t,err)=>{if(msg){msg.textContent=t;msg.className="plan-msg"+(err?" err":"")}};
+  if(updatePending){say("Loading the new version…");location.reload();return}      // second tap: load it now
+  if(btn)btn.disabled=true;
+  say("Checking for a new version…");
+  const r=await checkUpdate();
+  if(btn)btn.disabled=false;
+  say(r==="new"?"A new version is ready. It loads the next time you leave the app. Tap Refresh again to load it now."
+    :r==="same"?"You already have the latest version.":"Could not check. Check your connection.",r==="offline");
+}
+// Quiet check at start and when you come back to the app (at most every 30 minutes);
+// a waiting update is applied while the app is in the background, so you never see it.
+(function(){
+  function due(){try{return Date.now()-(+localStorage.getItem("c3_upd_t")||0)>30*60*1000}catch(e){return true}}
+  function quiet(){if(!due())return;try{localStorage.setItem("c3_upd_t",Date.now())}catch(e){}checkUpdate()}
+  setTimeout(quiet,6000);
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){
+      if(updatePending&&!(typeof activeTrip==="function"&&activeTrip())){try{location.reload()}catch(e){}}
+    }else quiet();
+  });
+})();
+</script>
+<script>
+// MET A TRAIN: one tap, matched to the nearest predicted meeting of this trip
+function rideMet(){
+  const tr=activeTrip();if(!tr)return;
+  const S=tr.dayType==="weekday"?WD:WE,sch=S[RIDE_KEY[tr.type]].find(x=>x.dep===tr.trainDep);
+  const nowMs=Date.now();let best=null;
+  if(sch){
+    const x={type:tr.type,dep:sch.dep,arr:sch.arr,sc:S};
+    const[f,t]=rideEnds(tr),p0=Math.min(STATIONS[f].pos,STATIONS[t].pos),p1=Math.max(STATIONS[f].pos,STATIONS[t].pos);
+    const used=new Set(rideState(tr).meets.map(m=>m.key));
+    meetingsFor(x).forEach(m=>{
+      if(m.p<p0-0.001||m.p>p1+0.001||used.has(m.key))return;      // only meetings between your boarding and exit
+      const d=rideDelta(nowMs,m.t);                               // your tap minus the predicted time, in minutes
+      if(Math.abs(d)<=10&&(!best||Math.abs(d)<Math.abs(best.d)))best={m,d};
+    });
+  }
+  if(best)rideMsg("Matched "+best.m.label+", predicted "+fmt(best.m.t)+" near "+segLabel(best.m.p)+": "+fmtDelta(best.d)+" min");
+  else rideMsg("No meeting was expected around now. Saved without a match.");
+  rideLog(best?{k:"meet",key:best.m.key,label:best.m.label,pred:best.m.t,place:segLabel(best.m.p),delta:+best.d.toFixed(2)}:{k:"meet"});
+}
+// Meeting accuracy over all your trips
+function renderAnalysis(){
+  const box=document.getElementById("an-box");if(!box)return;
+  const rows=[];let trips=0,skipped=0;
+  loadTrips().forEach(t=>{
+    if(t.status==="cancelled")return;
+    const sx=rideState(t),ms=sx.meets.filter(m=>m.key);
+    if(!ms.length)return;
+    trips++;if(sx.disrupted)skipped++;
+    ms.forEach(m=>rows.push({day:t.day,label:m.label,place:m.place,pred:m.pred,delta:m.delta,bad:sx.disrupted}));
+  });
+  const good=rows.filter(r=>!r.bad).map(r=>r.delta).sort((a,b)=>a-b);
+  const med=good.length?(good.length%2?good[(good.length-1)/2]:(good[good.length/2-1]+good[good.length/2])/2):null;
+  const within=good.length?Math.round(good.filter(d=>Math.abs(d)<=1).length/good.length*100):null;
+  let html=`<div class="live-note" style="margin:0 0 10px;font-size:12px;line-height:1.6">${rows.length} meeting${rows.length===1?"":"s"} matched on ${trips} trip${trips===1?"":"s"}`
+    +(skipped?` (${skipped} disrupted trip${skipped===1?"":"s"} not counted in the figures below)`:"")+`.<br>`
+    +(med==null?"Press MET A TRAIN during a trip to collect data.":`Median difference <strong>${fmtDelta(med)} min</strong> · ${within}% within ±1 min · positive = later than the estimate.`)+`</div>`;
+  html+=rows.slice(-40).reverse().map(r=>`<div class="rl-ev">${r.day} · ${esc(r.label)} · ${esc(r.place)} · est ${fmt(r.pred)} · <strong>${fmtDelta(r.delta)}</strong>${r.bad?" · disrupted trip":""}</div>`).join("");
+  box.innerHTML=html;
+}
+</script>
+<script>
+// ANALYSIS tab: figures from your ride log (a later definition replaces the earlier renderAnalysis)
+function anMedian(a){if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y),n=s.length;return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2}
+function renderAnalysis(){
+  const set=(id,h)=>{const e=document.getElementById(id);if(e)e.innerHTML=h};
+  const note=t=>`<div class="live-note" style="margin:0 0 10px;font-size:12px;line-height:1.6">${t}</div>`;
+  const trips=anMerged().filter(t=>t.status!=="cancelled");
+  const states=trips.map(t=>({t,sx:rideState(t)}));
+  // overview
+  const done=trips.filter(t=>t.status==="done").length,active=trips.length-done;
+  const dis=states.filter(o=>o.sx.disrupted).length;
+  const days=[...new Set(trips.map(t=>t.day))].sort();
+  set("an-over",trips.length?note(`${trips.length} trip${trips.length===1?"":"s"} (${done} finished${active?", "+active+" in progress":""}) · ${dis} with an unscheduled stop<br>${days.length} day${days.length===1?"":"s"} of data, ${days[0]} to ${days[days.length-1]}`):note("No trips logged yet."));
+  // meeting accuracy
+  const rows=[];let mTrips=0;
+  states.forEach(o=>{
+    const ms=o.sx.meets.filter(m=>m.key);if(!ms.length)return;
+    mTrips++;
+    ms.forEach(m=>rows.push({day:o.t.day,label:m.label,place:m.place,pred:m.pred,delta:m.delta,bad:o.sx.disrupted}));
+  });
+  const good=rows.filter(r=>!r.bad).map(r=>r.delta),med=anMedian(good);
+  const within=good.length?Math.round(good.filter(d=>Math.abs(d)<=1).length/good.length*100):null;
+  set("an-box",note(`${rows.length} meeting${rows.length===1?"":"s"} matched on ${mTrips} trip${mTrips===1?"":"s"}.<br>`
+    +(med==null?"Press MET A TRAIN during a trip to collect data.":`Median difference <strong>${fmtDelta(med)} min</strong> · ${within}% within ±1 min · positive = later than the estimate (trips with a stop are not counted).`))
+    +rows.slice(-30).reverse().map(r=>`<div class="rl-ev">${r.day} · ${esc(r.label)} · ${esc(r.place)} · est ${fmt(r.pred)} · <strong>${fmtDelta(r.delta)}</strong>${r.bad?" · trip with a stop":""}</div>`).join(""));
+  // stations
+  const agg={};
+  states.forEach(o=>{
+    if(o.sx.disrupted||o.t.trainDep==null)return;
+    const S=o.t.dayType==="weekday"?WD:WE,sch=S[RIDE_KEY[o.t.type]].find(x=>x.dep===o.t.trainDep);if(!sch)return;
+    const A=agg[o.t.type]=agg[o.t.type]||{};let prevDep=null;
+    rideOrder(o.t).forEach(s=>{
+      const r=o.sx.st[s]||{},a=A[s]=A[s]||{d:[],dw:[],run:[]};
+      if(r.arr){a.d.push(rideDelta(r.arr.t,timeAt(sch,o.t.type,STATIONS[s].pos)));if(prevDep!=null)a.run.push((r.arr.t-prevDep)/60000);}
+      if(r.arr&&r.dep)a.dw.push((r.dep.t-r.arr.t)/1000);
+      prevDep=r.dep?r.dep.t:null;
+    });
+  });
+  const types=Object.keys(agg);
+  const table=t=>{
+    const A=agg[t],up=t==="OA"||t==="LA";
+    return `<div class="rl-ev" style="margin-top:8px"><strong>${(ROUTE_LIST.find(r=>r.type===t)||{}).label||t}</strong></div><div class="an-t"><div class="an-h"><span>STATION</span><span>N</span><span>VS EST</span><span>STAY</span><span>RUN</span></div>`
+      +Object.keys(A).map(Number).sort((a,b)=>up?a-b:b-a).map(s=>{
+        const a=A[s],md=anMedian(a.d),mw=anMedian(a.dw),mr=anMedian(a.run);
+        return `<div class="an-r"><span>${STATIONS[s].name}</span><span>${a.d.length}</span><span>${md==null?"–":fmtDelta(md)}</span><span>${mw==null?"–":Math.round(mw)+" s"}</span><span>${mr==null?"–":mr.toFixed(1)+" m"}</span></div>`;
+      }).join("")+`</div>`;
+  };
+  set("an-st",types.length?note("Median over trips without a stop. <em>vs est</em>: arrival minus the app's estimate in minutes (positive = later). <em>stay</em>: time stopped. <em>run</em>: minutes from the previous station.")+types.map(table).join(""):note("Log a normal trip to see station figures."));
+  // unscheduled stops
+  const evs=[];states.forEach(o=>o.sx.ev.forEach(e=>evs.push({day:o.t.day,sched:o.t.sched,e})));
+  set("an-ev",evs.length?evs.map(x=>`<div class="rl-ev">${x.day} · ${x.sched} train · ${esc(x.e.reason)} · ${x.e.end?((x.e.end-x.e.start)/60000).toFixed(1)+" min":"still stopped"}${x.e.announced?" · announced "+esc(x.e.announced)+" min":""}${x.e.after!=null?" · after "+STATIONS[x.e.after].name:""}</div>`).join(""):note("No unscheduled stops recorded."));
+}
+</script>
+<script>
+// Read all trips back from the cloud and combine them with the ones on this device
+let anCloud=[];
+async function anRefresh(){
+  try{
+    if(typeof cloudLoad!=="function")return;
+    const f=await cloudLoad();
+    await f.auth.authStateReady();                 // wait until the saved sign-in is restored
+    if(!f.auth.currentUser)return;                 // not signed in: stay with this device's trips
+    const snap=await f.F.getDocs(f.F.collection(f.db,"trips"));
+    anCloud=snap.docs.map(d=>d.data());
+    renderAnalysis();
+  }catch(e){}
+}
+function anMerged(){
+  const map={};
+  anCloud.forEach(t=>{map[t.id]=t});
+  loadTrips().forEach(t=>{const c=map[t.id];if(!c||(t.log||[]).length>=(c.log||[]).length)map[t.id]=t});
+  return Object.values(map);
+}
+</script>
+<script>
+// In-app question box (replaces the browser's confirm pop-up)
+function askConfirm(msg,okLabel,onOk){
+  let ov=document.getElementById("ask-ov");
+  if(!ov){
+    ov=document.createElement("div");ov.className="gate-ov";ov.id="ask-ov";ov.style.zIndex="960";
+    ov.innerHTML='<div class="gate-box"><p id="ask-text" style="font-size:14px;color:var(--text);margin:0 0 14px"></p><div class="gate-row"><button id="ask-cancel">Back</button><button class="primary" id="ask-ok">OK</button></div></div>';
+    document.body.appendChild(ov);
+  }
+  document.getElementById("ask-text").textContent=msg;
+  const ok=document.getElementById("ask-ok");ok.textContent=okLabel||"OK";
+  ok.onclick=()=>{ov.classList.remove("on");onOk()};
+  document.getElementById("ask-cancel").onclick=()=>ov.classList.remove("on");
+  ov.classList.add("on");
+}
+function rideUndoAt(i){askConfirm("Clear this recorded time?","Clear",()=>rideLog({k:"void",ref:i}))}
+function rideEnd(status){
+  askConfirm(status==="done"?"Finish this trip?":"Cancel this trip? It stays in the log, marked as cancelled.",status==="done"?"Finish":"Cancel trip",()=>{
+    const a=loadTrips(),tr=a.find(x=>x.status==="active");if(!tr)return;
+    tr.status=status;tr.endedAt=Date.now();saveTrips(a);renderRide();
+  });
+}
+</script>
+<script>
+// Swap FROM and TO and refresh the train list
+function rideSwap(){
+  const a=document.getElementById("rl-from"),b=document.getElementById("rl-to"),v=a.value;
+  a.value=b.value;b.value=v;
+  rideFillTrains();
+}
+</script>
+<script>
+// Keep the admin panel open across reloads (same session, 10 minutes after the last use)
+(function(){
+  const ov=document.getElementById("admin-ov");if(!ov)return;
+  const KEY="c3_admin_open";
+  function stamp(){try{sessionStorage.setItem(KEY,Date.now())}catch(e){}}
+  function clear(){try{sessionStorage.removeItem(KEY)}catch(e){}}
+  // the note follows the panel: set when it opens, removed when it closes
+  new MutationObserver(function(){ov.classList.contains("on")?stamp():clear()}).observe(ov,{attributes:true,attributeFilter:["class"]});
+  // using the panel keeps the note fresh
+  document.addEventListener("pointerdown",function(){if(ov.classList.contains("on"))stamp()},true);
+  // after a reload: reopen if it was in use a moment ago
+  try{
+    const t=+sessionStorage.getItem(KEY);
+    if(t&&Date.now()-t<10*60*1000)setTimeout(function(){if(typeof openAdmin==="function")openAdmin()},400);
+  }catch(e){}
 })();
 </script>
 </body>
