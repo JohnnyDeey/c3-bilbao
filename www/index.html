@@ -3662,6 +3662,210 @@ function renderAdminInfo(){
   impDraftHint();
 })();
 </script>
+<style>
+.ed-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border)}
+.ed-row input{flex:1;min-width:0;padding:8px 6px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--text)}
+.ed-j{width:46px;text-align:right;font-size:11px;color:var(--text-dim);flex:none}
+.ed-j.bad{color:var(--brand);font-weight:800}
+#ed-list{max-height:380px;overflow-y:auto;margin:8px 0}
+.ed-pv{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;line-height:1.5}
+.ed-pv input{margin-top:3px;flex:none}
+.ed-tag{display:inline-block;border-radius:999px;padding:1px 8px;font-size:10px;font-weight:800;background:var(--brand-light);color:var(--brand)}
+.ed-tag.same{background:#e8e8e8;color:#666}
+</style>
+<script>
+// TIMETABLE EDITOR: edit any schedule in the app, load many from a JSON file, export a backup.
+// Everything saved here goes to the cloud like the rest. Paste this last in the file, after the other blocks.
+function edRoutes(){
+  const out=["ordunaToAbando","abandoToOrduna","llodioToAbando","abandoToLlodio"].map(r=>({id:r,name:"C3 · "+ROUTE_NAME[r]}));
+  if(typeof LINES!=="undefined")LINES.forEach(L=>["f","b"].forEach(d=>{
+    const a=L.names[0],z=L.names[L.names.length-1];
+    out.push({id:lineRid(L.id,d),name:L.name+" · "+(d==="f"?a+" → "+z:z+" → "+a)});
+  }));
+  return out;
+}
+function edKey(route,day){return(day==="WD"?"wd":"we")+"_"+(ROUTE_SUFFIX[route]||route)}
+function edDayName(day){return day==="WD"?"Mon–Fri":"Sat–Sun"}
+function edLive(route,day){return((day==="WD"?WD:WE)[route]||[]).map(x=>[fmt(x.dep),fmt(x.arr)])}
+function edIsSample(route,day){return typeof LN_DEMO!=="undefined"&&!!LN_DEMO[route+day]}
+function edMin(s){const p=String(s).split(":");return(+p[0])*60+(+p[1])}
+function edSel(id){const e=document.getElementById(id);return e?e.value:""}
+function edMsg(m,err){const e=document.getElementById("ed-msg");if(e){e.textContent=m;e.className="plan-msg"+(err?" err":"")}}
+
+function edFillRoutes(){
+  const sel=document.getElementById("ed-route");if(!sel)return;
+  const rs=edRoutes();
+  if(sel.options.length===rs.length)return;
+  const keep=sel.value;
+  sel.innerHTML=rs.map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join("");
+  if(rs.some(r=>r.id===keep))sel.value=keep;
+}
+function edRowHTML(p){
+  return'<div class="ed-row"><input type="time" class="ed-dep" value="'+(p?p[0]:"")+'" oninput="edRefreshJ()"><span>→</span><input type="time" class="ed-arr" value="'+(p?p[1]:"")+'" oninput="edRefreshJ()"><span class="ed-j"></span>'
+    +'<button type="button" class="rl-x" onclick="this.parentNode.remove();edRefreshJ()" aria-label="Delete this train">✕</button></div>';
+}
+function edRender(){
+  edFillRoutes();
+  const route=edSel("ed-route"),day=edSel("ed-day"),box=document.getElementById("ed-list");if(!box||!route)return;
+  const list=edLive(route,day);
+  box.innerHTML=list.map(edRowHTML).join("")||'<div class="live-note" style="margin:6px 0">No trains yet. Add one below.</div>';
+  const note=document.getElementById("ed-note");
+  if(note)note.textContent=edIsSample(route,day)?"These are sample times (not real). Saving here makes them real.":list.length+" trains";
+  edRefreshJ();
+}
+function edRefreshJ(){
+  const rows=Array.from(document.querySelectorAll("#ed-list .ed-row")),js=[];
+  rows.forEach(r=>{
+    const a=r.querySelector(".ed-dep").value,b=r.querySelector(".ed-arr").value,j=r.querySelector(".ed-j");
+    if(a&&b){const v=((edMin(b)-edMin(a))%1440+1440)%1440;js.push(v);j.dataset.v=v;j.textContent=v+" min"}else{delete j.dataset.v;j.textContent=""}
+  });
+  const h=new Map();js.forEach(v=>h.set(v,(h.get(v)||0)+1));
+  let typ=null,c=0;h.forEach((n,v)=>{if(n>c){c=n;typ=v}});
+  rows.forEach(r=>{const j=r.querySelector(".ed-j");j.classList.toggle("bad",j.dataset.v!==undefined&&typ!==null&&Math.abs(+j.dataset.v-typ)>3)});
+}
+function edAdd(){
+  const box=document.getElementById("ed-list");
+  if(!box.querySelector(".ed-row"))box.innerHTML="";
+  box.insertAdjacentHTML("beforeend",edRowHTML(null));
+  const last=box.querySelector(".ed-row:last-child .ed-dep");if(last){last.focus();box.scrollTop=box.scrollHeight}
+}
+function edReadRows(){
+  const rows=Array.from(document.querySelectorAll("#ed-list .ed-row")),out=[];
+  for(let i=0;i<rows.length;i++){
+    const a=rows[i].querySelector(".ed-dep").value,b=rows[i].querySelector(".ed-arr").value;
+    if(!a&&!b)continue;
+    if(!validTime(a)||!validTime(b))return{error:"Row "+(i+1)+" is incomplete. Fill both times or delete the row."};
+    out.push([padTime(a),padTime(b)]);
+  }
+  const seen={},list=[];
+  out.sort((x,y)=>svcMin(edMin(x[0]))-svcMin(edMin(y[0]))).forEach(p=>{const k=p[0]+p[1];if(!seen[k]){seen[k]=1;list.push(p)}});
+  return{list};
+}
+// write lists (key -> [[dep,arr],...]) into the app and refresh everything that shows them
+function edApply(map){
+  const c=customPairs();
+  Object.keys(map).forEach(k=>{c[k]=map[k];delete c["draft_"+k]});
+  saveCustomPairs(c);
+  try{applyCustomPairs()}catch(e){}
+  try{lnRegisterAll()}catch(e){}
+  try{updateAdminBadges();renderAdminInfo();renderLive();if(showTrainSched)renderTrainSchedule()}catch(e){}
+  try{if(/^L-/.test(curTab))lnRenderLive(curTab.slice(2))}catch(e){}
+}
+function edSave(){
+  const route=edSel("ed-route"),day=edSel("ed-day"),r=edReadRows();
+  if(r.error){edMsg(r.error,true);return}
+  if(!r.list.length){edMsg("There are no trains to save.",true);return}
+  const name=(edRoutes().find(x=>x.id===route)||{}).name+" · "+edDayName(day);
+  askConfirm("Save "+r.list.length+" trains for "+name+"? This replaces the schedule now in use.","Save",()=>{
+    edApply({[edKey(route,day)]:r.list});
+    edRender();edMsg("Saved "+r.list.length+" trains for "+name+". It is in use now and synced to the cloud.");
+  });
+}
+function edSwap(){
+  const route=edSel("ed-route"),day=edSel("ed-day"),m=/^l_(.+)_(f|b)$/.exec(route);
+  if(!m){edMsg("Swap works for C1 and C2: it exchanges the two directions.",true);return}
+  const other="l_"+m[1]+"_"+(m[2]==="f"?"b":"f");
+  const n1=(edRoutes().find(x=>x.id===route)||{}).name,n2=(edRoutes().find(x=>x.id===other)||{}).name;
+  askConfirm("Swap the "+edDayName(day)+" lists of "+n1+" and "+n2+"? Use this when the two directions were loaded the wrong way round.","Swap",()=>{
+    const a=edLive(route,day),b=edLive(other,day);
+    edApply({[edKey(route,day)]:b,[edKey(other,day)]:a});
+    edRender();edMsg("Swapped the two directions.");
+  });
+}
+
+// ---- backup and load ----
+function edExport(){
+  const lists={};
+  edRoutes().forEach(r=>["WD","WE"].forEach(day=>{
+    if(edIsSample(r.id,day))return;                    // sample times are not real data
+    lists[edKey(r.id,day)]={name:r.name+" · "+edDayName(day),trains:edLive(r.id,day)};
+  }));
+  const data={app:"c3-bilbao-timetables",version:1,created:new Date().toISOString().slice(0,10),lists};
+  const text=JSON.stringify(data,null,1);
+  try{
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));
+    a.download="c3-timetables-"+data.created+".json";document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800);
+  }catch(e){}
+  const ta=document.getElementById("ed-json");if(ta){ta.value=text;ta.hidden=false}
+  edMsg("Exported "+Object.keys(lists).length+" lists. If no file was saved, copy the text below instead.");
+}
+function edPickFile(){document.getElementById("ed-file").click()}
+function edLoadFile(ev){
+  const f=ev.target.files&&ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{edPreview(JSON.parse(r.result))}catch(e){edMsg("That file is not valid JSON: "+e.message,true)}ev.target.value=""};
+  r.readAsText(f);
+}
+function edLoadText(){
+  const v=(document.getElementById("ed-paste").value||"").trim();if(!v){edMsg("Paste the JSON text first.",true);return}
+  try{edPreview(JSON.parse(v))}catch(e){edMsg("That text is not valid JSON: "+e.message,true)}
+}
+let edPending=[];
+function edPreview(data){
+  const lists=data&&data.lists?data.lists:data,known={};
+  edRoutes().forEach(r=>["WD","WE"].forEach(day=>{known[edKey(r.id,day)]={route:r.id,day,name:r.name+" · "+edDayName(day)}}));
+  edPending=[];
+  Object.keys(lists||{}).forEach(k=>{
+    const v=lists[k],trains=Array.isArray(v)?v:(v&&v.trains),note=(!Array.isArray(v)&&v&&v.note)||"",kn=known[k];
+    let status="new",ok=true,now=0;
+    if(!kn){status="unknown route";ok=false}
+    else if(!Array.isArray(trains)||!trains.length||!trains.every(p=>Array.isArray(p)&&validTime(String(p[0]))&&validTime(String(p[1])))){status="invalid times";ok=false}
+    else{
+      const cur=edLive(kn.route,kn.day),norm=trains.map(p=>[padTime(String(p[0])),padTime(String(p[1]))]);
+      now=cur.length;
+      if(edIsSample(kn.route,kn.day))status="replaces sample times";
+      else if(JSON.stringify(cur)===JSON.stringify(norm)){status="same";}
+      else status="different";
+      if(ok)edPending.push({key:k,name:kn.name,trains:norm,status,now,note,use:status!=="same"});
+      return;
+    }
+    edPending.push({key:k,name:(kn&&kn.name)||k,trains:[],status,now,note,use:false,bad:true});
+  });
+  const box=document.getElementById("ed-prev");
+  if(!edPending.length){box.innerHTML='<div class="live-note" style="margin:8px 0">Nothing found in that file.</div>';return}
+  box.innerHTML='<div class="live-note" style="margin:8px 0 4px"><strong>In the file</strong> · tick what to load</div>'
+    +edPending.map((p,i)=>'<label class="ed-pv"><input type="checkbox" '+(p.use?"checked":"")+(p.bad?" disabled":"")+' data-i="'+i+'"><span><strong>'+esc(p.name)+'</strong><br>'
+      +(p.bad?'':p.trains.length+' trains · now '+p.now+' · ')+'<span class="ed-tag'+(p.status==="same"?" same":"")+'">'+esc(p.status)+'</span>'
+      +(p.note?'<br><span style="color:var(--brand)">'+esc(p.note)+'</span>':'')+'</span></label>').join("")
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="chk-btn" type="button" onclick="edPrevClear()" style="min-height:44px;justify-content:center">CANCEL</button><button class="admin-save-btn" type="button" onclick="edLoadSelected()" style="min-height:44px;margin:0">LOAD SELECTED</button></div>';
+  edMsg("Check the list, then press LOAD SELECTED. Nothing changes until you do.");
+}
+function edPrevClear(){edPending=[];document.getElementById("ed-prev").innerHTML="";edMsg("")}
+function edLoadSelected(){
+  const picks=Array.from(document.querySelectorAll("#ed-prev input[type=checkbox]:checked")).map(c=>edPending[+c.dataset.i]).filter(Boolean);
+  if(!picks.length){edMsg("Nothing is ticked.",true);return}
+  askConfirm("Load "+picks.length+" list"+(picks.length>1?"s":"")+" into the app? They replace the schedules now in use.","Load",()=>{
+    const map={};picks.forEach(p=>{map[p.key]=p.trains});
+    edApply(map);edPrevClear();edRender();
+    edMsg("Loaded "+picks.length+" list"+(picks.length>1?"s":"")+". They are in use now and synced to the cloud. Open any list in the editor to fix a time.");
+  });
+}
+
+(function(){
+  const imp=document.getElementById("imp-card");
+  if(!imp||document.getElementById("ed-card"))return;
+  imp.insertAdjacentHTML("afterend",'<div class="card" id="ed-card">'
+    +'<div class="card-title">TIMETABLE EDITOR</div>'
+    +'<div class="live-note" style="margin:-4px 0 10px;font-size:12px;line-height:1.6">Pick a route and day, fix any time, add or delete trains, then SAVE. You can also load many schedules from a JSON file.</div>'
+    +'<div class="plan-row2"><div class="field"><label>ROUTE</label><select id="ed-route" onchange="edRender()"></select></div>'
+    +'<div class="field"><label>DAY</label><select id="ed-day" onchange="edRender()"><option value="WD">Mon–Fri</option><option value="WE">Sat–Sun</option></select></div></div>'
+    +'<div class="live-note" id="ed-note" style="margin:0;font-size:12px"></div>'
+    +'<div id="ed-list"></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="chk-btn" type="button" onclick="edAdd()" style="min-height:46px;justify-content:center">+ ADD TRAIN</button><button class="admin-save-btn" type="button" onclick="edSave()" style="min-height:46px;margin:0">SAVE CHANGES</button></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button class="chk-btn" type="button" onclick="edRender()" style="min-height:44px;justify-content:center">UNDO EDITS</button><button class="chk-btn" type="button" onclick="edSwap()" style="min-height:44px;justify-content:center">SWAP DIRECTIONS</button></div>'
+    +'<div class="card-title" style="margin:18px 0 8px">BACKUP AND LOAD</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="chk-btn" type="button" onclick="edExport()" style="min-height:46px;justify-content:center">EXPORT JSON</button><button class="chk-btn" type="button" onclick="edPickFile()" style="min-height:46px;justify-content:center">LOAD JSON FILE</button></div>'
+    +'<input type="file" id="ed-file" accept=".json,application/json" hidden onchange="edLoadFile(event)">'
+    +'<details style="margin-top:8px"><summary style="font-size:12px;color:var(--text-mid)">Or paste JSON text</summary><textarea class="admin-textarea" id="ed-paste" style="min-height:90px;margin-top:6px"></textarea><button class="chk-btn" type="button" onclick="edLoadText()" style="width:100%;margin-top:6px;justify-content:center">PREVIEW</button></details>'
+    +'<textarea class="admin-textarea" id="ed-json" readonly hidden style="min-height:120px;margin-top:8px"></textarea>'
+    +'<div id="ed-prev"></div>'
+    +'<div class="plan-msg" id="ed-msg"></div></div>');
+  edRender();
+  const _lnrE=(typeof lnRender==="function")?lnRender:null;
+  if(_lnrE)lnRender=function(){_lnrE();edFillRoutes()};
+})();
+</script>
 <style>#ln-card{display:none!important}</style>
 </body>
 </html>
