@@ -282,8 +282,8 @@ main{max-width:680px;margin:0 auto;padding:16px 14px 70px;display:flex;flex-dire
 .plan-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .plan-hdr h2{font-size:17px;color:var(--brand)}
 .plan-x{background:none;border:none;font-size:22px;color:var(--text-dim);padding:4px 8px}
-.plan-row3{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}
-.plan-swap{align-self:end;margin-bottom:14px;flex-shrink:0}
+.plan-row3{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:start}
+.plan-swap{align-self:start;margin:24px 0 0!important;flex-shrink:0}
 .plan-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .plan-input{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:15px;font-family:inherit;background:#fff;color:var(--text)}
 .plan-train{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px}
@@ -428,16 +428,10 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     </div>
     <div class="card">
       <div class="live-date" id="live-date" style="margin:0 0 12px"></div>
-      <div class="field">
-        <label>FROM</label>
-        <select id="live-from" onchange="onLiveStation()"></select>
-      </div>
-      <div class="swap-row">
-        <button class="swap-btn" onclick="swapLive()" title="Swap">⇅</button>
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <label>TO</label>
-        <select id="live-to" onchange="onLiveStation()"></select>
+      <div class="plan-row3">
+        <div class="field" style="margin-bottom:0"><label>FROM</label><select id="live-from" onchange="onLiveStation()"></select></div>
+        <button class="swap-btn plan-swap" type="button" onclick="swapLive()" title="Swap" aria-label="Swap from and to" style="margin-bottom:2px">⇄</button>
+        <div class="field" style="margin-bottom:0"><label>TO</label><select id="live-to" onchange="onLiveStation()"></select></div>
       </div>
     </div>
 
@@ -466,16 +460,10 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
     </div>
     <div class="card">
       <div class="live-date" id="tram-date" style="margin:0 0 12px"></div>
-      <div class="field">
-        <label>FROM</label>
-        <select class="tram-sel" id="tram-from-sel" onchange="onTramStop()"></select>
-      </div>
-      <div class="swap-row">
-        <button class="swap-btn" onclick="swapTramStops()" title="Swap">⇅</button>
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <label>TO</label>
-        <select class="tram-sel" id="tram-to-sel" onchange="onTramStop()"></select>
+      <div class="plan-row3">
+        <div class="field" style="margin-bottom:0"><label>FROM</label><select class="tram-sel" id="tram-from-sel" onchange="onTramStop()"></select></div>
+        <button class="swap-btn plan-swap" type="button" onclick="swapTramStops()" title="Swap" aria-label="Swap from and to" style="margin-bottom:2px">⇄</button>
+        <div class="field" style="margin-bottom:0"><label>TO</label><select class="tram-sel" id="tram-to-sel" onchange="onTramStop()"></select></div>
       </div>
     </div>
 
@@ -506,7 +494,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 <div class="gate-ov" id="ask-ov" style="z-index:960">
   <div class="gate-box">
     <p id="ask-text" style="font-size:14px;color:var(--text);margin:0 0 14px"></p>
-    <div class="gate-row"><button id="ask-cancel">Cancel</button><button class="primary" id="ask-ok">OK</button></div>
+    <div class="gate-row"><button id="ask-cancel">Continue</button><button class="primary" id="ask-ok">OK</button></div>
   </div>
 </div>
 
@@ -522,8 +510,9 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
 </div>
 
 <div class="plan-ov" id="admin-ov">
+<script>try{var t=+sessionStorage.getItem("c3_reopen");if(t&&Date.now()-t<30000)document.getElementById("admin-ov").classList.add("on")}catch(e){}</script>
   <div class="plan-sheet">
-    <div class="plan-hdr"><h2>Admin</h2><button class="plan-x" onclick="closeAdmin()" aria-label="Close">✕</button></div>
+    <div class="plan-hdr"><div style="display:flex;align-items:center;gap:10px"><h2>Admin</h2><span id="cl-avatar" style="display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.85);color:#fff;font-size:13px;font-weight:800;line-height:1"></span></div><button class="plan-x" onclick="closeAdmin()" aria-label="Close">✕</button></div>
     <div class="adm-tabs">
       <button class="adm-tab on" id="adm-tab-ride" onclick="admTab('ride')">RIDE</button>
       <button class="adm-tab" id="adm-tab-data" onclick="admTab('data')">DATA</button>
@@ -536,20 +525,20 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
       <div class="adm-pane on" id="adm-pane-ride">
         <div class="card" id="rl-card">
           <div class="card-title">RIDE LOG</div>
-          <div class="live-note" id="cl-status" style="margin:0 0 8px;font-size:12px">Not signed in. Your trips are only on this phone.</div>
-          <div id="cl-login" style="margin-bottom:12px">
+          <div class="live-note" id="cl-status" style="margin:0 0 8px;font-size:12px;display:none"></div>
+          <div id="cl-login" style="margin-bottom:12px;display:none">
             <input class="plan-input" type="email" id="cl-email" placeholder="Firebase email" autocomplete="username"/>
             <input class="plan-input" type="password" id="cl-pw" placeholder="Firebase password" autocomplete="current-password" style="margin-top:6px"/>
             <button class="admin-save-btn" style="margin-top:6px" onclick="cloudSignIn()">SIGN IN TO CLOUD</button>
           </div>
           <div id="rl-setup">
-            <div class="plan-row2">
+            <div class="plan-row3">
               <div class="field"><label>FROM</label><select id="rl-from" onchange="rideFillTrains()"></select></div>
+              <button class="swap-btn plan-swap" type="button" onclick="rideSwap()" aria-label="Swap from and to">⇄</button>
               <div class="field"><label>TO</label><select id="rl-to" onchange="rideFillTrains()"></select></div>
             </div>
-            <div style="text-align:center;margin:-2px 0 10px"><button class="swap-btn" onclick="rideSwap()" aria-label="Swap from and to" style="display:inline-flex">⇄</button></div>
-            <div class="field"><label>TRAIN (DEPARTS FROM YOUR STATION)</label><select id="rl-train"></select></div>
-            <button class="admin-save-btn" onclick="rideStart()">START TRIP (I'M ON BOARD)</button>
+            <div class="field"><label></label><select id="rl-train"></select></div>
+            <button class="admin-save-btn" onclick="rideStart()">START TRIP </button>
           </div>
           <div id="rl-box"></div>
           <div class="plan-msg" id="rl-msg"></div>
@@ -563,7 +552,14 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
         <div class="card" id="imp-card">
           <div class="card-title">IMPORT FROM SCREENSHOTS</div>
           <div class="live-note" style="margin:-4px 0 12px;font-size:12px">Take screenshots of one route while you scroll. Don't leave cards cut in half. Pick all of them at once. The app reads the times, compares them with the current data and lets you confirm each train.</div>
-          <div class="plan-row2">
+          <div class="plan-row3">
+            <div class="field"><label>FROM</label><select id="imp-from" onchange="impPickRoute(true)"></select></div>
+            <button class="swap-btn plan-swap" type="button" onclick="impSwapRoute()" aria-label="Swap from and to">⇄</button>
+            <div class="field"><label>TO</label><select id="imp-to" onchange="impPickRoute()"></select></div>
+          </div>
+          <div class="field"><label>DAY</label>
+            <select id="imp-day"><option value="WD">Mon–Fri</option><option value="WE">Sat–Sun</option></select></div>
+          <div hidden>
             <div class="field"><label>ROUTE</label>
               <select id="imp-route" onchange="impRouteChange()">
                 <option value="ordunaToAbando">Orduña → Abando</option>
@@ -571,8 +567,6 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
                 <option value="llodioToAbando">Llodio → Abando</option>
                 <option value="abandoToLlodio">Abando → Llodio</option>
               </select></div>
-            <div class="field"><label>DAY</label>
-              <select id="imp-day"><option value="WD">Mon–Fri</option><option value="WE">Sat–Sun</option></select></div>
           </div>
           <div class="field"><label>SCREENSHOTS</label><input class="plan-input" type="file" id="imp-file" accept="image/*" multiple/></div>
           <div class="plan-row2">
@@ -604,7 +598,7 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
         </div>
         <div class="card">
           <div class="card-title">APP</div>
-          <button class="chk-btn" id="refresh-btn" style="width:100%;justify-content:center" onclick="try{sessionStorage.setItem('c3_reopen',Date.now())}catch(e){}refreshApp()">
+          <button class="chk-btn" id="refresh-btn" style="width:100%;justify-content:center" onclick="refreshQuiet()">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:8px"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
             Refresh app
           </button>
@@ -620,6 +614,20 @@ footer{text-align:center;padding:16px;font-size:10px;color:var(--text-dim);lette
   </div>
 </div>
 
+<script>
+// Restore the admin panel and its tab before the first paint after any reload
+(function(){try{
+  var ov=document.getElementById("admin-ov"),now=Date.now(),
+      a=+sessionStorage.getItem("c3_admin_open"),r=+sessionStorage.getItem("c3_reopen");
+  if(!((a&&now-a<10*60*1000)||(r&&now-r<30000)))return;
+  ov.classList.add("on");
+  var n=sessionStorage.getItem("c3_adm_tab")||"ride";
+  ["ride","data","analysis","tools"].forEach(function(k){
+    document.getElementById("adm-pane-"+k).classList.toggle("on",k===n);
+    document.getElementById("adm-tab-"+k).classList.toggle("on",k===n);
+  });
+}catch(e){}})();
+</script>
 <footer>C3 commuter line Orduña–Abando · Bilbao tram · Timetable data updated <span id="data-date"></span> · build <span id="build-id">__BUILD__</span></footer>
 
 <div class="plan-ov" id="plan-ov">
@@ -863,7 +871,7 @@ function renderLive(){
     list.innerHTML="";
   } else {
     const fp=STATIONS[liveFrom].pos,tp=STATIONS[liveTo].pos;
-    const up=upcomingTrains(fp,tp,ns,6);
+    const up=upcomingTrains(fp,tp,ns,7);
     const fName=STATIONS[liveFrom].name,tName=STATIONS[liveTo].name;
     if(!up.length){
       hero.innerHTML=`<div class="live-hero none"><div class="live-hero-label">${fName.toUpperCase()} → ${tName.toUpperCase()}</div><div class="live-hero-sub">No trains in this direction.</div></div>`;
@@ -877,7 +885,7 @@ function renderLive(){
         <div class="live-hero-row"><div class="live-hero-time">${fmt(n.depT)}</div><div class="live-hero-count">${cnt}</div></div>
         <div class="live-hero-sub">Arrives at ${tName} at <strong>${fmt(n.arrT)}</strong> · ${Math.round(n.arrT-n.depT)} min ${n.label}</div>
       </div>`;
-      list.innerHTML=up.slice(1).map(x=>{
+      list.innerHTML=up.slice(1,7).map(x=>{
         const s=Math.round(x.depT*60-ns);
         return`<div class="live-row"><div class="live-row-dep">${fmt(x.depT)}</div><div class="live-row-body">arrives <strong>${fmt(x.arrT)}</strong> · ${x.label}${x.day?'<span class="live-row-tag">TOMORROW</span>':""}</div><div class="live-row-in">${waitLabel(s)}</div></div>`;
       }).join("")||`<div class="live-empty">No more trains</div>`;
@@ -1459,7 +1467,7 @@ function initLock(){
   if(stored==="NONE"){unlockApp(true);return;}
   try{
   const t=+sessionStorage.getItem("c3_reopen");sessionStorage.removeItem("c3_reopen");
-  if(t&&Date.now()-t<30000)setTimeout(openAdmin,300);   // came back from Refresh inside the admin panel: reopen it
+  ;   // came back from Refresh inside the admin panel: reopen it
 }catch(e){}
   if(!stored){startSetup();return;}
   let open=false;
@@ -1766,9 +1774,61 @@ const OCR_CFG=window.OCR_CFG||{
 const IMP_RANGE={ordunaToAbando:[58,68],abandoToOrduna:[58,68],llodioToAbando:[33,46],abandoToLlodio:[33,46]};
 const IMP_CROP_TOP=0.05,IMP_CROP_BOTTOM=0,IMP_TARGET_W=1200,IMP_INVERT=true;
 let impCancel=false,impBusy=false,impRows=[],impCtx=null;
+setTimeout(impInitRoute,0);
+const IMP_PAIRS={"Orduña>Abando":"ordunaToAbando","Abando>Orduña":"abandoToOrduna","Llodio>Abando":"llodioToAbando","Abando>Llodio":"abandoToLlodio"};
+function impTargets(f){return Object.keys(IMP_PAIRS).filter(k=>k.split(">")[0]===f).map(k=>k.split(">")[1])}
+function impFillTo(keep){
+  const f=document.getElementById("imp-from").value,b=document.getElementById("imp-to"),list=impTargets(f);
+  b.innerHTML=list.map(n=>'<option value="'+n+'">'+n+'</option>').join("");
+  if(list.indexOf(keep)>=0)b.value=keep;
+}
+function impPickRoute(fromChanged){
+  if(fromChanged)impFillTo(document.getElementById("imp-to").value);
+  const f=document.getElementById("imp-from").value,t=document.getElementById("imp-to").value;
+  document.getElementById("imp-route").value=IMP_PAIRS[f+">"+t];
+  impRouteChange();
+}
+function impSwapRoute(){
+  const a=document.getElementById("imp-from"),b=document.getElementById("imp-to"),f=a.value,t=b.value;
+  a.value=t;impFillTo(f);impPickRoute();
+}
+function impInitRoute(){
+  const a=document.getElementById("imp-from");if(!a||a.options.length)return;
+  ["Orduña","Llodio","Abando"].forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;a.appendChild(o)});
+  a.value="Orduña";impFillTo("Abando");impPickRoute();
+}
 function impRouteChange(){
   const r=document.getElementById("imp-route").value,g=IMP_RANGE[r];
   document.getElementById("imp-min").value=g[0];document.getElementById("imp-max").value=g[1];
+}
+const IMP_ENDS=["Orduña","Llodio","Abando"];
+let impNoPair=false;
+function impFillSel(id,skip,keep){      // fill a drop-down with every station except `skip`
+  const el=document.getElementById(id);
+  el.innerHTML=IMP_ENDS.filter(n=>n!==skip).map(n=>'<option value="'+n+'">'+n+'</option>').join("");
+  if(keep&&keep!==skip)el.value=keep;
+}
+function impPickRoute(){
+  const f=document.getElementById("imp-from").value,t=document.getElementById("imp-to").value;
+  impFillSel("imp-from",t,f);impFillSel("imp-to",f,t);      // each side hides the other's choice
+  const key=IMP_PAIRS[f+">"+t],go=document.getElementById("imp-start");
+  if(go)go.disabled=!key;
+  if(key){
+    document.getElementById("imp-route").value=key;impRouteChange();
+    if(impNoPair){impStatus("");impNoPair=false}
+  }else{
+    impStatus("No timetable for "+f+" → "+t+" yet.",true);impNoPair=true;
+  }
+}
+function impSwapRoute(){
+  const f=document.getElementById("imp-from").value,t=document.getElementById("imp-to").value;
+  impFillSel("imp-from",null,t);impFillSel("imp-to",null,f);   // full lists, values swapped
+  impPickRoute();
+}
+function impInitRoute(){
+  const a=document.getElementById("imp-from");if(!a||a.options.length)return;
+  impFillSel("imp-from",null,"Orduña");impFillSel("imp-to",null,"Abando");
+  impPickRoute();
 }
 function impStatus(msg,err){const m=document.getElementById("imp-status");m.textContent=msg;m.className="plan-msg"+(err?" err":"");}
 function impProgress(f){
@@ -2009,7 +2069,7 @@ function rideFillTrains(){
   const list=getTrains(STATIONS[f].pos,STATIONS[t].pos,S);
   const gap=x=>{const d=Math.abs(x.depT%1440-nm);return Math.min(d,1440-d)};
   let best=0;list.forEach((x,i)=>{if(gap(x)<gap(list[best]))best=i;});   // preselect the train nearest to now
-  sel.innerHTML=list.map((x,i)=>`<option value="${x.type}|${x.tr.dep}|${fmt(x.depT)}"${i===best?" selected":""}>${fmt(x.depT)} → ${fmt(x.arrT)} ${x.label}</option>`).join("");
+  sel.innerHTML=list.map((x,i)=>`<option value="${x.type}|${x.tr.dep}|${fmt(x.depT)}"${i===best?" selected":""}>${fmt(x.depT)} → ${fmt(x.arrT)}</option>`).join("");
 }
 function rideStart(){
   if(activeTrip()){rideMsg("Finish the current trip first.",true);return;}
@@ -2034,6 +2094,12 @@ function rideLog(entry){      // append one raw entry to the active trip
   const a=loadTrips(),tr=a.find(x=>x.status==="active");if(!tr)return;
   tr.log.push(Object.assign({t:Date.now()},entry));
   saveTrips(a);renderRide();
+}
+function rideTap(k,s){rideLog({k,s})}
+function rideUndoLast(){
+  const tr=activeTrip();if(!tr)return;
+  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
+  for(let i=tr.log.length-1;i>=0;i--){if(tr.log[i].k!=="void"&&!voided.has(i)){rideLog({k:"void",ref:i});return;}}
 }
 function rideUndoAt(i){askConfirm("Clear this recorded time?","Clear",()=>rideLog({k:"void",ref:i}))}
 function rideEnd(status){
@@ -2140,11 +2206,27 @@ async function cloudLoad(){
   Au.onAuthStateChanged(auth,u=>{cloudState(u);if(u)cloudPush();});
   return fb;
 }
-function cloudMsg(t,err){const e=document.getElementById("cl-status");if(e){e.textContent=t;e.style.color=err?"var(--brand)":"";}}
+function cloudMsg(t,err){const e=document.getElementById("cl-status");if(e){e.textContent=t;e.style.color=err?"var(--brand)":"";e.style.display=t?"block":"none";}}
 function cloudState(u){
   document.getElementById("cl-login").style.display=u?"none":"block";
   document.getElementById("cl-out").style.display=u?"inline-flex":"none";
+  cloudAvatar(u);
   cloudStatus();
+}
+const CL_EMOJI=["🦊","🐼","🐯","🦁","🐸","🐙","🦉","🐧","🐨","🦄","🐳","🐝"];
+function cloudAvatar(u){
+  const el=document.getElementById("cl-avatar");if(!el)return;
+  if(!u||!u.email){el.style.display="none";try{localStorage.removeItem("c3_cloud_av")}catch(x){}return}
+  const e=u.email.toLowerCase();let h=0;for(let i=0;i<e.length;i++)h=(h*31+e.charCodeAt(i))>>>0;
+  const av=CL_EMOJI[h%CL_EMOJI.length]+" "+e[0].toUpperCase();
+  el.textContent=av;el.title=u.email;el.style.display="inline-flex";
+  try{localStorage.setItem("c3_cloud_av",av+"|"+u.email)}catch(x){}
+}
+function cloudAvatarCached(){      // show the last avatar at once while Firebase loads
+  try{
+    const v=(localStorage.getItem("c3_cloud_av")||"").split("|"),el=document.getElementById("cl-avatar");
+    if(el&&v[0]){el.textContent=v[0];el.title=v[1]||"";el.style.display="inline-flex"}
+  }catch(x){}
 }
 function cloudHash(t){const s=JSON.stringify(t);let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return s.length+":"+h}
 function cloudSeen(){try{return JSON.parse(localStorage.getItem("c3_cloud_seen")||"{}")}catch(e){return{}}}
@@ -2152,8 +2234,7 @@ function cloudMark(id,h){const s=cloudSeen();s[id]=h;try{localStorage.setItem("c
 function cloudStatus(){
   const u=fb&&fb.auth.currentUser;
   if(!u){cloudMsg("Not signed in. Your trips are only on this phone.",true);return}
-  const seen=cloudSeen(),n=loadTrips().filter(t=>seen[t.id]!==cloudHash(t)).length;
-  cloudMsg(n?"Signed in as "+u.email+" · "+n+" trip"+(n>1?"s":"")+" waiting to sync":"Signed in as "+u.email+" · all trips safe in the cloud");
+    try{const m=localStorage.getItem("c3_cloud_last");if(m)cloudMsg(m)}catch(e){}      // show the last known status at once
 }
 // Send every trip that changed since it was last confirmed by the server
 function cloudPush(){
@@ -2187,8 +2268,13 @@ async function cloudSignOut(){
   try{localStorage.removeItem("c3_cloud_on")}catch(e){}
 }
 function cloudAuto(){   // restore the sign-in when the admin panel opens
-  if(localStorage.getItem("c3_cloud_on")==="1")cloudLoad().catch(()=>cloudMsg("Cloud not reachable. Trips stay on this phone and sync later.",true));
-  else cloudStatus();
+  if(localStorage.getItem("c3_cloud_on")==="1"){cloudAvatarCached();
+    try{const m=localStorage.getItem("c3_cloud_last");if(m)cloudMsg(m)}catch(e){}      // show the last known status at once
+    cloudLoad().catch(()=>cloudMsg("Cloud not reachable. Trips stay on this phone and sync later.",true));
+  }else{
+    document.getElementById("cl-login").style.display="block";
+    cloudStatus();
+  }
 }
 
 // ── Service Worker (works on the GitHub Pages site, ignored elsewhere) ──
@@ -2300,7 +2386,7 @@ unlockApp(true);
 (function(){
   try{
     const t=+sessionStorage.getItem("c3_reopen");sessionStorage.removeItem("c3_reopen");
-    if(t&&Date.now()-t<30000)setTimeout(function(){if(typeof openAdmin==="function")openAdmin()},400);
+    ;
   }catch(e){}
 })();
 </script>
@@ -2350,13 +2436,20 @@ async function checkUpdate(){
 async function refreshQuiet(){
   const btn=document.getElementById("refresh-btn"),msg=document.getElementById("chk-msg");
   const say=(t,err)=>{if(msg){msg.textContent=t;msg.className="plan-msg"+(err?" err":"")}};
-  if(updatePending){say("Loading the new version…");location.reload();return}      // second tap: load it now
   if(btn)btn.disabled=true;
   say("Checking for a new version…");
   const r=await checkUpdate();
+  if(r==="new"){
+    say("Updating…");
+    try{sessionStorage.setItem("c3_reopen",Date.now())}catch(e){}
+    location.reload();
+    return;
+  }
   if(btn)btn.disabled=false;
-  say(r==="new"?"A new version is ready. It loads the next time you leave the app. Tap Refresh again to load it now."
-    :r==="same"?"You already have the latest version.":"Could not check. Check your connection.",r==="offline");
+  if(r==="same"){
+    try{renderAdminInfo();renderCheck();renderRide();cloudAuto()}catch(e){}
+    say("Up to date. Panel refreshed.");
+  }else say("Could not check. Check your connection.",true);
 }
 // Quiet check at start and when you come back to the app (at most every 30 minutes);
 // a waiting update is applied while the app is in the background, so you never see it.
@@ -2416,7 +2509,7 @@ function renderAnalysis(){
 // ANALYSIS tab: figures from your ride log (a later definition replaces the earlier renderAnalysis)
 function anMedian(a){if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y),n=s.length;return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2}
 function renderAnalysis(){
-  const set=(id,h)=>{const e=document.getElementById(id);if(e)e.innerHTML=h};
+  const set=(id,h)=>{const e=document.getElementById(id);if(e&&e.__h!==h){e.innerHTML=h;e.__h=h}};
   const note=t=>`<div class="live-note" style="margin:0 0 10px;font-size:12px;line-height:1.6">${t}</div>`;
   const trips=anMerged().filter(t=>t.status!=="cancelled");
   const states=trips.map(t=>({t,sx:rideState(t)}));
@@ -2475,7 +2568,9 @@ async function anRefresh(){
     await f.auth.authStateReady();                 // wait until the saved sign-in is restored
     if(!f.auth.currentUser)return;                 // not signed in: stay with this device's trips
     const snap=await f.F.getDocs(f.F.collection(f.db,"trips"));
-    anCloud=snap.docs.map(d=>d.data());
+    const nxt=snap.docs.map(d=>d.data());
+    if(JSON.stringify(nxt)===JSON.stringify(anCloud))return;   // nothing changed: leave the screen alone
+    anCloud=nxt;
     renderAnalysis();
   }catch(e){}
 }
@@ -2531,8 +2626,922 @@ function rideSwap(){
   // after a reload: reopen if it was in use a moment ago
   try{
     const t=+sessionStorage.getItem(KEY);
-    if(t&&Date.now()-t<10*60*1000)setTimeout(function(){if(typeof openAdmin==="function")openAdmin()},400);
+    if(t&&Date.now()-t<10*60*1000&&typeof openAdmin==="function")openAdmin();
   }catch(e){}
+})();
+</script>
+<script>
+// Cloud UI: never show "Signed in as…"; show a plain initial badge beside "Admin"
+function cloudMsg(t,err){
+  const e=document.getElementById("cl-status");if(!e)return;
+  if(!t||/^Signed in as/.test(t)){e.textContent="";e.style.display="none";return}
+  e.textContent=t;e.style.color=err?"var(--brand)":"";e.style.display="block";
+}
+function cloudStatus(){
+  const u=fb&&fb.auth.currentUser;
+  if(!u){cloudMsg("Not signed in. Your trips are only on this phone.",true);return}
+  cloudMsg("");
+}
+function cloudAvatar(u){
+  const el=document.getElementById("cl-avatar");if(!el)return;
+  if(!u||!u.email){el.style.display="none";try{localStorage.removeItem("c3_cloud_em")}catch(x){}return}
+  el.textContent=u.email[0].toUpperCase();el.title=u.email;el.style.display="flex";
+  try{localStorage.setItem("c3_cloud_em",u.email)}catch(x){}
+}
+function cloudAvatarCached(){
+  try{
+    const em=localStorage.getItem("c3_cloud_em"),el=document.getElementById("cl-avatar");
+    if(el&&em){el.textContent=em[0].toUpperCase();el.title=em;el.style.display="flex"}
+  }catch(x){}
+}
+function cloudState(u){
+  document.getElementById("cl-login").style.display=u?"none":"block";
+  document.getElementById("cl-out").style.display=u?"inline-flex":"none";
+  cloudAvatar(u);cloudStatus();
+}
+function cloudAuto(){
+  if(localStorage.getItem("c3_cloud_on")==="1"){
+    cloudAvatarCached();
+    cloudLoad().catch(()=>cloudMsg("Cloud not reachable. Trips stay on this phone and sync later.",true));
+  }else{
+    document.getElementById("cl-login").style.display="block";
+    cloudStatus();
+  }
+}
+</script>
+<style>
+.rl-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.rl-pair button{width:100%;margin:0;min-height:46px;display:flex;align-items:center;justify-content:center;flex:none}
+.rl-x.undo{color:var(--brand);font-size:18px}
+.rl-x:disabled{opacity:.25}
+.rl-b.extra{border-color:#0b7a75;color:#0b7a75}
+.rl-b.done.extra{background:#e3f4f3;border-color:#0b7a75;color:#0b7a75}
+.rl-sw{width:38px;height:22px;border-radius:999px;border:none;background:#cfc3cc;position:relative;padding:0;flex:none}
+.rl-sw i{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+.rl-sw.on{background:var(--brand)}
+.rl-sw.on i{left:19px}
+.rl-hs{display:flex;align-items:center;gap:8px}
+</style>
+<script>
+// RIDE LOG v2: 3-station window, undo, trains met
+function rideAll(){try{return sessionStorage.getItem("c3_rl_all")==="1"}catch(e){return false}}
+function rideToggleAll(){try{sessionStorage.setItem("c3_rl_all",rideAll()?"":"1")}catch(e){}renderRide()}
+function rideUndoStation(s){
+  const tr=activeTrip();if(!tr)return;
+  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
+  for(let i=tr.log.length-1;i>=0;i--){
+    const e=tr.log[i];
+    if(e.s===s&&(e.k==="arr"||e.k==="dep"||e.k==="skip")&&!voided.has(i)){rideLog({k:"void",ref:i});return}
+  }
+}
+function askText(title,placeholder,okLabel,onOk){
+  let ov=document.getElementById("txt-ov");
+  if(!ov){
+    ov=document.createElement("div");ov.className="gate-ov";ov.id="txt-ov";ov.style.zIndex="960";
+    ov.innerHTML='<div class="gate-box"><p id="txt-title" style="font-size:14px;color:var(--text);margin:0 0 10px"></p><input class="plan-input" id="txt-in" type="text" maxlength="120"/><div class="gate-row"><button id="txt-cancel">Back</button><button class="primary" id="txt-ok">Save</button></div></div>';
+    document.body.appendChild(ov);
+  }
+  const inp=document.getElementById("txt-in"),ok=document.getElementById("txt-ok");
+  document.getElementById("txt-title").textContent=title;
+  inp.value="";inp.placeholder=placeholder||"";ok.textContent=okLabel||"Save";
+  const done=()=>{const v=inp.value.trim();if(!v){inp.focus();return}ov.classList.remove("on");onOk(v)};
+  ok.onclick=done;
+  inp.onkeydown=e=>{if(e.key==="Enter")done()};
+  document.getElementById("txt-cancel").onclick=()=>ov.classList.remove("on");
+  ov.classList.add("on");setTimeout(()=>inp.focus(),50);
+}
+// Trains of the other direction this trip should meet between boarding and getting off
+function rideMeetList(tr){
+  const S=tr.dayType==="weekday"?WD:WE,sch=S[RIDE_KEY[tr.type]].find(x=>tr.trainDep!=null?x.dep===tr.trainDep:fmt(x.dep)===tr.sched);
+  if(!sch)return[];
+  const x={type:tr.type,dep:sch.dep,arr:sch.arr,sc:S},[f,t]=rideEnds(tr);
+  const p0=Math.min(STATIONS[f].pos,STATIONS[t].pos),p1=Math.max(STATIONS[f].pos,STATIONS[t].pos);
+  return meetingsFor(x).filter(m=>m.p>=p0-0.001&&m.p<=p1+0.001);
+}
+function rideMeetTap(key){
+  const tr=activeTrip();if(!tr)return;
+  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
+  if(tr.log.some((e,i)=>e.k==="meet"&&e.key===key&&!voided.has(i)))return;
+  const m=rideMeetList(tr).find(x=>x.key===key);if(!m)return;
+  rideLog({k:"meet",key:m.key,label:m.label,pred:m.t,place:segLabel(m.p),delta:+rideDelta(Date.now(),m.t).toFixed(2)});
+}
+function rideMeetExtra(){
+  const t0=Date.now();
+  askText("Which train did you meet?","Describe the train","Save",txt=>rideLog({k:"meet",extra:true,text:txt,t:t0}));
+}
+function renderRide(){
+  const box=document.getElementById("rl-box");if(!box)return;
+  const n=loadTrips().filter(x=>x.status==="done").length;
+  document.getElementById("rl-count").textContent=n+" finished trip"+(n===1?"":"s")+" saved on this phone";
+  const tr=activeTrip();
+  document.getElementById("rl-setup").style.display=tr?"none":"block";
+  if(!tr){box.innerHTML="";return;}
+  const gv=id=>{const e=document.getElementById(id);return e?e.value:""};
+  const keep={note:gv("rl-note"),ann:gv("rl-ann"),reason:gv("rl-reason")};
+  const S=tr.dayType==="weekday"?WD:WE,sch=S[RIDE_KEY[tr.type]].find(x=>tr.trainDep!=null?x.dep===tr.trainDep:fmt(x.dep)===tr.sched);
+  const sx=rideState(tr),all=rideAll();
+  // stations: only the next 3 unless the switch is on
+  const order=rideOrder(tr),last=order[order.length-1];
+  const fin=s=>{const r=sx.st[s]||{};return!!(r.dep||r.skip||(s===last&&r.arr))};
+  let first=order.findIndex(s=>!fin(s));if(first<0)first=order.length;
+  const start=Math.max(0,Math.min(first,order.length-3));
+  const shown=all?order:order.slice(start,start+3);
+  const rows=shown.map(s=>{
+    const r=sx.st[s]||{},est=sch?timeAt(sch,tr.type,STATIONS[s].pos):null;
+    const cell=(k,label)=>r[k]
+      ?`<button class="rl-b done" onclick="rideUndoAt(${r[k].i})">${rideClock(r[k].t)}</button>`
+      :`<button class="rl-b" onclick="rideTap('${k}',${s})">${label}</button>`;
+    const d=r.arr&&est!=null?` <span class="rl-d">${fmtDelta(rideDelta(r.arr.t,est))}</span>`:"";
+    const buttons=(r.skip?`<button class="rl-b done" onclick="rideUndoAt(${r.skip.i})">skipped</button>`:cell("arr","Arrived")+cell("dep","Left"))
+      +`<button class="rl-x undo" onclick="rideUndoStation(${s})" title="Undo" aria-label="Undo"${r.arr||r.dep||r.skip?"":" disabled"}>↶</button>`;
+    return`<div class="rl-row${r.skip?" skip":""}"><div class="rl-st"><strong>${STATIONS[s].name}</strong><small>est ${est!=null?fmt(est):"–"}${d}</small></div>${buttons}</div>`;
+  }).join("");
+  // trains met: one row per expected meeting, plus one row for a train that is not in the timetable
+  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
+  const doneM={},extras=[];
+  tr.log.forEach((e,i)=>{
+    if(e.k!=="meet"||voided.has(i))return;
+    if(e.key)doneM[e.key]={i,t:e.t,delta:e.delta};
+    else extras.push({i,t:e.t,text:e.extra?e.text:"no matching train expected"});
+  });
+  const meetRows=rideMeetList(tr).map(m=>{
+    const d=doneM[m.key];
+    const btn=d?`<button class="rl-b done" onclick="rideUndoAt(${d.i})">${rideClock(d.t)}</button>`:`<button class="rl-b" onclick="rideMeetTap('${m.key}')">Met</button>`;
+    const dd=d?` <span class="rl-d">${fmtDelta(d.delta)}</span>`:"";
+    return`<div class="rl-row"><div class="rl-st"><strong>${esc(segLabel(m.p))}</strong><small>est ${fmt(m.t)} · ${esc(m.label)}${dd}</small></div>${btn}</div>`;
+  }).join("");
+  const extraRows=extras.map(x=>`<div class="rl-row"><div class="rl-st"><strong>${esc(x.text)}</strong><small>not in the timetable</small></div><button class="rl-b done extra" onclick="rideUndoAt(${x.i})">${rideClock(x.t)}</button></div>`).join("")
+    +`<div class="rl-row"><div class="rl-st"><strong>Another train</strong><small>not in the timetable</small></div><button class="rl-b extra" onclick="rideMeetExtra()">Met</button></div>`;
+  const evs=sx.ev.map(e=>`<div class="rl-ev">Stop ${rideClock(e.start)}${e.end?" – "+rideClock(e.end)+" ("+Math.round((e.end-e.start)/1000)+" s)":" (still stopped)"} · ${esc(e.reason)}${e.announced?" · announced "+esc(e.announced)+" min":""}${e.after!=null?" · after "+STATIONS[e.after].name:""}</div>`).join("");
+  const notes=sx.notes.map(x=>`<div class="rl-ev">${rideClock(x.t)} · ${esc(x.text)}</div>`).join("");
+  box.innerHTML=`<div class="rl-head"><strong>${rideTitle(tr)} · ${tr.sched}</strong><div class="rl-hs"><span>${sx.disrupted?"DISRUPTED":"normal"}</span><button class="rl-sw${all?" on":""}" role="switch" aria-checked="${all}" aria-label="Show all stations" title="Show all stations" onclick="rideToggleAll()"><i></i></button></div></div>${rows}
+    <div class="rl-pair"><button class="chk-btn" onclick="rideEnd('cancelled')">Cancel trip</button><button class="admin-save-btn" onclick="rideEnd('done')">FINISH TRIP</button></div>
+    <div class="field" style="margin:14px 0 0"><label>TRAINS MET ON THE WAY</label></div>
+    ${meetRows}${extraRows}
+    <div class="field" style="margin-top:12px"><label>UNSCHEDULED STOP</label>
+      <select id="rl-reason">${REASONS.map(r=>`<option>${r}</option>`).join("")}</select>
+      <input class="plan-input" id="rl-ann" style="margin-top:6px" placeholder="Announced wait in minutes, for example 10-15"/></div>
+    ${sx.open?`<button class="admin-save-btn" onclick="rideGo()">MOVING AGAIN</button>`:`<button class="admin-save-btn" onclick="rideStop()">STOPPED BETWEEN STATIONS</button>`}
+    ${evs}
+    <div class="field" style="margin-top:12px"><label>NOTE</label><textarea class="admin-textarea" id="rl-note" style="min-height:60px"></textarea></div>
+    ${notes}
+    <div class="rl-pair"><button class="chk-btn" onclick="rideUndoLast()">Undo last</button><button class="chk-btn" onclick="rideNote()">Add note</button></div>`;
+  document.getElementById("rl-note").value=keep.note;document.getElementById("rl-ann").value=keep.ann;
+  if(keep.reason)document.getElementById("rl-reason").value=keep.reason;
+}
+</script>
+<script>
+// DATA TAB: add your own stations. Saved on this phone and in Firestore (config/data).
+const CFG_KEYS={st:"c3_custom_stations",rt:"c3_custom_routes",t:"c3_cfg_t"};
+const CFG_ROUTE_MAP={};
+function cfgGet(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v==null?def:v}catch(e){return def}}
+function cfgSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function cfgStations(){return cfgGet(CFG_KEYS.st,[])}
+function cfgRoutes(){return cfgGet(CFG_KEYS.rt,{})}
+function cfgTouch(){try{localStorage.setItem(CFG_KEYS.t,Date.now())}catch(e){}cfgPush()}
+function cfgSlug(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"")||"st"}
+
+// a pair of stations becomes a route the first time it is used
+function impRegister(id,f,t){
+  IMP_PAIRS[f+">"+t]=id;ROUTE_SUFFIX[id]=id;ROUTE_NAME[id]=f+" → "+t;CFG_ROUTE_MAP[id]={from:f,to:t};
+  if(!IMP_RANGE[id])IMP_RANGE[id]=[5,180];
+  const c=customPairs();
+  WD[id]=mk(c["wd_"+id]||[]);WE[id]=mk(c["we_"+id]||[]);
+  const sel=document.getElementById("imp-route");
+  if(sel&&!Array.from(sel.options).some(o=>o.value===id)){const o=document.createElement("option");o.value=id;o.textContent=f+" → "+t;sel.appendChild(o)}
+}
+function impRouteFor(f,t){
+  if(!IMP_PAIRS[f+">"+t])impRegister("x_"+cfgSlug(f)+"_"+cfgSlug(t),f,t);
+  return IMP_PAIRS[f+">"+t];
+}
+function applyCustomRoutes(){
+  const r=cfgRoutes();
+  Object.keys(r).forEach(id=>impRegister(id,r[id].from,r[id].to));
+  cfgStations().forEach(n=>{if(IMP_ENDS.indexOf(n)<0)IMP_ENDS.push(n)});
+}
+function impPickRoute(){
+  const f0=document.getElementById("imp-from").value,t0=document.getElementById("imp-to").value;
+  impFillSel("imp-from",t0,f0);impFillSel("imp-to",f0,t0);
+  const key=impRouteFor(document.getElementById("imp-from").value,document.getElementById("imp-to").value),go=document.getElementById("imp-start");
+  if(go)go.disabled=false;
+  document.getElementById("imp-route").value=key;impRouteChange();
+  if(impNoPair){impStatus("");impNoPair=false}
+}
+function impRefreshLists(){
+  const a=document.getElementById("imp-from"),b=document.getElementById("imp-to");
+  if(!a||!a.options.length){impInitRoute();return}
+  const f=a.value,t=b.value;
+  impFillSel("imp-from",null,IMP_ENDS.indexOf(f)>=0?f:"Orduña");
+  impFillSel("imp-to",null,IMP_ENDS.indexOf(t)>=0?t:"Abando");
+  impPickRoute();
+}
+function impStationsUI(){
+  const box=document.getElementById("imp-newst-list");if(!box)return;
+  box.innerHTML=cfgStations().map((n,i)=>'<span style="display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);color:var(--brand);border-radius:999px;padding:4px 6px 4px 11px;font-size:12px;font-weight:700">'+esc(n)+'<button type="button" onclick="impDelStation('+i+')" aria-label="Remove" style="border:none;background:none;color:var(--brand);font-size:14px;line-height:1;padding:0 4px">✕</button></span>').join("");
+}
+function impAddStation(){
+  const inp=document.getElementById("imp-newst-in"),name=inp.value.replace(/[<>"&]/g,"").trim().slice(0,40);
+  if(!name){inp.focus();return}
+  if(IMP_ENDS.some(n=>n.toLowerCase()===name.toLowerCase())){impStatus("That station already exists.",true);return}
+  const l=cfgStations();l.push(name);cfgSet(CFG_KEYS.st,l);
+  IMP_ENDS.push(name);inp.value="";
+  impStationsUI();impRefreshLists();cfgTouch();
+  impStatus("Added "+name+". Pick it in FROM or TO.");
+}
+function impDelStation(i){
+  const l=cfgStations(),n=l[i];if(n==null)return;
+  askConfirm("Remove "+n+" from the list? Times already saved for it stay saved.","Remove",()=>{
+    l.splice(i,1);cfgSet(CFG_KEYS.st,l);
+    const k=IMP_ENDS.indexOf(n);if(k>=3)IMP_ENDS.splice(k,1);
+    impStationsUI();impRefreshLists();cfgTouch();
+  });
+}
+
+// Firestore: one document, config/data
+async function cfgPush(){
+  if(!fb||!fb.auth.currentUser)return;
+  try{
+    const upd=+localStorage.getItem(CFG_KEYS.t)||Date.now();
+    await fb.F.setDoc(fb.F.doc(fb.db,"config","data"),{stations:cfgStations(),routes:cfgRoutes(),pairsJson:JSON.stringify(customPairs()),updated:upd});
+    try{localStorage.setItem(CFG_KEYS.t,upd)}catch(e){}
+  }catch(e){}
+}
+const _scp=saveCustomPairs;
+saveCustomPairs=function(o){_scp(o);try{localStorage.setItem(CFG_KEYS.t,Date.now())}catch(e){}cfgPush()};
+async function cfgPull(){
+  if(!fb||!fb.auth.currentUser)return;
+  try{
+    const snap=await fb.F.getDoc(fb.F.doc(fb.db,"config","data"));
+    const local=+localStorage.getItem(CFG_KEYS.t)||0;
+    if(!snap.exists()){if(local||Object.keys(customPairs()).length||cfgStations().length)cfgPush();return}
+    const d=snap.data(),rem=+d.updated||0;
+    if(rem>local){      // the cloud copy is newer: use it
+      const st=cfgStations();(d.stations||[]).forEach(n=>{if(st.indexOf(n)<0)st.push(n)});cfgSet(CFG_KEYS.st,st);
+      cfgSet(CFG_KEYS.rt,d.routes||{});
+      _scp(JSON.parse(d.pairsJson||"{}"));
+      localStorage.setItem(CFG_KEYS.t,rem);
+      applyCustomPairs();applyCustomRoutes();impStationsUI();impRefreshLists();
+      try{updateAdminBadges();renderAdminInfo();renderLive();if(showTrainSched)renderTrainSchedule()}catch(e){}
+    }else if(local>rem)cfgPush();
+  }catch(e){}
+}
+const _cs=cloudState;
+cloudState=function(u){_cs(u);if(u)cfgPull()};
+
+// saving a timetable for a new route also records the route itself
+const _impSave=impSave;
+impSave=function(){
+  _impSave();
+  try{
+    const id=impCtx&&impCtx.route;
+    if(id&&/^x_/.test(id)&&customPairs()[(impCtx.day==="WD"?"wd":"we")+"_"+id]){
+      const r=cfgRoutes();r[id]=CFG_ROUTE_MAP[id];cfgSet(CFG_KEYS.rt,r);
+      applyCustomRoutes();cfgTouch();
+    }
+  }catch(e){}
+};
+// a new route has no times to compare with, so tick everything the reader found
+const _ibr=impBuildRows;
+impBuildRows=function(route,day,seen,minSeen){
+  _ibr(route,day,seen,minSeen);
+  if(/^x_/.test(route)&&!(day==="WD"?WD:WE)[route].length){impRows.forEach(r=>{r.include=true});impRender()}
+};
+
+// the "add station" box, under DAY
+(function(){
+  const day=document.getElementById("imp-day"),host=day&&day.closest(".field");
+  if(host&&!document.getElementById("imp-newst")){
+    host.insertAdjacentHTML("afterend",'<div id="imp-newst" style="margin:0 0 12px"><div style="display:flex;gap:8px"><input class="plan-input" id="imp-newst-in" placeholder="Add a new station" maxlength="40" style="flex:1" onkeydown="if(event.key===\'Enter\')impAddStation()"/><button class="chk-btn" type="button" onclick="impAddStation()" style="flex:none">+ Add</button></div><div id="imp-newst-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div></div>');
+  }
+  applyCustomRoutes();impStationsUI();impRefreshLists();
+})();
+</script>
+<script>
+// LINES: your own routes (C1, C2, ...) with every station, in the Data tab and the ride log.
+// Needs the ride-log v2 block and the FROM/TO block above it. Paste this last, just before
+// ---- data: minutes after leaving the first station (Abando), read from the Renfe route boards ----
+const LN_DEFAULTS=[
+ {id:"c1",name:"C1",stations:[["Abando",0],["Zabálburu",2],["Ametzola",4],["Autonomía",6],["San Mamés",7],["Olabeaga",9],["Zorrotza",11],["Lutxana",13],["Desertu-Barakaldo",16],["Sestao Urbínaga",18],["La Iberia",20],["Portugalete",21],["Peñota",23],["Santurtzi",24]]},
+ {id:"c2",name:"C2",stations:[["Abando",0],["Zabálburu",2],["Ametzola",4],["Autonomía",6],["San Mamés",7],["Olabeaga",9],["Zorrotza",11],["Lutxana",13],["Desertu-Barakaldo",16],["Galindo",23],["Trápaga",25],["Trapagaran",27],["Urioste",29],["Sagrada Familia",31],["Ortuella",32],["Gallarta",34],["Putxeta",37],["Muskiz",40]]}
+];
+function lnCompute(L){
+  const n=L.stations.length,ms=L.stations.map(s=>s.m);
+  const okMin=ms.every(m=>typeof m==="number"&&isFinite(m))&&ms[0]===0&&ms.every((m,i)=>i===0||m>=ms[i-1])&&ms[n-1]>0;
+  L.total=okMin?ms[n-1]:null;
+  L.fr=okMin?ms.map(m=>m/ms[n-1]):ms.map((m,i)=>i/(n-1));     // position of each station along the line, 0 to 1
+  L.names=L.stations.map(s=>s.n);
+  return L;
+}
+function lnNormalize(raw){
+  return(Array.isArray(raw)?raw:[]).filter(l=>l&&l.id&&Array.isArray(l.stations)&&l.stations.length>1).map(l=>lnCompute({id:l.id,name:l.name,stations:l.stations.map(s=>({n:s.n,m:(typeof s.m==="number"?s.m:null)}))}));
+}
+function lnLoad(){
+  let raw=null;try{raw=JSON.parse(localStorage.getItem("c3_lines"))}catch(e){}
+  if(!Array.isArray(raw)||!raw.length)raw=LN_DEFAULTS.map(d=>({id:d.id,name:d.name,stations:d.stations.map(([n,m])=>({n,m}))}));
+  return lnNormalize(raw);
+}
+let LINES=lnLoad();
+let lnEditing=null;
+function lnStore(){try{localStorage.setItem("c3_lines",JSON.stringify(LINES.map(l=>({id:l.id,name:l.name,stations:l.stations}))))}catch(e){}}
+function lnTouch(){try{localStorage.setItem("c3_lines_t",Date.now())}catch(e){}lnPush()}
+function lineById(id){return LINES.find(l=>l.id===id)}
+function lineRid(id,dir){return"l_"+id+"_"+dir}
+function lineParse(v){const m=/^L:([^:]+):(\d+)$/.exec(v||"");return m?{id:m[1],i:+m[2]}:null}
+function lineSegTimes(fr,dir,dep,dur){return fr.map(f=>dep+(dir==="f"?f:1-f)*dur)}
+
+// ---- the two ends of each line become routes you can import timetables for ----
+function lnRegister(L){
+  const a=L.names[0],z=L.names[L.names.length-1],tot=L.total||30,rng=[Math.max(3,Math.round(tot*.6)),Math.round(tot*1.6)];
+  [[lineRid(L.id,"f"),a,z],[lineRid(L.id,"b"),z,a]].forEach(([id,f,t])=>{
+    IMP_PAIRS[f+">"+t]=id;ROUTE_SUFFIX[id]=id;ROUTE_NAME[id]=f+" → "+t+" ("+L.name+")";
+    if(!IMP_RANGE[id])IMP_RANGE[id]=rng;
+    const c=customPairs();WD[id]=mk(c["wd_"+id]||[]);WE[id]=mk(c["we_"+id]||[]);
+    const sel=document.getElementById("imp-route");
+    if(sel&&!Array.from(sel.options).some(o=>o.value===id)){const o=document.createElement("option");o.value=id;o.textContent=ROUTE_NAME[id];sel.appendChild(o)}
+  });
+  [a,z].forEach(n=>{if(IMP_ENDS.indexOf(n)<0)IMP_ENDS.push(n)});
+}
+function lnRegisterAll(){LINES.forEach(lnRegister)}
+function lnRefreshImp(){
+  const a=document.getElementById("imp-from"),b=document.getElementById("imp-to");
+  if(!a||!a.options.length||typeof impFillSel!=="function")return;
+  const f=a.value,t=b.value;
+  impFillSel("imp-from",null,IMP_ENDS.indexOf(f)>=0?f:"Orduña");
+  impFillSel("imp-to",null,IMP_ENDS.indexOf(t)>=0?t:"Abando");
+  impPickRoute();
+}
+// a new route has no times to compare with, so tick everything the reader found
+const _ibrL=impBuildRows;
+impBuildRows=function(route,day,seen,minSeen){
+  _ibrL(route,day,seen,minSeen);
+  if(/^l_/.test(route)&&!(day==="WD"?WD:WE)[route].length){impRows.forEach(r=>{r.include=true});impRender()}
+};
+const _impSaveL=impSave;
+impSave=function(){_impSaveL();try{if(impCtx&&/^l_/.test(impCtx.route))lnRegisterAll()}catch(e){}};
+
+// ---- Firestore: one document, config/lines (the lines and every saved timetable) ----
+async function lnPush(){
+  if(!fb||!fb.auth.currentUser)return;
+  try{
+    const upd=+localStorage.getItem("c3_lines_t")||Date.now();
+    await fb.F.setDoc(fb.F.doc(fb.db,"config","lines"),{linesJson:JSON.stringify(LINES.map(l=>({id:l.id,name:l.name,stations:l.stations}))),pairsJson:JSON.stringify(customPairs()),updated:upd});
+    try{localStorage.setItem("c3_lines_t",upd)}catch(e){}
+  }catch(e){}
+}
+const _scpL=saveCustomPairs;
+saveCustomPairs=function(o){_scpL(o);try{localStorage.setItem("c3_lines_t",Date.now())}catch(e){}lnPush()};
+async function lnPull(){
+  if(!fb||!fb.auth.currentUser)return;
+  try{
+    const snap=await fb.F.getDoc(fb.F.doc(fb.db,"config","lines"));
+    const local=+localStorage.getItem("c3_lines_t")||0;
+    if(!snap.exists()){lnPush();return}
+    const d=snap.data(),rem=+d.updated||0;
+    if(rem>local){      // the cloud copy is newer: use it
+      const ls=lnNormalize(JSON.parse(d.linesJson||"[]"));
+      if(ls.length){LINES=ls;lnStore()}
+      try{localStorage.setItem(C3_PAIRS_KEY,d.pairsJson||"{}");localStorage.setItem("c3_lines_t",rem)}catch(e){}
+      applyCustomPairs();lnRegisterAll();lnRender();lineFillRideSelects();lnRefreshImp();
+      try{updateAdminBadges();renderAdminInfo();renderLive();if(showTrainSched)renderTrainSchedule()}catch(e){}
+    }else if(local>rem)lnPush();
+  }catch(e){}
+}
+const _csL=cloudState;
+cloudState=function(u){_csL(u);if(u)lnPull()};
+
+// ---- Data tab: the Lines card ----
+function lnMsg(m,err){const e=document.getElementById("ln-msg");if(e){e.textContent=m;e.className="plan-msg"+(err?" err":"")}}
+function lnRender(){
+  const box=document.getElementById("ln-list");if(!box)return;
+  box.innerHTML=LINES.map(L=>'<div class="rl-row"><div class="rl-st"><strong>'+esc(L.name)+'</strong><small>'+esc(L.names[0])+' ↔ '+esc(L.names[L.names.length-1])+' · '+L.names.length+' stations · '+(L.total?"times from your minutes":"evenly spaced")+'</small></div>'
+    +'<button class="chk-btn" type="button" onclick="lnEdit(\''+L.id+'\')">Edit</button><button class="rl-x" type="button" onclick="lnDel(\''+L.id+'\')" aria-label="Delete line">✕</button></div>').join("")||'<div class="live-note" style="margin:0">No lines yet.</div>';
+}
+function lnEdit(id){
+  const L=lineById(id);if(!L)return;
+  lnEditing=id;
+  document.getElementById("ln-name").value=L.name;
+  document.getElementById("ln-st").value=L.stations.map(s=>s.n+(s.m!=null?" | "+s.m:"")).join("\n");
+  lnMsg("Editing "+L.name+". Save to apply.");
+}
+function lnClear(){lnEditing=null;document.getElementById("ln-name").value="";document.getElementById("ln-st").value="";lnMsg("")}
+function lnSave(){
+  const name=document.getElementById("ln-name").value.replace(/[<>"&|]/g,"").trim().slice(0,20);
+  const rows=document.getElementById("ln-st").value.split("\n").map(s=>s.trim()).filter(Boolean).map(s=>{
+    const p=s.split("|"),n=p[0].replace(/[<>"&]/g,"").trim().slice(0,40),m=p.length>1&&p[1].trim()!==""?parseFloat(p[1].replace(",",".")):null;
+    return{n,m:(m==null||isNaN(m))?null:m};
+  });
+  if(!name){lnMsg("Give the line a name.",true);return}
+  if(rows.length<2){lnMsg("Add at least two stations.",true);return}
+  if(rows.some(r=>!r.n)||new Set(rows.map(r=>r.n.toLowerCase())).size!==rows.length){lnMsg("Station names must be different and not empty.",true);return}
+  let note="";
+  if(rows.every(r=>r.m!=null)){const m0=rows[0].m;rows.forEach(r=>{r.m=+(r.m-m0).toFixed(2)})}
+  else{if(rows.some(r=>r.m!=null))note=" Minutes ignored: every station needs one, so they are evenly spaced.";rows.forEach(r=>{r.m=null})}
+  const L=lnCompute({id:lnEditing||"",name,stations:rows});
+  if(rows[0].m!=null&&!L.total){note=" The minutes are not increasing, so the stations are evenly spaced."}
+  if(lnEditing){const i=LINES.findIndex(l=>l.id===lnEditing);if(i>=0)LINES[i]=L;else LINES.push(L)}
+  else{
+    let base=cfgSlugL(name),id=base,k=2;while(lineById(id))id=base+(k++);
+    L.id=id;LINES.push(L);
+  }
+  lnEditing=null;lnStore();lnRegisterAll();lnRender();lineFillRideSelects();lnRefreshImp();lnTouch();
+  document.getElementById("ln-name").value="";document.getElementById("ln-st").value="";
+  lnMsg("Saved "+name+" with "+rows.length+" stations."+note);
+}
+function cfgSlugL(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"").slice(0,12)||"line"}
+function lnDel(id){
+  const L=lineById(id);if(!L)return;
+  askConfirm("Delete the line "+L.name+"? Its saved timetables and past trips stay saved.","Delete",()=>{
+    LINES=LINES.filter(l=>l.id!==id);lnStore();lnRender();lineFillRideSelects();lnTouch();
+  });
+}
+
+// ---- Ride log: the stations of a line appear in FROM and TO ----
+function lineFillRideSelects(){
+  ["rl-from","rl-to"].forEach(id=>{
+    const el=document.getElementById(id);if(!el||!el.querySelector(":scope>option"))return;   // wait until the C3 stations are in
+    const keep=el.value;
+    el.querySelectorAll("optgroup").forEach(g=>g.remove());
+    LINES.forEach(L=>{
+      const g=document.createElement("optgroup");g.label=L.name+" · "+L.names[0]+" – "+L.names[L.names.length-1];
+      L.names.forEach((n,i)=>{const o=document.createElement("option");o.value="L:"+L.id+":"+i;o.textContent=n;g.appendChild(o)});
+      el.appendChild(g);
+    });
+    if(Array.from(el.options).some(o=>o.value===keep))el.value=keep;
+  });
+}
+const _rfsL=rideFillStations;
+rideFillStations=function(){_rfsL();lineFillRideSelects()};
+function lineFillTrains(fv,tv){
+  const a=lineParse(fv),b=lineParse(tv),sel=document.getElementById("rl-train");
+  if(!a||!b||a.id!==b.id){sel.innerHTML="";rideMsg("Choose two stations of the same line.",true);return}
+  if(a.i===b.i){sel.innerHTML="";rideMsg("Choose two different stations.",true);return}
+  const L=lineById(a.id);if(!L){sel.innerHTML="";return}
+  const dir=b.i>a.i?"f":"b",S=dayTypeFor(0)==="weekday"?WD:WE,list=S[lineRid(L.id,dir)]||[];
+  if(!list.length){sel.innerHTML="";rideMsg("No timetable for this direction yet. Add it in the Data tab.",true);return}
+  rideMsg("");
+  const nm=new Date().getHours()*60+new Date().getMinutes();
+  const rows=list.map(tr=>{const d=tr.arr-tr.dep,ts=lineSegTimes(L.fr,dir,tr.dep,d);return{dep:tr.dep,depT:ts[a.i],arrT:ts[b.i]}});
+  const gap=x=>{const d=Math.abs(x.depT%1440-nm);return Math.min(d,1440-d)};
+  let best=0;rows.forEach((x,i)=>{if(gap(x)<gap(rows[best]))best=i});
+  sel.innerHTML=rows.map((x,i)=>`<option value="X|${x.dep}|${fmt(x.depT)}"${i===best?" selected":""}>${fmt(x.depT)} → ${fmt(x.arrT)}</option>`).join("");
+}
+const _rftL=rideFillTrains;
+rideFillTrains=function(){
+  const fv=document.getElementById("rl-from").value,tv=document.getElementById("rl-to").value;
+  if(!/^L:/.test(fv)&&!/^L:/.test(tv))return _rftL();
+  lineFillTrains(fv,tv);
+};
+const _rsL=rideStart;
+rideStart=function(){
+  const fv=document.getElementById("rl-from").value,tv=document.getElementById("rl-to").value;
+  if(!/^L:/.test(fv)&&!/^L:/.test(tv))return _rsL();
+  if(activeTrip()){rideMsg("Finish the current trip first.",true);return}
+  const a=lineParse(fv),b=lineParse(tv),v=document.getElementById("rl-train").value;
+  if(!a||!b||a.id!==b.id||a.i===b.i||!v){rideMsg("Choose the stations and the train.",true);return}
+  const L=lineById(a.id),p=v.split("|"),arr=loadTrips(),bid=document.getElementById("build-id");
+  arr.push({id:"t"+Date.now(),v:2,build:bid?bid.textContent:"",data:DATA_UPDATED,day:todayLocal(),dayType:dayTypeFor(0),
+    from:a.i,to:b.i,type:"X",trainDep:+p[1],sched:p[2],status:"active",startedAt:Date.now(),log:[],
+    line:{id:L.id,name:L.name,names:L.names.slice(),fr:L.fr.slice(),dir:b.i>a.i?"f":"b"}});
+  saveTrips(arr);rideMsg("");renderRide();
+};
+const _reL=rideEnds;
+rideEnds=function(tr){return tr.line?[tr.from,tr.to]:_reL(tr)};
+const _rtL=rideTitle;
+rideTitle=function(tr){return tr.line?tr.line.name+" · "+tr.line.names[tr.from]+" → "+tr.line.names[tr.to]:_rtL(tr)};
+
+// trains of the other direction this trip should meet. Works across lines that share stations (C1 and C2 share Abando to Desertu-Barakaldo).
+function lineMeetList(tr){
+  const Lt=tr.line,S=tr.dayType==="weekday"?WD:WE;
+  const sch=(S[lineRid(Lt.id,Lt.dir)]||[]).find(x=>x.dep===tr.trainDep);
+  if(!sch)return[];
+  const mt=lineSegTimes(Lt.fr,Lt.dir,sch.dep,sch.arr-sch.dep),f=tr.from,t=tr.to,step=t>f?1:-1,out=[],seen={};
+  for(let i=f;i!==t;i+=step){
+    const u=i,v=i+step,nu=Lt.names[u],nv=Lt.names[v],mu=mt[u],mv=mt[v],Dm=mv-mu;
+    if(!(Dm>0))continue;
+    LINES.forEach(M=>{
+      const ju=M.names.indexOf(nu),jv=M.names.indexOf(nv);
+      if(ju<0||jv<0||Math.abs(ju-jv)!==1)return;
+      ["f","b"].forEach(dm=>{
+        (S[lineRid(M.id,dm)]||[]).forEach(x=>{
+          const Do=x.arr-x.dep;
+          [-1440,0,1440].forEach(sh=>{
+            const dep=x.dep+sh,ou=dep+(dm==="f"?M.fr[ju]:1-M.fr[ju])*Do,ov=dep+(dm==="f"?M.fr[jv]:1-M.fr[jv])*Do;
+            if(!(ov<ou))return;                         // it runs the same way as you
+            const seg=ou-ov,tt=(1+mu/Dm+ov/seg)/(1/Dm+1/seg);
+            if(tt<Math.max(mu,ov)||tt>=Math.min(mv,ou))return;
+            const key=Lt.id+Lt.dir+sch.dep+"#"+M.id+dm+x.dep+"_"+sh;
+            if(seen[key])return;seen[key]=1;
+            const x01=(tt-mu)/Dm,place=x01<.15?nu:x01>.85?nv:nu+" ↔ "+nv;
+            out.push({t:tt,key,label:M.name+" from "+(dm==="f"?M.names[0]:M.names[M.names.length-1])+" "+fmt(dep),place});
+          });
+        });
+      });
+    });
+  }
+  return out.sort((a,b)=>a.t-b.t);
+}
+const _rmtL=rideMeetTap;
+rideMeetTap=function(key){
+  const tr=activeTrip();if(!tr)return;
+  if(!tr.line)return _rmtL(key);
+  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
+  if(tr.log.some((e,i)=>e.k==="meet"&&e.key===key&&!voided.has(i)))return;
+  const m=lineMeetList(tr).find(x=>x.key===key);if(!m)return;
+  rideLog({k:"meet",key:m.key,label:m.label,pred:m.t,place:m.place,delta:+rideDelta(Date.now(),m.t).toFixed(2)});
+};
+
+// the ride screen for a line trip (same layout as the C3 one)
+function renderLineRide(tr){
+  const box=document.getElementById("rl-box");if(!box)return;
+  const L=tr.line,n=loadTrips().filter(x=>x.status==="done").length;
+  document.getElementById("rl-count").textContent=n+" finished trip"+(n===1?"":"s")+" saved on this phone";
+  document.getElementById("rl-setup").style.display="none";
+  const gv=id=>{const e=document.getElementById(id);return e?e.value:""};
+  const keep={note:gv("rl-note"),ann:gv("rl-ann"),reason:gv("rl-reason")};
+  const S=tr.dayType==="weekday"?WD:WE,sch=(S[lineRid(L.id,L.dir)]||[]).find(x=>x.dep===tr.trainDep);
+  const ests=sch?lineSegTimes(L.fr,L.dir,sch.dep,sch.arr-sch.dep):null;
+  const sx=rideState(tr),all=rideAll();
+  const order=rideOrder(tr),last=order[order.length-1];
+  const fin=s=>{const r=sx.st[s]||{};return!!(r.dep||r.skip||(s===last&&r.arr))};
+  let first=order.findIndex(s=>!fin(s));if(first<0)first=order.length;
+  const start=Math.max(0,Math.min(first,order.length-3));
+  const shown=all?order:order.slice(start,start+3);
+  const rows=shown.map(s=>{
+    const r=sx.st[s]||{},est=ests?ests[s]:null;
+    const cell=(k,label)=>r[k]
+      ?`<button class="rl-b done" onclick="rideUndoAt(${r[k].i})">${rideClock(r[k].t)}</button>`
+      :`<button class="rl-b" onclick="rideTap('${k}',${s})">${label}</button>`;
+    const d=r.arr&&est!=null?` <span class="rl-d">${fmtDelta(rideDelta(r.arr.t,est))}</span>`:"";
+    const buttons=(r.skip?`<button class="rl-b done" onclick="rideUndoAt(${r.skip.i})">skipped</button>`:cell("arr","Arrived")+cell("dep","Left"))
+      +`<button class="rl-x undo" onclick="rideUndoStation(${s})" title="Undo" aria-label="Undo"${r.arr||r.dep||r.skip?"":" disabled"}>↶</button>`;
+    return`<div class="rl-row${r.skip?" skip":""}"><div class="rl-st"><strong>${esc(L.names[s])}</strong><small>est ${est!=null?fmt(est):"–"}${d}</small></div>${buttons}</div>`;
+  }).join("");
+  const voided=new Set(tr.log.filter(e=>e.k==="void").map(e=>e.ref));
+  const doneM={},extras=[];
+  tr.log.forEach((e,i)=>{
+    if(e.k!=="meet"||voided.has(i))return;
+    if(e.key)doneM[e.key]={i,t:e.t,delta:e.delta};
+    else extras.push({i,t:e.t,text:e.extra?e.text:"no matching train expected"});
+  });
+  const meetRows=lineMeetList(tr).map(m=>{
+    const d=doneM[m.key];
+    const btn=d?`<button class="rl-b done" onclick="rideUndoAt(${d.i})">${rideClock(d.t)}</button>`:`<button class="rl-b" onclick="rideMeetTap('${m.key}')">Met</button>`;
+    const dd=d?` <span class="rl-d">${fmtDelta(d.delta)}</span>`:"";
+    return`<div class="rl-row"><div class="rl-st"><strong>${esc(m.place)}</strong><small>est ${fmt(m.t)} · ${esc(m.label)}${dd}</small></div>${btn}</div>`;
+  }).join("");
+  const extraRows=extras.map(x=>`<div class="rl-row"><div class="rl-st"><strong>${esc(x.text)}</strong><small>not in the timetable</small></div><button class="rl-b done extra" onclick="rideUndoAt(${x.i})">${rideClock(x.t)}</button></div>`).join("")
+    +`<div class="rl-row"><div class="rl-st"><strong>Another train</strong><small>not in the timetable</small></div><button class="rl-b extra" onclick="rideMeetExtra()">Met</button></div>`;
+  const evs=sx.ev.map(e=>`<div class="rl-ev">Stop ${rideClock(e.start)}${e.end?" – "+rideClock(e.end)+" ("+Math.round((e.end-e.start)/1000)+" s)":" (still stopped)"} · ${esc(e.reason)}${e.announced?" · announced "+esc(e.announced)+" min":""}${e.after!=null?" · after "+esc(L.names[e.after]):""}</div>`).join("");
+  const notes=sx.notes.map(x=>`<div class="rl-ev">${rideClock(x.t)} · ${esc(x.text)}</div>`).join("");
+  box.innerHTML=`<div class="rl-head"><strong>${esc(rideTitle(tr))} · ${tr.sched}</strong><div class="rl-hs"><span>${sx.disrupted?"DISRUPTED":"normal"}</span><button class="rl-sw${all?" on":""}" role="switch" aria-checked="${all}" aria-label="Show all stations" title="Show all stations" onclick="rideToggleAll()"><i></i></button></div></div>${rows}
+    <div class="rl-pair"><button class="chk-btn" onclick="rideEnd('cancelled')">Cancel trip</button><button class="admin-save-btn" onclick="rideEnd('done')">FINISH TRIP</button></div>
+    <div class="field" style="margin:14px 0 0"><label>TRAINS MET ON THE WAY</label></div>
+    ${meetRows}${extraRows}
+    <div class="field" style="margin-top:12px"><label>UNSCHEDULED STOP</label>
+      <select id="rl-reason">${REASONS.map(r=>`<option>${r}</option>`).join("")}</select>
+      <input class="plan-input" id="rl-ann" style="margin-top:6px" placeholder="Announced wait in minutes, for example 10-15"/></div>
+    ${sx.open?`<button class="admin-save-btn" onclick="rideGo()">MOVING AGAIN</button>`:`<button class="admin-save-btn" onclick="rideStop()">STOPPED BETWEEN STATIONS</button>`}
+    ${evs}
+    <div class="field" style="margin-top:12px"><label>NOTE</label><textarea class="admin-textarea" id="rl-note" style="min-height:60px"></textarea></div>
+    ${notes}
+    <div class="rl-pair"><button class="chk-btn" onclick="rideUndoLast()">Undo last</button><button class="chk-btn" onclick="rideNote()">Add note</button></div>`;
+  document.getElementById("rl-note").value=keep.note;document.getElementById("rl-ann").value=keep.ann;
+  if(keep.reason)document.getElementById("rl-reason").value=keep.reason;
+}
+const _rrL=renderRide;
+renderRide=function(){const tr=activeTrip();if(tr&&tr.line)return renderLineRide(tr);return _rrL()};
+
+// the Analysis tab is built on the C3 stations, so it leaves line trips out for now
+const _anmL=anMerged;
+anMerged=function(){return _anmL().filter(t=>!t.line)};
+
+// ---- start up ----
+(function(){
+  if(!localStorage.getItem("c3_lines"))lnStore();
+  lnRegisterAll();
+  const imp=document.getElementById("imp-card");
+  if(imp&&!document.getElementById("ln-card")){
+    imp.insertAdjacentHTML("afterend",`<div class="card" id="ln-card">
+  <div class="card-title">LINES</div>
+  <div class="live-note" style="margin:-4px 0 12px;font-size:12px;line-height:1.6">Each line has its own stations. Add its timetable in the card above: pick the two ends in FROM and TO, then read the screenshots. The ride log then shows every station of the line.</div>
+  <div id="ln-list"></div>
+  <div class="field" style="margin-top:12px"><label>LINE NAME</label><input class="plan-input" id="ln-name" placeholder="C1" maxlength="20"/></div>
+  <div class="field"><label>STATIONS, FIRST END TO LAST (ONE PER LINE). OPTIONAL: NAME | MINUTES FROM THE FIRST END</label><textarea class="admin-textarea" id="ln-st" style="min-height:150px" placeholder="Abando | 0&#10;Zabálburu | 2&#10;Santurtzi | 24"></textarea></div>
+  <div class="rl-pair"><button class="chk-btn" type="button" onclick="lnClear()">Clear</button><button class="admin-save-btn" type="button" onclick="lnSave()">SAVE LINE</button></div>
+  <div class="plan-msg" id="ln-msg"></div>
+</div>`);
+  }
+  lnRender();lnRefreshImp();lineFillRideSelects();
+})();
+</script>
+<script>
+// HOME: tabs C3 · C2 · C1 · TRAM, a live board for every line.
+// Order on each board: big next-train card, route selection, progress bars, next trains, timetable.
+// Needs the Lines block above it. Keep this block last in the file.
+const LN_LIVE={};   // per line: {from,to,sched,meet}
+const LN_DEMO={};   // route+day -> true while sample times are in use
+
+// ---- sample timetables, used only until you import the real ones ----
+function hm(m){m=((Math.round(m)%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+function lnDemoPairs(L,dir,day,idx){
+  const dur=Math.round(L.total||30),step=day==="WD"?30:60,end=day==="WD"?1350:1320;
+  const start=(day==="WD"?330:420)+(dir==="f"?0:step/2)+(idx%2)*5,out=[];
+  for(let d=start;d<=end;d+=step)out.push([hm(d),hm(d+dur)]);
+  return out;
+}
+function lnDemoFill(){
+  const c=customPairs();
+  LINES.forEach((L,idx)=>["f","b"].forEach(dir=>{
+    const rid=lineRid(L.id,dir);
+    [["WD",WD,"wd_"],["WE",WE,"we_"]].forEach(([day,S,pre])=>{
+      const real=c[pre+rid];
+      if(Array.isArray(real)&&real.length){LN_DEMO[rid+day]=false;S[rid]=mk(real);return}
+      S[rid]=mk(lnDemoPairs(L,dir,day,idx));LN_DEMO[rid+day]=true;
+    });
+  }));
+}
+const _lraD=lnRegisterAll;
+lnRegisterAll=function(){_lraD();lnDemoFill()};
+// the Data tab compares an import with real times only, never with the sample ones
+const _ibrD=impBuildRows;
+impBuildRows=function(route,day,seen,minSeen){
+  const S=day==="WD"?WD:WE;
+  if(LN_DEMO[route+day]){const saved=S[route];S[route]=[];try{_ibrD(route,day,seen,minSeen)}finally{S[route]=saved}}
+  else _ibrD(route,day,seen,minSeen);
+};
+
+// ---- live board maths for a line ----
+function lnColor(id,dir){
+  const i=Math.max(0,LINES.findIndex(l=>l.id===id));
+  return ROUTE_PALETTE[(4+i*2+(dir==="f"?0:1))%ROUTE_PALETTE.length];
+}
+// is the other train of this meeting still on its trip? Then its dot blinks, like on C3.
+function lnMeetLive(key,dt,nm){
+  const m=/#(.+)([fb])(-?\d+)_(-?\d+)$/.exec(key||"");if(!m)return false;
+  const S=dt==="weekday"?WD:WE,tr=(S[lineRid(m[1],m[2])]||[]).find(t=>t.dep===Number(m[3]));
+  return!!tr&&nm>=tr.dep+Number(m[4])&&nm<=tr.arr+Number(m[4]);
+}
+function lnColorOfKey(key){const m=/#(.+)([fb])-?\d+_-?\d+$/.exec(key||"");return m?lnColor(m[1],m[2]):"#850D70"}
+function lnSegLabel(L,pos){
+  for(let i=0;i<L.fr.length-1;i++){
+    if(pos>=L.fr[i]-1e-9&&pos<=L.fr[i+1]+1e-9){
+      const w=L.fr[i+1]-L.fr[i];
+      if(pos-L.fr[i]<=w*.2)return L.names[i];
+      if(L.fr[i+1]-pos<=w*.2)return L.names[i+1];
+      return L.names[i]+" ↔ "+L.names[i+1];
+    }
+  }
+  return L.names[0];
+}
+function lnTrainsAt(L,i,j,S,add){
+  const dir=j>i?"f":"b";
+  return(S[lineRid(L.id,dir)]||[]).map(tr=>{const ts=lineSegTimes(L.fr,dir,tr.dep,tr.arr-tr.dep);return{depT:ts[i]+add,arrT:ts[j]+add,day:add?1:0}}).sort((a,b)=>a.depT-b.depT);
+}
+function lnUpcoming(L,i,j,nowSec,max){
+  let out=lnTrainsAt(L,i,j,dayTypeFor(0)==="weekday"?WD:WE,0).filter(x=>x.depT*60>=nowSec);
+  if(!out.length)out=lnTrainsAt(L,i,j,dayTypeFor(1)==="weekday"?WD:WE,1440).slice(0,max);
+  return out;
+}
+function lnInTransit(L,nowSec){
+  const res=[],last=L.names[L.names.length-1];
+  const run=(dt,nm)=>{
+    const S=dt==="weekday"?WD:WE;
+    ["f","b"].forEach(dir=>(S[lineRid(L.id,dir)]||[]).forEach(tr=>{
+      if(nm<tr.dep||nm>tr.arr)return;
+      const f=(nm-tr.dep)/(tr.arr-tr.dep);
+      res.push({dir,dep:tr.dep,arr:tr.arr,nm,f,dt,pos:dir==="f"?f:1-f,name:L.names[0]+(dir==="f"?" → ":" ← ")+last});
+    }));
+  };
+  run(dayTypeFor(0),nowSec/60);run(dayTypeFor(-1),nowSec/60+1440);
+  return res.sort((a,b)=>a.arr-b.arr);
+}
+
+// ---- one panel per line ----
+function lnPanelHTML(L){
+  const p="L-"+L.id;
+  return`<div class="hero-row"><div class="hero-slot" id="${p}-hero"></div></div>
+<div class="card"><div class="live-date" id="${p}-date" style="margin:0 0 12px"></div>
+<div class="plan-row3"><div class="field" style="margin-bottom:0"><label>FROM</label><select id="${p}-from" onchange="lnLiveChange('${L.id}')"></select></div>
+<button class="swap-btn plan-swap" type="button" onclick="lnLiveSwap('${L.id}')" title="Swap" aria-label="Swap from and to" style="margin-bottom:2px">⇄</button>
+<div class="field" style="margin-bottom:0"><label>TO</label><select id="${p}-to" onchange="lnLiveChange('${L.id}')"></select></div></div></div>
+<div class="card"><div class="card-title">ON THE LINE NOW</div><div id="${p}-transit"></div><div class="live-note">Positions are estimated from the timetable. Real-time delays are not included.</div></div>
+<div class="card"><div class="card-title">NEXT TRAINS</div><div id="${p}-list"></div></div>
+<div class="card"><button class="tram-all-btn" id="${p}-allbtn" onclick="lnToggleSched('${L.id}')">📋 View full timetable</button><div class="full-schedule" id="${p}-sched"></div></div>`;
+}
+function lnState(L){
+  const st=LN_LIVE[L.id]||(LN_LIVE[L.id]={from:0,to:L.names.length-1,sched:false,meet:null});
+  if(st.from>=L.names.length)st.from=0;
+  if(st.to>=L.names.length)st.to=L.names.length-1;
+  return st;
+}
+function lnFillLiveSelects(L){
+  const st=lnState(L);
+  ["from","to"].forEach(k=>{
+    const el=document.getElementById("L-"+L.id+"-"+k);if(!el)return;
+    el.innerHTML=L.names.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join("");
+    el.value=st[k];
+  });
+}
+function lnLiveChange(id){
+  const L=lineById(id);if(!L)return;
+  const st=lnState(L);
+  st.from=+document.getElementById("L-"+id+"-from").value;st.to=+document.getElementById("L-"+id+"-to").value;
+  lnRenderLive(id);if(st.sched)lnRenderSched(id);
+}
+function lnLiveSwap(id){
+  const f=document.getElementById("L-"+id+"-from"),g=document.getElementById("L-"+id+"-to"),v=f.value;
+  f.value=g.value;g.value=v;lnLiveChange(id);
+}
+function lnPickMeet(id,key){const st=LN_LIVE[id];if(!st)return;st.meet=st.meet===key?null:key;lnRenderLive(id)}
+function lnToggleSched(id){
+  const L=lineById(id);if(!L)return;
+  const st=lnState(L);st.sched=!st.sched;
+  const b=document.getElementById("L-"+id+"-allbtn");
+  b.className="tram-all-btn"+(st.sched?" on":"");
+  b.textContent=st.sched?"✕ Close timetable":"📋 View full timetable";
+  document.getElementById("L-"+id+"-sched").className="full-schedule"+(st.sched?" on":"");
+  if(st.sched)lnRenderSched(id);
+}
+function lnRenderSched(id){
+  const L=lineById(id),wrap=document.getElementById("L-"+id+"-sched");if(!L||!wrap)return;
+  const st=lnState(L);
+  if(st.from===st.to){wrap.innerHTML='<div class="live-empty">Select two different stations.</div>';return}
+  const fName=esc(L.names[st.from]),tName=esc(L.names[st.to]);
+  wrap.innerHTML=[["Monday–Friday",WD],["Saturday–Sunday",WE]].map(([lbl,S])=>{
+    const rows=lnTrainsAt(L,st.from,st.to,S,0).map(x=>`<tr><td>${fmt(x.depT)}</td><td>${fmt(x.arrT)}</td><td class="sched-svc">${esc(L.name)}</td></tr>`).join("");
+    return`<div class="sched-section">${lbl}</div><table class="sched-table"><thead><tr><th>Departs ${fName}</th><th>Arrives ${tName}</th><th>Service</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }).join("");
+}
+function lnRenderLive(id){
+  const L=lineById(id);if(!L)return;
+  const p="L-"+id,st=lnState(L),hero=document.getElementById(p+"-hero"),list=document.getElementById(p+"-list");
+  if(!hero||!list)return;
+  const now=new Date(),ns=nowSecs(),dt=dayTypeFor(0),dk=dt==="weekday"?"WD":"WE";
+  const sample=LN_DEMO[lineRid(id,"f")+dk]||LN_DEMO[lineRid(id,"b")+dk];
+  document.getElementById(p+"-date").textContent=DAYS_EN[now.getDay()]+" · "+(dt==="weekday"?"Mon–Fri timetable":"Sat–Sun timetable")+(sample?" · sample times":"");
+  if(st.from===st.to){
+    hero.innerHTML=`<div class="live-hero none"><div class="live-hero-label">SELECT TWO DIFFERENT STATIONS</div></div>`;list.innerHTML="";
+  }else{
+    const fName=esc(L.names[st.from]),tName=esc(L.names[st.to]),up=lnUpcoming(L,st.from,st.to,ns,7);
+    if(!up.length){
+      hero.innerHTML=`<div class="live-hero none"><div class="live-hero-label">${fName.toUpperCase()} → ${tName.toUpperCase()}</div><div class="live-hero-sub">No trains in this direction.</div></div>`;
+      list.innerHTML=`<div class="live-empty">No service</div>`;
+    }else{
+      const n=up[0],sec=Math.max(0,Math.round(n.depT*60-ns)),cls=sec<=300?"live-hero soon":"live-hero";
+      const cnt=sec<300?`${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")}`:waitLabel(sec);
+      hero.innerHTML=`<div class="${cls}">
+        <div class="live-hero-label">NEXT TRAIN · ${fName.toUpperCase()} → ${tName.toUpperCase()}${n.day?" · TOMORROW":""}</div>
+        <div class="live-hero-row"><div class="live-hero-time">${fmt(n.depT)}</div><div class="live-hero-count">${cnt}</div></div>
+        <div class="live-hero-sub">Arrives at ${tName} at <strong>${fmt(n.arrT)}</strong> · ${Math.round(n.arrT-n.depT)} min ${esc(L.name)}</div>
+      </div>`;
+      list.innerHTML=up.slice(1,7).map(x=>{
+        const s=Math.round(x.depT*60-ns);
+        return`<div class="live-row"><div class="live-row-dep">${fmt(x.depT)}</div><div class="live-row-body">arrives <strong>${fmt(x.arrT)}</strong> · ${esc(L.name)}${x.day?'<span class="live-row-tag">TOMORROW</span>':""}</div><div class="live-row-in">${waitLabel(s)}</div></div>`;
+      }).join("")||`<div class="live-empty">No more trains</div>`;
+    }
+  }
+  // the progress bars
+  const tr=lnInTransit(L,ns),last=L.names[L.names.length-1],box=document.getElementById(p+"-transit");
+  const dirs=[...new Set(tr.map(x=>x.dir))];
+  box.innerHTML=tr.length
+    ?`<div class="rt-legend">${dirs.map(d=>`<span style="--rc:${lnColor(id,d)}"><i></i>${esc(L.names[0])}${d==="f"?" → ":" ← "}${esc(last)}</span>`).join("")}</div>`
+      +tr.map(x=>{
+        const rev=x.dir==="b",col=lnColor(id,x.dir);
+        const pt={line:{id:L.id,names:L.names,fr:L.fr,dir:x.dir},dayType:x.dt,trainDep:x.dep,from:x.dir==="f"?0:L.names.length-1,to:x.dir==="f"?L.names.length-1:0};
+        let ms=[];try{ms=lineMeetList(pt).filter(m=>m.t<=x.nm)}catch(e){}   // only meetings that have already happened
+        const sel=ms.find(m=>m.key===st.meet);
+        const dots=ms.map(m=>{
+          const f=Math.min(1,Math.max(0,(m.t-x.dep)/(x.arr-x.dep)));
+          const live=lnMeetLive(m.key,x.dt,x.nm);
+          return`<b class="mdot${live?" live":""}" style="left:${((rev?1-f:f)*100).toFixed(1)}%;--mc:${lnColorOfKey(m.key)}${live?";animation-delay:-"+((Date.now()%2400)/1000).toFixed(2)+"s":""}" title="${fmt(m.t)} · ${esc(m.place)} · ${esc(m.label)}" onclick="lnPickMeet('${id}','${m.key}')"></b>`;
+        }).join("");
+        const tip=sel?`Met ${esc(sel.label)} at ${fmt(sel.t)} · ${esc(sel.place)}`:"";
+        return`<div class="live-row rt${rev?" rev":""}" style="display:block;--rc:${col}">
+    <div style="display:flex;justify-content:space-between;align-items:baseline${rev?";flex-direction:row-reverse":""}"><strong style="font-size:13px">${esc(x.name)}</strong><span class="live-row-in">arrives ${fmt(x.arr)}</span></div>
+    <div style="font-size:12px;color:var(--text-mid);margin-top:2px${rev?";text-align:right":""}">≈ ${esc(lnSegLabel(L,x.pos))}</div>
+    <div class="live-bar-wrap"><div class="live-bar${rev?" rev":""}"><i style="width:${(x.f*100).toFixed(1)}%"></i></div>${dots}</div>
+    <div class="meet-tip">${tip}</div></div>`;
+      }).join("")
+    :`<div class="live-empty">No trains on the line right now</div>`;
+}
+
+// ---- the tab bar: C3 · C2 · C1 · TRAM ----
+function lnBuildTabs(){
+  const tabs=document.querySelector(".app-tabs"),main=document.querySelector("main"),tram=document.getElementById("panel-tram");
+  if(!tabs||!main||!tram)return;
+  tabs.querySelectorAll('[id^="tab-L-"]').forEach(b=>b.remove());
+  main.querySelectorAll('[id^="panel-L-"]').forEach(p=>p.remove());
+  const c3=document.getElementById("tab-c3");c3.textContent="C3";
+  const sorted=LINES.slice().sort((a,b)=>b.name.localeCompare(a.name,undefined,{numeric:true}));
+  let after=c3;
+  sorted.forEach(L=>{
+    const b=document.createElement("button");b.className="app-tab";b.id="tab-L-"+L.id;b.textContent=L.name;b.onclick=()=>switchTab("L-"+L.id);
+    after.insertAdjacentElement("afterend",b);after=b;
+    const pn=document.createElement("div");pn.className="tab-panel";pn.id="panel-L-"+L.id;pn.innerHTML=lnPanelHTML(L);
+    main.insertBefore(pn,tram);
+    lnFillLiveSelects(L);
+  });
+  TAB_ORDER.length=0;["c3",...sorted.map(l=>"L-"+l.id),"tram"].forEach(x=>TAB_ORDER.push(x));
+  const sub=document.querySelector(".header-text p");if(sub)sub.textContent=["C3"].concat(sorted.map(l=>l.name),["Bilbao Tram"]).join(" · ");
+  if(/^L-/.test(curTab)){
+    if(!document.getElementById("panel-"+curTab))switchTab("c3");
+    else{document.getElementById("panel-"+curTab).className="tab-panel on";document.getElementById("tab-"+curTab).className="app-tab on";lnRenderLive(curTab.slice(2))}
+  }
+}
+const _stD=switchTab;
+switchTab=function(name){_stD(name);if(/^L-/.test(name))lnRenderLive(name.slice(2))};
+const _lnrD=lnRender;
+lnRender=function(){_lnrD();lnBuildTabs()};
+setInterval(()=>{if(!document.hidden&&/^L-/.test(curTab))lnRenderLive(curTab.slice(2))},1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&/^L-/.test(curTab))lnRenderLive(curTab.slice(2))});
+
+// ---- start up ----
+(function(){
+  // C3 order: big card, route selection, progress bars, next trains, timetable
+  const p=document.getElementById("panel-c3"),tr=document.getElementById("live-transit"),card=tr&&tr.closest(".card");
+  const nx=document.getElementById("live-list"),nextCard=nx&&nx.closest(".card");
+  if(p&&card&&nextCard&&card.nextElementSibling!==nextCard)p.insertBefore(card,nextCard);
+  lnDemoFill();
+  lnBuildTabs();
+  try{const s=sessionStorage.getItem("c3_tab");if(s&&/^L-/.test(s)&&TAB_ORDER.indexOf(s)>-1)switchTab(s)}catch(e){}
+})();
+</script>
+<style>
+.acc-chev{margin-left:auto;font-size:14px;line-height:1;transition:transform .2s}
+.card.collapsed .acc-chev{transform:rotate(-90deg)}
+.card.collapsed .card-title{margin-bottom:0}
+.card.collapsed #tram-journey{display:none}
+</style>
+<script>
+// TRAM tab: progress bar above YOUR JOURNEY, colour per direction, Bolueta to La Casilla left to right,
+// YOUR JOURNEY as an accordion. Paste this after the other blocks, at the end of the file.
+const TRAM_COL_LC="#E65100";   // La Casilla → Bolueta (runs right to left)
+const TRAM_COL_BL="#00796B";   // Bolueta → La Casilla (runs left to right)
+// where two trams going opposite ways pass each other (minutes from La Casilla) -> a stop name
+function tramPlaceAt(o){
+  let i=0;while(i<TRAM_STOPS_LC.length-2&&LC_OFFSETS[TRAM_STOPS_LC[i+1]]<=o)i++;
+  const a=TRAM_STOPS_LC[i],b=TRAM_STOPS_LC[i+1],oa=LC_OFFSETS[a],ob=LC_OFFSETS[b];
+  if(Math.abs(o-oa)<=0.5)return"at "+a;
+  if(Math.abs(o-ob)<=0.5)return"at "+b;
+  return"between "+a+" and "+b;
+}
+// the trams a tram has already met on this run: dep = its departure, lc = true when it left La Casilla
+function tramMeetings(dep,lc,nm,LCT,BLT){
+  const others=lc?BLT:LCT,out=[];
+  others.forEach(d2=>{
+    const t1=lc?dep:d2,t2=lc?d2:dep;                 // t1 left La Casilla, t2 left Bolueta
+    const o=(t2-t1+TRAM_TOTAL)/2,tm=(t1+t2+TRAM_TOTAL)/2;
+    if(o<=0.5||o>=TRAM_TOTAL-0.5||tm>nm)return;      // not on the line together, or only at an end, or still to come
+    out.push({t:tm,o,key:(lc?"L":"B")+dep+"_"+(lc?"B":"L")+d2,lc2:!lc,dep2:d2,f:(tm-dep)/TRAM_TOTAL});
+  });
+  return out;
+}
+let tramMeetSel=null;
+function tramPickMeet(k){tramMeetSel=tramMeetSel===k?null:k;renderTramNext()}
+function tramTransitMulti(){
+  const box=document.getElementById("tram-transit");if(!box)return;
+  const ns=nowSecs(),nm=ns/60,tr=tramsInTransit(ns);
+  if(!tr.length){box.innerHTML=`<div class="live-empty">No trams on the line right now</div>`;return}
+  const day=tramDayFor(0),LCT=buildLCBTimes(day),BLT=buildBLTimes(day);
+  const hasLC=tr.some(x=>x.toward==="Bolueta"),hasBL=tr.some(x=>x.toward!=="Bolueta");
+  box.innerHTML=`<div class="rt-legend">${hasLC?`<span style="--rc:${TRAM_COL_LC}"><i></i>La Casilla → Bolueta</span>`:""}${hasBL?`<span style="--rc:${TRAM_COL_BL}"><i></i>Bolueta → La Casilla</span>`:""}</div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text-dim);margin:0 2px 2px"><span>BOLUETA</span><span>LA CASILLA</span></div>`
+    +tr.map(x=>{
+      const rev=x.toward==="Bolueta",c=rev?TRAM_COL_LC:TRAM_COL_BL,dep=x.arr-TRAM_TOTAL;
+      let ms=[];try{ms=tramMeetings(dep,rev,nm,LCT,BLT)}catch(e){}
+      const sel=ms.find(m=>m.key===tramMeetSel);
+      const dots=ms.map(m=>{const live=nm<=m.dep2+TRAM_TOTAL;return`<b class="mdot${live?" live":""}" style="left:${((rev?1-m.f:m.f)*100).toFixed(1)}%;--mc:${m.lc2?TRAM_COL_LC:TRAM_COL_BL}${live?";animation-delay:-"+((Date.now()%2400)/1000).toFixed(2)+"s":""}" title="${fmt(m.t)} · ${tramPlaceAt(m.o)}" onclick="tramPickMeet('${m.key}')"></b>`}).join("");
+      const tip=sel?`Met the ${fmt(sel.dep2)} ${sel.lc2?"La Casilla → Bolueta":"Bolueta → La Casilla"} tram at ${fmt(sel.t)} · ${tramPlaceAt(sel.o)}`:"";
+      return`<div class="live-row rt ll${rev?" rev":""}" style="display:block;--rc:${c}">
+    <div style="display:flex;justify-content:space-between;align-items:baseline${rev?";flex-direction:row-reverse":""}"><strong style="font-size:13px">${x.name}</strong><span class="live-row-in" style="color:${c}">arrives ${fmt(x.arr)}</span></div>
+    <div style="font-size:12px;color:var(--text-mid);margin-top:2px${rev?";text-align:right":""}">≈ ${x.where}</div>
+    <div class="live-bar-wrap"><div class="live-bar${rev?" rev":""}" style="background:color-mix(in srgb,${c} 16%,#fff)"><i style="width:${Math.round(x.f*100)}%;background:${c}"></i></div>${dots}</div>
+    <div class="meet-tip">${tip}</div></div>`;
+    }).join("");
+}
+const _rtnT=renderTramNext;
+renderTramNext=function(){_rtnT();tramTransitMulti()};
+
+(function(){
+  // 1. the progress bar card goes above YOUR JOURNEY
+  const tt=document.getElementById("tram-transit"),tj=document.getElementById("tram-journey");
+  const tc=tt&&tt.closest(".card"),jc=tj&&tj.closest(".card");
+  if(tc&&jc&&tc.nextElementSibling!==jc)jc.parentNode.insertBefore(tc,jc);
+  // 4. YOUR JOURNEY opens and closes (remembered)
+  if(jc){
+    const title=jc.querySelector(".card-title");
+    if(title&&!title.querySelector(".acc-chev")){
+      title.insertAdjacentHTML("beforeend",'<span class="acc-chev" aria-hidden="true">▾</span>');
+      title.style.cursor="pointer";title.setAttribute("role","button");title.setAttribute("tabindex","0");
+      const set=open=>{jc.classList.toggle("collapsed",!open);title.setAttribute("aria-expanded",open?"true":"false");try{localStorage.setItem("c3_tram_jr_open",open?"1":"0")}catch(e){}};
+      let open=true;try{open=localStorage.getItem("c3_tram_jr_open")!=="0"}catch(e){}
+      set(open);
+      const flip=()=>set(jc.classList.contains("collapsed"));
+      title.addEventListener("click",flip);
+      title.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();flip()}});
+    }
+  }
+  tramTransitMulti();
 })();
 </script>
 </body>
