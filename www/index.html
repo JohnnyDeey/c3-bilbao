@@ -3544,5 +3544,124 @@ renderTramNext=function(){_rtnT();tramTransitMulti()};
   tramTransitMulti();
 })();
 </script>
+<script>
+// DATA TAB: after reading screenshots there are two buttons, SAVE (a draft) and OVERWRITE SCHEDULE (asks first).
+// The reading is also saved as a draft by itself. Drafts go to the cloud like everything else.
+// Paste this block last in the file.
+function impKeyFor(route,day){return(day==="WD"?"wd":"we")+"_"+(ROUTE_SUFFIX[route]||route)}
+function impDayName(day){return day==="WD"?"Mon–Fri":"Sat–Sun"}
+
+// the three old buttons become two, 50/50
+const _irX=impRender;
+impRender=function(){
+  _irX();
+  const box=document.querySelector("#imp-results .imp-actions");
+  if(box)box.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+    +'<button class="chk-btn" type="button" onclick="impDraftSave()" style="width:100%;margin:0;min-height:46px;display:flex;align-items:center;justify-content:center">SAVE</button>'
+    +'<button class="admin-save-btn" type="button" onclick="impOverwrite()" style="width:100%;margin:0;min-height:46px;display:flex;align-items:center;justify-content:center">OVERWRITE SCHEDULE</button></div>'
+    +'<button class="chk-btn" type="button" onclick="impCancelAll()" style="width:100%;margin:8px 0 0;min-height:44px;display:flex;align-items:center;justify-content:center">CANCEL</button>';
+};
+
+// CANCEL: throws the reading away, and any saved draft for this route and day (here and in the cloud)
+function impCancelAll(){
+  const rt=impCtx?impCtx.route:document.getElementById("imp-route").value,day=impCtx?impCtx.day:document.getElementById("imp-day").value;
+  askConfirm("Cancel this import? The rows on screen and any saved draft for "+(ROUTE_NAME[rt]||"this route")+" ("+impDayName(day)+") will be discarded. The schedule in use is not touched.","Cancel import",()=>{
+    impCancel=true;                                       // stops a reading that is still running
+    const c=customPairs(),k="draft_"+impKeyFor(rt,day);
+    if(c[k]!==undefined){delete c[k];saveCustomPairs(c)}  // this also removes it from Firestore
+    impRows=[];impCtx=null;
+    document.getElementById("imp-results").innerHTML="";
+    const f=document.getElementById("imp-file");if(f)f.value="";
+    const pr=document.getElementById("imp-prog");if(pr)pr.style.display="none";
+    impStatus("Import cancelled.");
+    impDraftHint();
+  });
+}
+
+// SAVE: keeps the checked times as a draft. The app's schedule does not change.
+function impDraftSave(){
+  if(!impCtx){return}
+  const list=impFinal();
+  if(!list.length){impMsg("Nothing is checked.",true);return}
+  const c=customPairs();c["draft_"+impKeyFor(impCtx.route,impCtx.day)]=list;saveCustomPairs(c);
+  impMsg("Draft saved: "+list.length+" trains for "+ROUTE_NAME[impCtx.route]+" ("+impDayName(impCtx.day)+"). The schedule in the app has not changed yet.");
+  impDraftHint();
+}
+// OVERWRITE: after a question, the checked times replace the schedule in use (sample or old) everywhere.
+function impOverwrite(){
+  if(!impCtx){return}
+  const list=impFinal(),route=impCtx.route,day=impCtx.day;
+  if(!list.length){impMsg("Nothing is checked.",true);return}
+  const name=ROUTE_NAME[route]+" · "+impDayName(day);
+  askConfirm("Overwrite the current schedule for "+name+" with these "+list.length+" trains? The times in use now will be replaced.","Overwrite",()=>{
+    const key=impKeyFor(route,day),c=customPairs();
+    c[key]=list;delete c["draft_"+key];saveCustomPairs(c);
+    applyCustomPairs();                                   // built-in C3 routes
+    try{lnRegisterAll()}catch(e){}                        // lines: sample times out, these in
+    try{updateAdminBadges();renderAdminInfo();renderLive();if(showTrainSched)renderTrainSchedule()}catch(e){}
+    try{if(/^L-/.test(curTab))lnRenderLive(curTab.slice(2))}catch(e){}
+    impMsg("Done. "+name+" now uses these "+list.length+" trains everywhere in the app.");
+    impDraftHint();
+  });
+}
+
+// the reading is saved as a draft by itself, so nothing is lost. Set this to false to save only when you press SAVE.
+const IMP_AUTODRAFT=false;
+const _ibrX=impBuildRows;
+impBuildRows=function(route,day,seen,minSeen){
+  _ibrX(route,day,seen,minSeen);
+  if(!IMP_AUTODRAFT)return;
+  try{
+    const list=impFinal();
+    if(list.length){
+      const c=customPairs();c["draft_"+impKeyFor(route,day)]=list;saveCustomPairs(c);
+      impMsg("Draft saved automatically ("+list.length+" trains). Check the rows, then press OVERWRITE SCHEDULE to use them.");
+      impDraftHint();
+    }
+  }catch(e){}
+};
+
+// a saved draft can be opened again for the chosen route and day
+function impDraftHint(){
+  const box=document.getElementById("imp-draft"),sel=document.getElementById("imp-route"),dsel=document.getElementById("imp-day");
+  if(!box||!sel||!dsel)return;
+  const d=customPairs()["draft_"+impKeyFor(sel.value,dsel.value)];
+  box.innerHTML=Array.isArray(d)&&d.length
+    ?'<div class="live-note" style="margin:8px 0;font-size:12px">Saved draft for this route and day: <strong>'+d.length+' trains</strong> · <a href="#" onclick="impOpenDraft();return false" style="color:var(--brand);font-weight:700">Open it</a> · <a href="#" onclick="impDropDraft();return false" style="color:var(--brand)">Delete it</a></div>'
+    :"";
+}
+function impOpenDraft(){
+  const rt=document.getElementById("imp-route").value,day=document.getElementById("imp-day").value;
+  const d=customPairs()["draft_"+impKeyFor(rt,day)];if(!Array.isArray(d)||!d.length)return;
+  impRows=d.map(p=>({choices:[{dep:p[0],arr:p[1],n:0}],sel:0,include:true,isRef:false,flag:""}));
+  impCtx={route:rt,day};impRender();
+}
+function impDropDraft(){
+  const rt=document.getElementById("imp-route").value,day=document.getElementById("imp-day").value;
+  askConfirm("Delete the saved draft for this route and day?","Delete",()=>{
+    const c=customPairs();delete c["draft_"+impKeyFor(rt,day)];saveCustomPairs(c);impDraftHint();
+  });
+}
+const _ippX=impPickRoute;
+impPickRoute=function(){_ippX.apply(this,arguments);impDraftHint()};
+
+// drafts are not counted as saved routes
+function renderAdminInfo(){
+  const el=document.getElementById("adm-info");if(!el)return;
+  const c=customPairs(),n=Object.keys(c).filter(k=>!/^draft_/.test(k)).length;
+  const d=new Date(DATA_UPDATED+"T00:00:00"),bid=document.getElementById("build-id");
+  el.innerHTML="Built-in timetable data updated: <strong>"+d.toLocaleDateString([], {day:"numeric",month:"short",year:"numeric"})+"</strong><br>"
+    +"Custom timetables saved: <strong>"+(n?n+" route"+(n>1?"s":""):"none")+"</strong> (also kept in the cloud when signed in)<br>"
+    +"App build: <strong>"+(bid?bid.textContent:"")+"</strong>";
+}
+
+(function(){
+  const prog=document.getElementById("imp-prog");
+  if(prog&&!document.getElementById("imp-draft"))prog.insertAdjacentHTML("beforebegin",'<div id="imp-draft"></div>');
+  const day=document.getElementById("imp-day");if(day)day.addEventListener("change",impDraftHint);
+  impDraftHint();
+})();
+</script>
+<style>#ln-card{display:none!important}</style>
 </body>
 </html>
