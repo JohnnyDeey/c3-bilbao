@@ -3880,6 +3880,194 @@ lineMeetList=function(tr){
 try{ if(/^L-/.test(curTab))lnRenderLive(curTab.slice(2)); }catch(e){}
 </script>
 <style>
+/* ADMIN: tabs like the app tabs (full width, white text on the Renfe colour) */
+.plan-sheet>.plan-hdr{margin-bottom:0}
+.plan-sheet>.adm-tabs{position:sticky;top:var(--adm-top,52px);z-index:2;display:flex;gap:0;margin:0 -16px 16px;padding:0;background:var(--brand-dark)}
+.plan-sheet>.adm-tabs .adm-tab{flex:1;padding:10px 6px;border:none;border-radius:0;background:transparent;color:rgba(255,255,255,.6);font-size:12px;font-weight:600;letter-spacing:.06em;border-bottom:3px solid transparent}
+.plan-sheet>.adm-tabs .adm-tab.on{color:#fff;border-bottom-color:#fff;background:rgba(255,255,255,.1)}
+/* swipe between the tabs */
+@keyframes admInR{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes admInL{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+.adm-pane.adm-in-r{animation:admInR .22s ease}
+.adm-pane.adm-in-l{animation:admInL .22s ease}
+@media (prefers-reduced-motion:reduce){.adm-pane.adm-in-r,.adm-pane.adm-in-l{animation:none}}
+/* ANALYSIS: figures and charts */
+.an-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.an-tile{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card)}
+.an-tile b{display:block;font-size:26px;line-height:1.1;color:var(--brand)}
+.an-tile span{font-size:11px;color:var(--text-mid)}
+.an-sub{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--text-mid);margin:14px 0 6px;text-transform:uppercase}
+.an-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11px;color:var(--text-mid);margin:6px 0}
+.an-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.an-chart{width:100%;height:auto;display:block}
+.an-chart text{font-family:inherit;fill:var(--text-mid)}
+.an-ring{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.an-ring-t{font-size:13px;line-height:1.5;color:var(--text-mid)}
+.an-ring-t strong{color:var(--text)}
+.an-dv{display:grid;grid-template-columns:34% 1fr 46px;align-items:center;gap:6px;margin:5px 0;font-size:11px;color:var(--text-mid)}
+.an-dt{position:relative;height:12px;background:var(--brand-light);border-radius:3px}
+.an-dt .z{position:absolute;left:50%;width:2px;top:-2px;bottom:-2px;margin-left:-1px;background:rgba(0,0,0,.35)}
+.an-dt .b{position:absolute;top:0;bottom:0}
+.an-dvv{text-align:right;font-weight:700;color:var(--text)}
+.an-rt{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin:16px 0 2px;color:var(--text)}
+.an-rt i{width:12px;height:12px;border-radius:3px}
+.an-det{margin-top:12px;font-size:12px}
+.an-det summary{cursor:pointer;color:var(--brand);font-weight:700;font-size:11px;letter-spacing:.06em}
+</style>
+<script>
+// ADMIN: the tabs look like the app tabs, swipe left or right to change tab, and the ANALYSIS tab shows charts (tables are hidden under "Show table").
+// Paste this last in the file, after the other blocks.
+(function(){
+  const order=["ride","data","analysis","tools"];
+  const _admTabP=admTab;
+  admTab=function(n){
+    const was=order.find(k=>document.getElementById("adm-pane-"+k).classList.contains("on"));
+    _admTabP(n);
+    const p=document.getElementById("adm-pane-"+n),sheet=document.querySelector("#admin-ov .plan-sheet"),hdr=sheet&&sheet.querySelector(".plan-hdr");
+    if(hdr&&sheet)sheet.style.setProperty("--adm-top",hdr.offsetHeight+"px");
+    if(was&&was!==n&&p){
+      p.classList.remove("adm-in-l","adm-in-r");void p.offsetWidth;
+      p.classList.add(order.indexOf(n)>order.indexOf(was)?"adm-in-r":"adm-in-l");
+      if(sheet)sheet.scrollTop=0;
+    }
+  };
+  const ov=document.getElementById("admin-ov");if(!ov)return;
+  let x0=0,y0=0,t0=0,ok=false;
+  const scrollsSideways=el=>{for(;el&&el!==ov;el=el.parentElement){const o=getComputedStyle(el).overflowX;if((o==="auto"||o==="scroll")&&el.scrollWidth>el.clientWidth+2)return true}return false};
+  ov.addEventListener("touchstart",e=>{
+    const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();
+    ok=e.touches.length===1&&!(e.target.closest&&e.target.closest("input,select,textarea,.sched-table"))&&!scrollsSideways(e.target);
+  },{passive:true});
+  ov.addEventListener("touchend",e=>{
+    if(!ok)return;ok=false;
+    const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
+    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-t0>700)return;
+    const cur=order.findIndex(k=>document.getElementById("adm-pane-"+k).classList.contains("on")),nx=cur+(dx<0?1:-1);
+    if(cur<0||nx<0||nx>=order.length)return;
+    admTab(order[nx]);
+  },{passive:true});
+})();
+
+// ---- ANALYSIS ----
+const AN_EARLY="#1565C0",AN_LATE="#E65100",AN_ZERO="#8A8F98";
+function anTopBar(x,y,w,h,fill,tip){
+  if(!(h>0))return"";
+  const r=Math.min(4,w/2,h);
+  return`<path d="M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z" fill="${fill}"><title>${tip}</title></path>`;
+}
+function anCols(items,color){   // items: [{label,v,color?,tip?}]
+  const W=320,H=130,top=18,bot=22,n=items.length,max=Math.max(1,...items.map(i=>i.v));
+  const slot=(W-8)/n,bw=Math.min(34,slot*.62);
+  let s=`<svg class="an-chart" viewBox="0 0 ${W} ${H}" role="img"><line x1="4" x2="${W-4}" y1="${H-bot}" y2="${H-bot}" stroke="rgba(0,0,0,.18)"/>`;
+  items.forEach((it,k)=>{
+    const h=Math.round((H-top-bot)*it.v/max),x=4+slot*k+(slot-bw)/2,y=H-bot-h;
+    s+=anTopBar(x,y,bw,h,it.color||color,esc(it.tip||(it.label+": "+it.v)));
+    if(it.v>0)s+=`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="10" font-weight="700" style="fill:var(--text)">${it.v}</text>`;
+    s+=`<text x="${x+bw/2}" y="${H-7}" text-anchor="middle" font-size="9">${esc(it.label)}</text>`;
+  });
+  return s+"</svg>";
+}
+function anRing(pct,col){
+  const r=34,C=2*Math.PI*r,d=(pct/100*C).toFixed(1);
+  return`<svg width="92" height="92" viewBox="0 0 92 92" role="img" aria-label="${pct}% within 1 minute"><circle cx="46" cy="46" r="${r}" fill="none" stroke="var(--brand-light)" stroke-width="11"/><circle cx="46" cy="46" r="${r}" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${d} ${C.toFixed(1)}" transform="rotate(-90 46 46)"/><text x="46" y="51" text-anchor="middle" font-size="19" font-weight="800" style="fill:var(--text)">${pct}%</text></svg>`;
+}
+function anDiv(rows,max){   // rows: [{name,v,n}] diverging around zero, early (blue) left, late (orange) right
+  return rows.map(r=>{
+    if(r.v==null)return`<div class="an-dv"><span>${esc(r.name)}</span><div class="an-dt"><i class="z"></i></div><span class="an-dvv">–</span></div>`;
+    const w=Math.min(50,Math.abs(r.v)/max*50),neg=r.v<0;
+    return`<div class="an-dv" title="${esc(r.name)} · ${r.n} trips"><span>${esc(r.name)}</span><div class="an-dt"><i class="z"></i><i class="b" style="${neg?"right":"left"}:50%;width:${w.toFixed(1)}%;background:${neg?AN_EARLY:AN_LATE};border-radius:${neg?"3px 0 0 3px":"0 3px 3px 0"}"></i></div><span class="an-dvv">${fmtDelta(r.v)}</span></div>`;
+  }).join("");
+}
+function anPlain(rows,max,color,unit){
+  return rows.map(r=>r.v==null
+    ?`<div class="an-dv"><span>${esc(r.name)}</span><div class="an-dt"></div><span class="an-dvv">–</span></div>`
+    :`<div class="an-dv"><span>${esc(r.name)}</span><div class="an-dt"><i class="b" style="left:0;width:${Math.min(100,r.v/max*100).toFixed(1)}%;background:${color};border-radius:3px"></i></div><span class="an-dvv">${unit(r.v)}</span></div>`).join("");
+}
+function renderAnalysis(){
+  const set=(id,h)=>{const e=document.getElementById(id);if(e)e.innerHTML=h};
+  const note=t=>`<div class="live-note" style="margin:0 0 10px;font-size:12px;line-height:1.6">${t}</div>`;
+  const det=h=>`<details class="an-det"><summary>SHOW TABLE</summary>${h}</details>`;
+  const dayLbl=d=>/^\d{4}-\d\d-\d\d$/.test(d)?d.slice(8)+"/"+d.slice(5,7):d;
+  const trips=anMerged().filter(t=>t.status!=="cancelled");
+  const states=trips.map(t=>({t,sx:rideState(t)}));
+  // overview
+  const done=trips.filter(t=>t.status==="done").length,active=trips.length-done;
+  const dis=states.filter(o=>o.sx.disrupted).length;
+  const dayCount={};trips.forEach(t=>{dayCount[t.day]=(dayCount[t.day]||0)+1});
+  const days=Object.keys(dayCount).sort();
+  if(!trips.length){set("an-over",note("No trips logged yet."))}
+  else set("an-over",
+    `<div class="an-tiles"><div class="an-tile"><b>${trips.length}</b><span>trips${active?" · "+active+" in progress":""}</span></div>
+    <div class="an-tile"><b>${days.length}</b><span>day${days.length===1?"":"s"} of data</span></div>
+    <div class="an-tile"><b>${done}</b><span>finished</span></div>
+    <div class="an-tile"><b style="color:${dis?AN_LATE:"var(--brand)"}">${dis}</b><span>with an unscheduled stop</span></div></div>
+    <div class="an-sub">Trips per day</div>`
+    +anCols(days.slice(-14).map(d=>({label:dayLbl(d),v:dayCount[d],tip:d+": "+dayCount[d]+" trip"+(dayCount[d]===1?"":"s")})),"#850D70"));
+  // meeting accuracy
+  const rows=[];let mTrips=0;
+  states.forEach(o=>{
+    const ms=o.sx.meets.filter(m=>m.key);if(!ms.length)return;
+    mTrips++;
+    ms.forEach(m=>rows.push({day:o.t.day,label:m.label,place:m.place,pred:m.pred,delta:m.delta,bad:o.sx.disrupted}));
+  });
+  const good=rows.filter(r=>!r.bad).map(r=>r.delta),med=anMedian(good);
+  const within=good.length?Math.round(good.filter(d=>Math.abs(d)<=1).length/good.length*100):null;
+  if(med==null){
+    set("an-box",note(`${rows.length} meeting${rows.length===1?"":"s"} matched on ${mTrips} trip${mTrips===1?"":"s"}.<br>Press MET A TRAIN during a trip to collect data.`));
+  }else{
+    const bins={};for(let k=-4;k<=4;k++)bins[k]=0;
+    good.forEach(d=>{bins[Math.max(-4,Math.min(4,Math.round(d)))]++});
+    const lab=k=>k===0?"0":(k<0?"−":"+")+Math.abs(k)+(Math.abs(k)===4?"+":"");
+    const hist=[-4,-3,-2,-1,0,1,2,3,4].map(k=>({label:lab(k),v:bins[k],color:k<0?AN_EARLY:k>0?AN_LATE:AN_ZERO,tip:lab(k)+" min: "+bins[k]+" meeting"+(bins[k]===1?"":"s")}));
+    const early=good.filter(d=>d<-.5).length,late=good.filter(d=>d>.5).length;
+    set("an-box",
+      `<div class="an-ring">${anRing(within,"#850D70")}<div class="an-ring-t"><strong>${within}%</strong> of meetings landed within ±1 minute of the estimate<br>Typical difference <strong>${fmtDelta(med)} min</strong><br>${good.length} meetings · ${mTrips} trip${mTrips===1?"":"s"}</div></div>
+      <div class="an-sub">How far off the estimate was (minutes)</div>`
+      +anCols(hist,AN_ZERO)
+      +`<div class="an-leg"><span><i style="background:${AN_EARLY}"></i>earlier than the estimate (${early})</span><span><i style="background:${AN_ZERO}"></i>on the estimate</span><span><i style="background:${AN_LATE}"></i>later (${late})</span></div>`
+      +det(rows.slice(-30).reverse().map(r=>`<div class="rl-ev">${r.day} · ${esc(r.label)} · ${esc(r.place)} · est ${fmt(r.pred)} · <strong>${fmtDelta(r.delta)}</strong>${r.bad?" · trip with a stop":""}</div>`).join("")));
+  }
+  // stations
+  const agg={};
+  states.forEach(o=>{
+    if(o.sx.disrupted||o.t.trainDep==null)return;
+    const S=o.t.dayType==="weekday"?WD:WE,sch=(S[RIDE_KEY[o.t.type]]||[]).find(x=>x.dep===o.t.trainDep);if(!sch)return;
+    const A=agg[o.t.type]=agg[o.t.type]||{};let prevDep=null;
+    rideOrder(o.t).forEach(s=>{
+      const r=o.sx.st[s]||{},a=A[s]=A[s]||{d:[],dw:[],run:[]};
+      if(r.arr){a.d.push(rideDelta(r.arr.t,timeAt(sch,o.t.type,STATIONS[s].pos)));if(prevDep!=null)a.run.push((r.arr.t-prevDep)/60000);}
+      if(r.arr&&r.dep)a.dw.push((r.dep.t-r.arr.t)/1000);
+      prevDep=r.dep?r.dep.t:null;
+    });
+  });
+  const types=Object.keys(agg);
+  const block=t=>{
+    const A=agg[t],up=t==="OA"||t==="LA",ks=Object.keys(A).map(Number).sort((a,b)=>up?a-b:b-a);
+    const info=ks.map(s=>{const a=A[s];return{name:STATIONS[s].name,n:a.d.length,vd:anMedian(a.d),vw:anMedian(a.dw),vr:anMedian(a.run)}});
+    const mx=Math.max(1,...info.map(i=>i.vd==null?0:Math.abs(i.vd))),mw=Math.max(1,...info.map(i=>i.vw==null?0:i.vw));
+    const col=routeColor(t),label=(ROUTE_LIST.find(r=>r.type===t)||{}).label||t;
+    const table=`<div class="an-t"><div class="an-h"><span>STATION</span><span>N</span><span>VS EST</span><span>STAY</span><span>RUN</span></div>`
+      +info.map(i=>`<div class="an-r"><span>${esc(i.name)}</span><span>${i.n}</span><span>${i.vd==null?"–":fmtDelta(i.vd)}</span><span>${i.vw==null?"–":Math.round(i.vw)+" s"}</span><span>${i.vr==null?"–":i.vr.toFixed(1)+" m"}</span></div>`).join("")+`</div>`;
+    return`<div class="an-rt"><i style="background:${col}"></i>${esc(label)}</div>
+      <div class="an-sub">Arrival vs the estimate (min)</div>`+anDiv(info.map(i=>({name:i.name,v:i.vd,n:i.n})),mx)
+      +`<div class="an-sub">Time stopped (seconds)</div>`+anPlain(info.map(i=>({name:i.name,v:i.vw})),mw,col,v=>Math.round(v)+" s")
+      +det(table);
+  };
+  set("an-st",types.length
+    ?`<div class="an-leg"><span><i style="background:${AN_EARLY}"></i>earlier than the estimate</span><span><i style="background:${AN_LATE}"></i>later than the estimate</span></div>`+types.map(block).join("")
+    :note("Log a normal trip to see station figures."));
+  // unscheduled stops
+  const evs=[];states.forEach(o=>o.sx.ev.forEach(e=>evs.push({day:o.t.day,sched:o.t.sched,e})));
+  const dur=x=>x.e.end?(x.e.end-x.e.start)/60000:null,md=Math.max(1,...evs.map(x=>dur(x)||0));
+  set("an-ev",evs.length
+    ?`<div class="an-tiles"><div class="an-tile"><b style="color:${AN_LATE}">${evs.length}</b><span>stop${evs.length===1?"":"s"} recorded</span></div><div class="an-tile"><b style="color:${AN_LATE}">${(evs.reduce((s,x)=>s+(dur(x)||0),0)).toFixed(0)}</b><span>minutes stopped in total</span></div></div>`
+      +evs.map(x=>{const d=dur(x);return`<div class="an-dv" style="grid-template-columns:42% 1fr 52px" title="${esc(x.e.reason)}"><span>${esc(x.day)} · ${esc(x.sched)} · ${esc(x.e.reason)}${x.e.after!=null?" · after "+esc(STATIONS[x.e.after].name):""}</span><div class="an-dt"><i class="b" style="left:0;width:${d==null?100:Math.max(3,d/md*100).toFixed(1)}%;background:${AN_LATE};border-radius:3px"></i></div><span class="an-dvv">${d==null?"now":d.toFixed(1)+" m"}</span></div>`}).join("")
+    :note("No unscheduled stops recorded."));
+}
+try{ if(document.getElementById("adm-pane-analysis").classList.contains("on"))renderAnalysis(); }catch(e){}
+</script>
+
+<style>
 /* the dark mark at 37.6% belongs to Llodio on the C3 bars only. C1 and C2 do not have it. */
 [id^="panel-L-"] .live-row.rt .live-bar::after{display:none}
 </style>
