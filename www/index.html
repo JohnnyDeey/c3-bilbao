@@ -3866,6 +3866,23 @@ function edLoadSelected(){
   if(_lnrE)lnRender=function(){_lnrE();edFillRoutes()};
 })();
 </script>
+<script>
+// C1 and C2 are separate lines. A train meets only trains of its own line, so no dot points at a train that is not on the bar.
+// This is used by the C1 and C2 bars and by the ride log. Paste this last in the file, after the other blocks.
+const _lineMeetListOwn=lineMeetList;
+lineMeetList=function(tr){
+  const id=tr.line.id;
+  return _lineMeetListOwn(tr).filter(m=>{
+    const k=String(m.key).split("#")[1]||"";
+    return k.startsWith(id)&&/^[fb]-?\d/.test(k.slice(id.length));
+  });
+};
+try{ if(/^L-/.test(curTab))lnRenderLive(curTab.slice(2)); }catch(e){}
+</script>
+<style>
+/* the dark mark at 37.6% belongs to Llodio on the C3 bars only. C1 and C2 do not have it. */
+[id^="panel-L-"] .live-row.rt .live-bar::after{display:none}
+</style>
 <style>#ln-card{display:none!important}</style>
 </body>
 </html>
