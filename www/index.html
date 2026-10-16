@@ -820,7 +820,7 @@ const LINE_ENDS={OA:[0,1],AO:[1,0],LA:[P_LL,1],AL:[1,P_LL]};
 function physTrains(sc){
   const out=[],add=(list,type)=>list.forEach(tr=>out.push({type,dep:tr.dep,arr:tr.arr}));
   add(sc.ordunaToAbando,"OA");add(sc.abandoToOrduna,"AO");
-  add(sc.llodioToAbando.filter(l=>!sc.ordunaToAbando.some(o=>nearMin(timeAt(o,"OA",P_LL),l.dep,2))),"LA");
+  add(sc.llodioToAbando.filter(l=>!sc.ordunaToAbando.some(o=>(nearMin(timeAt(o,"OA",P_LL),l.dep,2)||nearMin(o.arr,l.arr,1)))),"LA");
   add(sc.abandoToLlodio.filter(a=>!sc.abandoToOrduna.some(o=>nearMin(o.dep,a.dep,1))),"AL");
   return out;
 }
@@ -855,7 +855,7 @@ function trainsInTransit(nowSec){
   });
   add(sc.ordunaToAbando,"OA","Orduña → Abando","Abando");
   add(sc.abandoToOrduna,"AO","Orduña ← Abando","Orduña");
-  add(sc.llodioToAbando.filter(l=>!sc.ordunaToAbando.some(o=>nearMin(timeAt(o,"OA",P_LL),l.dep,2))),"LA","Llodio → Abando","Abando");
+  add(sc.llodioToAbando.filter(l=>!sc.ordunaToAbando.some(o=>(nearMin(timeAt(o,"OA",P_LL),l.dep,2)||nearMin(o.arr,l.arr,1)))),"LA","Llodio → Abando","Abando");
   add(sc.abandoToLlodio.filter(a=>!sc.abandoToOrduna.some(o=>nearMin(o.dep,a.dep,1))),"AL","Llodio ← Abando","Llodio");
   };
   run(schedFor(0),nm0);
