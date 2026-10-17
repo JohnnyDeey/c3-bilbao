@@ -4066,6 +4066,206 @@ function renderAnalysis(){
 }
 try{ if(document.getElementById("adm-pane-analysis").classList.contains("on"))renderAnalysis(); }catch(e){}
 </script>
+<style>
+.rl-b.cd,.rl-b.wait{font-variant-numeric:tabular-nums}
+.rl-b.late{border-color:#E65100;color:#E65100}
+.rl-b.mute{color:var(--text-dim);border-color:var(--border)}
+.rl-b.one{min-width:174px}
+</style>
+<script>
+// RIDE LOG: each station has two buttons, and they read:
+//   left button  = countdown to the timetable arrival (turns orange and counts up when the train is late),
+//                  then, after you press it, the seconds the train has stood there (0 s, 1 s, 2 s ...),
+//                  and once the train has left it shows the time you arrived.
+//   right button = a dim mark until the train leaves, then the time it left.
+// The first station only has LEFT (the train starting), the last station only has ARRIVED.
+// FINGERPRINT: Tools has a card to open the admin with the fingerprint instead of the password.
+// Paste this last in the file, after the other blocks.
+function rideFmtDur(s){
+  s=Math.abs(Math.round(s));
+  const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+  return h?h+":"+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0"):m+":"+String(x).padStart(2,"0");
+}
+function rideTickOne(b){
+  if(b.dataset.cd){
+    let d=+b.dataset.cd-nowSecs();
+    d=((d+43200)%86400+86400)%86400-43200;
+    b.textContent=(d<0?"+":"")+rideFmtDur(d);
+    b.classList.toggle("late",d<0);
+  }else if(b.dataset.dw){
+    const s=Math.max(0,Math.floor((Date.now()-(+b.dataset.dw))/1000));
+    b.textContent=s<60?s+" s":rideFmtDur(s);
+  }
+}
+function rideEstMin(tr,s){
+  const S=tr.dayType==="weekday"?WD:WE;
+  if(tr.line){
+    const L=tr.line,sch=(S[lineRid(L.id,L.dir)]||[]).find(x=>x.dep===tr.trainDep);
+    return sch?lineSegTimes(L.fr,L.dir,sch.dep,sch.arr-sch.dep)[s]:null;
+  }
+  const sch=(S[RIDE_KEY[tr.type]]||[]).find(x=>tr.trainDep!=null?x.dep===tr.trainDep:fmt(x.dep)===tr.sched);
+  return sch?timeAt(sch,tr.type,STATIONS[s].pos):null;
+}
+function rideEnhance(){
+  const box=document.getElementById("rl-box"),tr=activeTrip();
+  if(!box||!tr)return;
+  const head=box.querySelector(".rl-head");if(!head)return;
+  const sx=rideState(tr),order=rideOrder(tr),last=order[order.length-1],all=rideAll();
+  const fin=s=>{const r=sx.st[s]||{};return!!(r.dep||r.skip||(s===last&&r.arr))};
+  let first=order.findIndex(s=>!fin(s));if(first<0)first=order.length;
+  const start=Math.max(0,Math.min(first,order.length-3)),shown=all?order:order.slice(start,start+3);
+  const rows=[];
+  for(let el=head.nextElementSibling;el&&el.classList.contains("rl-row");el=el.nextElementSibling)rows.push(el);
+  shown.forEach((s,k)=>{
+    const row=rows[k],r=sx.st[s]||{};
+    if(!row||r.skip)return;
+    const bs=row.querySelectorAll("button.rl-b");if(bs.length<2)return;
+    const A=bs[0],D=bs[1],est=rideEstMin(tr,s),isFirst=s===order[0],isLast=s===last;
+    const pend=b=>{
+      if(est==null){b.textContent="–";b.classList.add("mute");return}
+      b.dataset.cd=String(Math.round(est*60));b.classList.add("cd");rideTickOne(b);
+    };
+    if(isFirst&&!isLast){A.remove();D.classList.add("one")}
+    if(isLast&&!isFirst){D.remove();A.classList.add("one")}
+    if(!isFirst&&!r.arr)pend(A);
+    else if(!isFirst&&r.arr&&!r.dep&&!isLast){A.dataset.dw=String(r.arr.t);A.classList.add("wait");rideTickOne(A)}
+    if(!isLast&&!r.dep){
+      if(isFirst)pend(D);
+      else{D.textContent="›";D.classList.add("mute")}
+    }
+  });
+}
+const _renderRideCD=renderRide;
+renderRide=function(){const out=_renderRideCD.apply(this,arguments);try{rideEnhance()}catch(e){}return out};
+setInterval(()=>{if(document.hidden)return;document.querySelectorAll("#rl-box [data-cd],#rl-box [data-dw]").forEach(rideTickOne)},1000);
+try{renderRide()}catch(e){}
+
+// ---- FINGERPRINT (the admin gate) ----
+const FP_KEY="c3_fp";
+function fpInfo(){try{return JSON.parse(localStorage.getItem(FP_KEY)||"null")}catch(e){return null}}
+const fpB64=buf=>btoa(String.fromCharCode.apply(null,new Uint8Array(buf)));
+const fpUn=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function fpAvailable(){
+  try{return!!(window.PublicKeyCredential&&navigator.credentials&&window.isSecureContext&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}
+}
+async function fpCheck(){
+  const info=fpInfo();if(!info)return false;
+  try{
+    const c=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),timeout:60000,userVerification:"required",
+      allowCredentials:[{type:"public-key",id:fpUn(info.id),transports:["internal"]}]}});
+    return!!c;
+  }catch(e){return false}
+}
+async function fpUnlock(){
+  if(!fpInfo())return;
+  if(await fpCheck()){closeGate();openAdmin()}
+  else gateErr("Fingerprint not recognised. Use the password.",true);
+}
+async function fpEnable(){
+  const msg=document.getElementById("fp-msg");
+  const say=(t,err)=>{if(msg){msg.textContent=t;msg.className="plan-msg"+(err?" err":"")}};
+  if(!await fpAvailable()){say("This phone or app window cannot read a fingerprint here.",true);return}
+  try{
+    const c=await navigator.credentials.create({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      rp:{name:"C3 Bilbao"},
+      user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"admin",displayName:"Admin"},
+      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},
+      timeout:60000,attestation:"none"}});
+    localStorage.setItem(FP_KEY,JSON.stringify({id:fpB64(c.rawId),created:Date.now()}));
+    say("Fingerprint is on for this phone.");
+  }catch(e){say("Fingerprint was not set up ("+((e&&e.name)||"cancelled")+").",true)}
+  fpRender();
+}
+function fpDisable(){
+  askConfirm("Turn the fingerprint off on this phone? You will use the password again.","Turn off",()=>{
+    try{localStorage.removeItem(FP_KEY)}catch(e){}
+    fpRender();
+  });
+}
+async function fpRender(){
+  const st=document.getElementById("fp-state"),b1=document.getElementById("fp-on"),b2=document.getElementById("fp-off");if(!st)return;
+  const on=!!fpInfo(),ok=await fpAvailable();
+  st.textContent=on?"ON for this phone. The gate asks for your fingerprint first; the password still works.":ok?"OFF. Turn it on once and the gate will ask for your fingerprint instead of the password.":"Not available here. This phone or app window cannot read a fingerprint.";
+  b1.style.display=!on&&ok?"block":"none";
+  b2.style.display=on?"block":"none";
+}
+(function(){
+  const tools=document.getElementById("adm-pane-tools");
+  if(tools&&!document.getElementById("fp-card")){
+    tools.insertAdjacentHTML("beforeend",`<div class="card" id="fp-card"><div class="card-title">FINGERPRINT</div>
+      <div class="live-note" style="margin:0 0 10px;font-size:12px;line-height:1.6" id="fp-state"></div>
+      <button class="admin-save-btn" id="fp-on" style="display:none" onclick="fpEnable()">TURN ON FINGERPRINT</button>
+      <button class="chk-btn" id="fp-off" style="display:none;width:100%;justify-content:center" onclick="fpDisable()">Turn off fingerprint</button>
+      <div class="plan-msg" id="fp-msg"></div></div>`);
+  }
+  const row=document.querySelector("#gate-box .gate-row");
+  if(row&&!document.getElementById("gate-fp"))row.insertAdjacentHTML("beforebegin",'<button class="chk-btn" id="gate-fp" type="button" style="display:none;width:100%;justify-content:center;margin:0 0 10px" onclick="fpUnlock()">Use fingerprint</button>');
+  fpRender();
+})();
+const _openGateFP=openGate;
+openGate=function(){
+  _openGateFP();
+  const b=document.getElementById("gate-fp");
+  const on=!!fpInfo()&&gateMode==="unlock";
+  if(b)b.style.display=on?"flex":"none";
+  if(on)setTimeout(fpUnlock,200);
+};
+const _admTabFP=admTab;
+admTab=function(n){_admTabFP(n);if(n==="tools")fpRender()};
+</script>
+<script>
+// RIDE LOG: the trains we expect to meet also show a countdown on their MET button (and count up in orange when we are late).
+// The "Another train" row (not in the timetable) stays as it is. Paste this last in the file, after the ride-countdown block.
+function rideEnhanceMet(){
+  const box=document.getElementById("rl-box"),tr=activeTrip();
+  if(!box||!tr)return;
+  let list=[];
+  try{list=tr.line?lineMeetList(tr):rideMeetList(tr)}catch(e){return}
+  const est={};list.forEach(m=>{est[m.key]=m.t});
+  box.querySelectorAll('button.rl-b[onclick^="rideMeetTap"]').forEach(b=>{
+    const k=(/rideMeetTap\('([^']*)'\)/.exec(b.getAttribute("onclick"))||[])[1];
+    if(k==null||est[k]==null)return;
+    b.dataset.cd=String(Math.round(est[k]*60));b.classList.add("cd");rideTickOne(b);
+  });
+}
+const _renderRideMet=renderRide;
+renderRide=function(){const out=_renderRideMet.apply(this,arguments);try{rideEnhanceMet()}catch(e){}return out};
+try{renderRide()}catch(e){}
+</script>
+<script>
+// ADMIN GATE: on a device where the fingerprint is turned on, nothing shows after the 5 taps except the fingerprint prompt (no box, no text, no password).
+// On a device where it is not turned on (for example the website on another phone or computer), the password box shows as before.
+// Paste this last in the file, after the ride-countdown block.
+let fpBusy=false;
+async function fpQuiet(){
+  if(fpBusy)return;
+  fpBusy=true;
+  try{if(await fpCheck()){closeGate();openAdmin()}}finally{fpBusy=false}
+}
+const _openGateFO=openGate;
+openGate=function(){
+  if(fpInfo()){                                   // fingerprint is on: no box at all, only the fingerprint prompt
+    if(document.getElementById("admin-ov").classList.contains("on"))return;
+    fpQuiet();
+    return;
+  }
+  _openGateFO();                                  // not on: the password box as before
+  const pw=document.getElementById("gate-pw"),open=document.querySelector("#gate-box .gate-row .primary"),fp=document.getElementById("gate-fp");
+  if(pw)pw.style.display="";
+  if(open)open.style.display="";
+  if(fp)fp.style.display="none";
+};
+async function fpRender(){
+  const st=document.getElementById("fp-state"),b1=document.getElementById("fp-on"),b2=document.getElementById("fp-off");if(!st)return;
+  const on=!!fpInfo(),ok=await fpAvailable();
+  st.textContent=on?"ON for this phone. The admin opens with your fingerprint only. A device where it is off still asks for the password.":ok?"OFF. Turn it on once and this phone will open the admin with your fingerprint, with no password.":"Not available here. This phone or app window cannot read a fingerprint.";
+  b1.style.display=!on&&ok?"block":"none";
+  b2.style.display=on?"block":"none";
+}
+try{fpRender()}catch(e){}
+</script>
 
 <style>
 /* the dark mark at 37.6% belongs to Llodio on the C3 bars only. C1 and C2 do not have it. */
