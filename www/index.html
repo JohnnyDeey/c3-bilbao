@@ -4266,7 +4266,30 @@ async function fpRender(){
 }
 try{fpRender()}catch(e){}
 </script>
-
+<script>
+  (function(){
+  // ← / → switch tabs: the admin tabs when the admin panel is open, otherwise the main app tabs.
+  function visible(el){return !!(el&&(el.offsetWidth||el.offsetHeight))}
+  function isActive(el){return /(^|\s)(on|active|sel|selected)(\s|$)/.test(el.className)||el.getAttribute("aria-selected")==="true"}
+  document.addEventListener("keydown",function(e){
+    if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;
+    if(e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
+    const t=e.target,tag=t&&t.tagName;
+    if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT"||(t&&t.isContentEditable))return;   // keep arrow keys for typing
+    const adm=document.querySelector(".adm-tabs"),app=document.querySelector(".app-tabs");
+    const bar=visible(adm)?adm:visible(app)?app:null;
+    if(!bar)return;
+    const tabs=[...bar.children].filter(visible);
+    if(tabs.length<2)return;
+    let i=tabs.findIndex(isActive);if(i<0)i=0;
+    const next=e.key==="ArrowRight"?i+1:i-1;
+    if(next<0||next>=tabs.length)return;                       // stop at the ends (use ((next+n)%n) to wrap)
+    e.preventDefault();
+    tabs[next].click();
+    tabs[next].scrollIntoView({block:"nearest",inline:"nearest"});
+  });
+})();
+</script>
 <style>
 /* the dark mark at 37.6% belongs to Llodio on the C3 bars only. C1 and C2 do not have it. */
 [id^="panel-L-"] .live-row.rt .live-bar::after{display:none}
