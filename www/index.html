@@ -2246,15 +2246,32 @@ function cloudPush(){
   });
   cloudStatus();
 }
+const CL_SERVER="c3-bilbao-cloud";
+async function cloudSaved(){
+  const nb=typeof fpNative==="function"?fpNative():null;
+  if(!nb)return false;
+  try{const r=await nb.isCredentialsSaved({server:CL_SERVER});return!!(r&&r.isSaved)}catch(e){return false}
+}
 async function cloudSignIn(){
-  const e=document.getElementById("cl-email").value.trim(),p=document.getElementById("cl-pw").value;
-  if(!e||!p){cloudMsg("Enter the email and password.",true);return}
+  const nb=typeof fpNative==="function"?fpNative():null;
+  let e=document.getElementById("cl-email").value.trim(),p=document.getElementById("cl-pw").value;
+  const typed=!!(e&&p);
+  // Saved login on this phone: the fingerprint replaces typing the email and password
+  if(!typed&&await cloudSaved()){
+    try{
+      await nb.verifyIdentity({title:"Sign in to cloud",subtitle:"Confirm your fingerprint",useFallback:false});
+      const c=await nb.getCredentials({server:CL_SERVER});e=c.username;p=c.password;
+    }catch(x){cloudMsg("Fingerprint not recognised.",true);return}
+  }
+  if(!e||!p){cloudMsg("Enter the email and password once. After that the fingerprint signs you in.",true);return}
   cloudMsg("Signing in…");
   try{
     const f=await cloudLoad();
     await f.Au.signInWithEmailAndPassword(f.auth,e,p);
     document.getElementById("cl-pw").value="";
     try{localStorage.setItem("c3_cloud_on","1")}catch(x){}
+    if(typed&&nb){try{await nb.setCredentials({username:e,password:p,server:CL_SERVER})}catch(x){}}   // remember it, encrypted by the phone
+    cloudFields();
   }catch(err){
     const c=err&&err.code||"";
     cloudMsg(c==="auth/invalid-credential"||c==="auth/wrong-password"||c==="auth/user-not-found"?"Wrong email or password."
@@ -2263,11 +2280,17 @@ async function cloudSignIn(){
       :"Could not sign in: "+(c||err.message),true);
   }
 }
+// With a saved login the email and password boxes are not needed
+async function cloudFields(){
+  const saved=await cloudSaved();
+  ["cl-email","cl-pw"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=saved?"none":""});
+}
 async function cloudSignOut(){
   try{if(fb)await fb.Au.signOut(fb.auth);}catch(e){}
   try{localStorage.removeItem("c3_cloud_on")}catch(e){}
 }
 function cloudAuto(){   // restore the sign-in when the admin panel opens
+  cloudFields();   // <-- NEW LINE
   if(localStorage.getItem("c3_cloud_on")==="1"){cloudAvatarCached();
     try{const m=localStorage.getItem("c3_cloud_last");if(m)cloudMsg(m)}catch(e){}      // show the last known status at once
     cloudLoad().catch(()=>cloudMsg("Cloud not reachable. Trips stay on this phone and sync later.",true));
@@ -4145,11 +4168,25 @@ const FP_KEY="c3_fp";
 function fpInfo(){try{return JSON.parse(localStorage.getItem(FP_KEY)||"null")}catch(e){return null}}
 const fpB64=buf=>btoa(String.fromCharCode.apply(null,new Uint8Array(buf)));
 const fpUn=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+// Inside the Android app the fingerprint goes through the native plugin; in a normal browser it uses WebAuthn.
+function fpNative(){
+  try{
+    if(!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()))return null;
+    return Capacitor.Plugins.NativeBiometric||Capacitor.registerPlugin("NativeBiometric");
+  }catch(e){return null}
+}
 async function fpAvailable(){
+  const nb=fpNative();
+  if(nb){try{const r=await nb.isAvailable({useFallback:false});return!!(r&&r.isAvailable)}catch(e){return false}}
   try{return!!(window.PublicKeyCredential&&navigator.credentials&&window.isSecureContext&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}
 }
 async function fpCheck(){
   const info=fpInfo();if(!info)return false;
+  const nb=fpNative();
+  if(nb){
+    try{await nb.verifyIdentity({title:"C3 Bilbao admin",subtitle:"Confirm your fingerprint",useFallback:false});return true}
+    catch(e){return false}
+  }
   try{
     const c=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),timeout:60000,userVerification:"required",
       allowCredentials:[{type:"public-key",id:fpUn(info.id),transports:["internal"]}]}});
@@ -4166,16 +4203,22 @@ async function fpEnable(){
   const say=(t,err)=>{if(msg){msg.textContent=t;msg.className="plan-msg"+(err?" err":"")}};
   if(!await fpAvailable()){say("This phone or app window cannot read a fingerprint here.",true);return}
   try{
-    const c=await navigator.credentials.create({publicKey:{
-      challenge:crypto.getRandomValues(new Uint8Array(32)),
-      rp:{name:"C3 Bilbao"},
-      user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"admin",displayName:"Admin"},
-      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
-      authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},
-      timeout:60000,attestation:"none"}});
-    localStorage.setItem(FP_KEY,JSON.stringify({id:fpB64(c.rawId),created:Date.now()}));
+    const nb=fpNative();
+    if(nb){
+      await nb.verifyIdentity({title:"Turn on fingerprint",subtitle:"Touch the sensor to confirm",useFallback:false});
+      localStorage.setItem(FP_KEY,JSON.stringify({native:true,created:Date.now()}));
+    }else{
+      const c=await navigator.credentials.create({publicKey:{
+        challenge:crypto.getRandomValues(new Uint8Array(32)),
+        rp:{name:"C3 Bilbao"},
+        user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"admin",displayName:"Admin"},
+        pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
+        authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},
+        timeout:60000,attestation:"none"}});
+      localStorage.setItem(FP_KEY,JSON.stringify({id:fpB64(c.rawId),created:Date.now()}));
+    }
     say("Fingerprint is on for this phone.");
-  }catch(e){say("Fingerprint was not set up ("+((e&&e.name)||"cancelled")+").",true)}
+  }catch(e){say("Fingerprint was not set up ("+((e&&(e.name||e.message))||"cancelled")+").",true)}
   fpRender();
 }
 function fpDisable(){
