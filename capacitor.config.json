@@ -2,14 +2,6 @@
   "appId": "es.c3bilbao.live",
   "appName": "C3 Bilbao",
   "webDir": "www",
-  "server": {
-    "url": "https://johnnydeey.github.io/c3-bilbao/",
-    "cleartext": false,
-    "allowNavigation": [
-      "johnnydeey.github.io"
-    ],
-    "errorPath": "offline.html"
-  },
   "android": {
     "backgroundColor": "#850D70",
     "adjustMarginsForEdgeToEdge": "auto"
