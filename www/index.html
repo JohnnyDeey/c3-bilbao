@@ -1653,7 +1653,7 @@ async function hashPw(salt,pw,iter){
   const txt=salt+":"+pw;let h=5381;for(let i=0;i<txt.length;i++)h=((h<<5)+h+txt.charCodeAt(i))>>>0;
   return"s"+h.toString(16);
 }
-const ADMIN_FIXED={"salt":"x7Kq-change-this-to-your-own-random-text","it":250000,"hash":"af32bad9927ff7e88a95ec02aa8df9212390654732cae85a0ef3a888928667a4"};
+const ADMIN_FIXED={"salt":"qgzjricc4somwasqa5b","it":250000,"hash":"1ed98899b69fe0b2b3b5f1f66928f9a067a4102c8aadf07df1347e68e28bfd05"};
 function adminRec(){return ADMIN_FIXED}
 function lockInfo(){try{return JSON.parse(localStorage.getItem(ADMIN_LOCK_KEY)||"{}")}catch(e){return{}}}
 function newSalt(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
